@@ -88,10 +88,13 @@ main {
   content: "";
   border-radius: 60px;
   background:
-    radial-gradient(circle at 16% 18%, rgba(244, 251, 255, 0.74), transparent 12rem),
-    radial-gradient(circle at 86% 16%, rgba(110, 231, 255, 0.42), transparent 16rem),
-    linear-gradient(160deg, rgba(217, 244, 255, 0.92) 0%, rgba(0, 134, 201, 0.34) 44%, rgba(1, 35, 58, 0.5) 100%);
-  box-shadow: inset 0 -90px 160px rgba(1, 35, 58, 0.28);
+    radial-gradient(circle at 16% 18%, rgba(110, 231, 255, 0.48), transparent 12rem),
+    radial-gradient(circle at 86% 16%, rgba(0, 184, 232, 0.38), transparent 16rem),
+    radial-gradient(circle at 52% 95%, rgba(0, 13, 28, 0.78), transparent 24rem),
+    linear-gradient(160deg, #0b6f9b 0%, #004f7a 42%, #001527 100%);
+  box-shadow:
+    inset 0 -120px 180px rgba(0, 13, 28, 0.56),
+    0 30px 120px rgba(0, 59, 96, 0.28);
 }
 
 .top-nav {
@@ -187,9 +190,11 @@ main {
 .hero-copy h1 {
   max-width: 760px;
   margin: 16px 0;
+  color: var(--cream);
   font-size: clamp(3.4rem, 8vw, 7rem);
   line-height: 0.9;
   letter-spacing: -0.085em;
+  text-shadow: 0 22px 70px rgba(0, 13, 28, 0.36);
 }
 
 .hero-copy p,
@@ -207,6 +212,7 @@ main {
 .hero-copy > p {
   max-width: 640px;
   margin-bottom: 28px;
+  color: rgba(244, 251, 255, 0.82);
   font-size: 1.18rem;
 }
 
