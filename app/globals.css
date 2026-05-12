@@ -101,7 +101,10 @@ main {
 .handle,
 .primary-button,
 .secondary-button,
-.ghost-button {
+.ghost-button,
+.access-trigger,
+.notification-button,
+.upload-cta {
   display: inline-flex;
   align-items: center;
 }
@@ -145,6 +148,106 @@ main {
 .nav-links a:hover {
   color: var(--ink);
   background: rgba(255, 255, 255, 0.78);
+}
+
+.access-menu {
+  position: relative;
+  margin-left: auto;
+}
+
+.access-trigger {
+  gap: 8px;
+  padding: 11px 18px;
+  color: var(--cream);
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  font-weight: 900;
+}
+
+.access-trigger svg {
+  transition: transform 180ms ease;
+}
+
+.access-trigger[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.access-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  width: min(88vw, 380px);
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--stroke);
+  border-radius: 28px;
+  background: rgba(255, 250, 241, 0.94);
+  box-shadow: 0 24px 70px rgba(48, 30, 16, 0.18);
+  backdrop-filter: blur(22px);
+}
+
+.access-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.access-links a {
+  padding: 11px 12px;
+  color: var(--muted);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.62);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.access-links a:hover {
+  color: var(--ink);
+  background: #fff;
+}
+
+.access-panel {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(21, 18, 15, 0.9);
+  color: var(--cream);
+}
+
+.access-panel .eyebrow,
+.access-panel label,
+.access-feedback {
+  color: rgba(255, 250, 241, 0.72);
+}
+
+.access-panel label {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.access-panel select {
+  width: 100%;
+  padding: 11px 12px;
+  color: var(--ink);
+  border: 0;
+  border-radius: 14px;
+  background: var(--cream);
+  font-weight: 800;
+}
+
+.access-submit {
+  justify-content: center;
+  color: var(--ink);
+  background: var(--gold);
+}
+
+.access-feedback {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 .ghost-button,
@@ -312,6 +415,32 @@ main {
   padding: 28px 8px 16px;
   color: var(--muted);
   font-size: 0.92rem;
+}
+
+.notification-button {
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--muted);
+  border: 1px solid rgba(21, 18, 15, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.notification-button[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--gold);
+}
+
+.phone-alert {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  color: #5e3515;
+  border: 1px solid rgba(245, 182, 109, 0.36);
+  border-radius: 18px;
+  background: rgba(245, 182, 109, 0.22);
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 .creator-card {
@@ -500,6 +629,11 @@ p {
   background: var(--gold);
 }
 
+.mini-player button[aria-pressed="true"] {
+  color: var(--cream);
+  background: var(--green);
+}
+
 .spin {
   color: var(--gold);
   animation: spin 12s linear infinite;
@@ -596,6 +730,10 @@ p {
 .api-card code {
   overflow-wrap: anywhere;
   font-size: 0.82rem;
+}
+
+.api-card:hover {
+  background: rgba(21, 18, 15, 0.96);
 }
 
 .account-grid {
@@ -727,6 +865,16 @@ p {
   background: rgba(255, 255, 255, 0.12);
 }
 
+.gift-row button:hover {
+  background: rgba(245, 182, 109, 0.28);
+}
+
+.gift-total {
+  margin: 14px 0 0;
+  color: rgba(255, 250, 241, 0.72);
+  font-size: 0.9rem;
+}
+
 .social-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -851,6 +999,7 @@ p {
 }
 
 .upload-dropzone {
+  position: relative;
   display: grid;
   min-height: 280px;
   place-items: center;
@@ -860,7 +1009,36 @@ p {
   background:
     linear-gradient(135deg, rgba(245, 182, 109, 0.2), transparent),
     rgba(255, 255, 255, 0.58);
+  cursor: pointer;
   text-align: center;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.upload-dropzone.is-dragging,
+.upload-dropzone:hover {
+  border-color: var(--clay);
+  background:
+    linear-gradient(135deg, rgba(245, 182, 109, 0.32), transparent),
+    rgba(255, 255, 255, 0.76);
+  transform: translateY(-2px);
+}
+
+.upload-dropzone.has-files {
+  border-style: solid;
+  border-color: rgba(15, 123, 98, 0.38);
+}
+
+.upload-dropzone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .upload-dropzone svg {
@@ -872,9 +1050,42 @@ p {
   font-size: 1.3rem;
 }
 
+.upload-cta {
+  justify-content: center;
+  padding: 9px 13px;
+  color: var(--cream);
+  border-radius: 999px;
+  background: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
 .checklist {
   display: grid;
   gap: 12px;
+}
+
+.upload-summary {
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(15, 123, 98, 0.1);
+}
+
+.upload-summary strong {
+  color: var(--green);
+}
+
+.upload-summary ul {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 10px 0 0;
+  list-style: none;
+}
+
+.upload-summary li {
+  color: #3d574f;
+  font-size: 0.88rem;
 }
 
 .checklist div {
@@ -944,8 +1155,17 @@ p {
     border-radius: 26px;
   }
 
-  .ghost-button {
-    display: none;
+  .access-trigger {
+    padding: 10px 13px;
+  }
+
+  .access-dropdown {
+    right: -12px;
+    width: min(92vw, 360px);
+  }
+
+  .access-links {
+    grid-template-columns: 1fr;
   }
 
   .hero-grid {
