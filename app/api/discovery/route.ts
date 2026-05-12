@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDiscoveryFeed } from "@/lib/discovery";
+import { getDiscoveryFeed, matchesLocation } from "@/lib/discovery";
 import type { AccountType } from "@/lib/data";
 
 const accountTypes = ["artist", "streamer", "creator"] satisfies AccountType[];
@@ -13,15 +13,16 @@ export async function GET(request: Request) {
   const requestedTypes = searchParams
     .getAll("type")
     .filter((type): type is AccountType => accountTypes.includes(type as AccountType));
+  const feed = getDiscoveryFeed({
+    location,
+    genres,
+    interests,
+    accountTypes: requestedTypes.length ? requestedTypes : undefined
+  });
 
   return NextResponse.json({
     generatedAt: new Date().toISOString(),
     priorities: ["local creators", "niche interests", "genre affinity", "live moments"],
-    feed: getDiscoveryFeed({
-      location,
-      genres,
-      interests,
-      accountTypes: requestedTypes.length ? requestedTypes : undefined
-    })
+    feed: location ? feed.filter((creator) => matchesLocation(creator, location)) : feed
   });
 }

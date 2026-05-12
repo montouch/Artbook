@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Artists", href: "/artists" },
@@ -5,25 +7,25 @@ const navItems = [
   { label: "Community", href: "/community" },
   { label: "Marketplace", href: "/marketplace" },
   { label: "Upload", href: "/upload" }
-];
+] as const;
 
 export function SiteNav() {
   return (
     <nav className="top-nav" aria-label="Main navigation">
-      <a className="brand" href="/" aria-label="Artbook home">
+      <Link className="brand" href="/" aria-label="Artbook home">
         <span className="brand-mark">A</span>
         <span>Artbook</span>
-      </a>
+      </Link>
       <div className="nav-links">
         {navItems.map((item) => (
-          <a key={item.href} href={item.href}>
+          <Link key={item.href} href={item.href}>
             {item.label}
-          </a>
+          </Link>
         ))}
       </div>
-      <a className="ghost-button" href="/upload">
+      <Link className="ghost-button" href="/upload">
         Join beta
-      </a>
+      </Link>
     </nav>
   );
 }
