@@ -67,5 +67,5 @@ export function getDiscoveryFeed(
 ) {
   return creators
     .map((creator) => scoreCreator(creator, preferences))
-    .sort((a, b) => b.matchScore - a.matchScore);
+    .sort((a, b) => b.matchScore - a.matchScore || a.id.localeCompare(b.id));
 }
