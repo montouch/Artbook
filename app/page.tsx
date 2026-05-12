@@ -31,9 +31,8 @@ import {
   discoverySignals,
   products,
   streams,
-  type Creator
 } from "@/lib/data";
-import { getDiscoveryFeed } from "@/lib/discovery";
+import { getDiscoveryFeed, type DiscoveryResult } from "@/lib/discovery";
 
 const feed = getDiscoveryFeed();
 
@@ -79,13 +78,19 @@ const formatFollowers = (followers: number) => {
   return followers.toString();
 };
 
-const creatorStyle = (creator: Creator) =>
+const creatorStyle = (creator: DiscoveryResult) =>
   ({
     "--accent": creator.accent,
     "--soft-accent": creator.softAccent
   }) as CSSProperties;
 
-function CreatorCard({ creator, featured = false }: { creator: Creator; featured?: boolean }) {
+function CreatorCard({
+  creator,
+  featured = false
+}: {
+  creator: DiscoveryResult;
+  featured?: boolean;
+}) {
   return (
     <article
       className={`creator-card ${featured ? "creator-card-featured" : ""}`}
