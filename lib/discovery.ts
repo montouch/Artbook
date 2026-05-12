@@ -1,9 +1,10 @@
-import { creators, type Creator } from "./data";
+import { creators, type Creator, type Mood } from "./data";
 
 export type DiscoveryPreferences = {
   location?: string;
   genres?: string[];
   interests?: string[];
+  feelings?: string[];
 };
 
 export type DiscoveryResult = Creator & {
@@ -13,6 +14,62 @@ export type DiscoveryResult = Creator & {
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
+const feelingIntents: Array<{
+  mood: Mood;
+  labels: string[];
+  keywords: string[];
+}> = [
+  {
+    mood: "calm",
+    labels: ["calm", "chill", "peaceful", "focus", "deep"],
+    keywords: ["kora", "late-night", "soft", "rainy", "palmwine"]
+  },
+  {
+    mood: "hype",
+    labels: ["hype", "party", "energy", "dance", "excited"],
+    keywords: ["dance", "battle", "fan", "cypher", "reaction"]
+  },
+  {
+    mood: "soulful",
+    labels: ["soulful", "healing", "romantic", "warm", "emotional"],
+    keywords: ["choir", "harmonies", "love", "rhodes", "vocal"]
+  },
+  {
+    mood: "experimental",
+    labels: ["experimental", "weird", "visual", "future", "art"],
+    keywords: ["visual", "vj", "motion", "poster", "remix"]
+  }
+];
+
+const creatorSearchText = (creator: Creator) =>
+  normalize(
+    [
+      creator.name,
+      creator.handle,
+      creator.city,
+      creator.country,
+      creator.mood,
+      creator.latestWork,
+      creator.story,
+      ...creator.genres,
+      ...creator.niches
+    ].join(" ")
+  );
+
+const matchFeelingIntents = (creator: Creator, feelings: string[]) => {
+  const searchText = creatorSearchText(creator);
+
+  return feelingIntents.filter((intent) => {
+    const labelMatch = feelings.some((feeling) =>
+      intent.labels.some((label) => feeling.includes(label) || label.includes(feeling))
+    );
+    const keywordMatch = feelings.some((feeling) => searchText.includes(feeling));
+    const intentTextMatch = intent.keywords.some((keyword) => searchText.includes(keyword));
+
+    return (labelMatch && creator.mood === intent.mood) || (keywordMatch && intentTextMatch);
+  });
+};
+
 export function scoreCreator(
   creator: Creator,
   preferences: DiscoveryPreferences = {}
@@ -20,6 +77,7 @@ export function scoreCreator(
   const location = preferences.location ? normalize(preferences.location) : "";
   const genres = new Set((preferences.genres ?? []).map(normalize));
   const interests = new Set((preferences.interests ?? []).map(normalize));
+  const feelings = (preferences.feelings ?? []).map(normalize).filter(Boolean);
   const reasons: string[] = [];
 
   let score = creator.discoveryLift;
@@ -39,6 +97,12 @@ export function scoreCreator(
   if (matchedNiches.length > 0) {
     score += matchedNiches.length * 20;
     reasons.push("niche interest match");
+  }
+
+  const matchedFeelings = matchFeelingIntents(creator, feelings);
+  if (matchedFeelings.length > 0) {
+    score += matchedFeelings.length * 18;
+    reasons.push(`AI feeling: ${matchedFeelings.map((intent) => intent.mood).join(", ")}`);
   }
 
   if (creator.live) {
@@ -62,7 +126,8 @@ export function getDiscoveryFeed(
   preferences: DiscoveryPreferences = {
     location: "Accra",
     genres: ["Alté", "Afrosoul", "Amapiano"],
-    interests: ["kora textures", "producer breakdowns"]
+    interests: ["kora textures", "producer breakdowns"],
+    feelings: ["calm focus"]
   }
 ) {
   return creators

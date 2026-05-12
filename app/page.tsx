@@ -29,6 +29,8 @@ import {
 import {
   conversations,
   discoverySignals,
+  feelingSearchPrompts,
+  mediaVerificationRules,
   products,
   streams,
 } from "@/lib/data";
@@ -41,6 +43,8 @@ const accountTypes = [
     title: "Artist",
     description:
       "Release audio and video, build albums, sell merch, verify ownership, and unlock paid fan content.",
+    bestFor:
+      "For musicians and visual creators who own original work and want release, rights, store, and fan-club tools.",
     icon: Music2,
     features: ["Music uploads", "Albums and playlists", "Premium drops", "Profile design studio"]
   },
@@ -48,15 +52,19 @@ const accountTypes = [
     title: "Streamer",
     description:
       "Go live, schedule paid rooms, receive gifts in real time, and save stream archives for fans.",
+    bestFor:
+      "For hosts who lead live shows, watch rooms, beat sessions, interviews, or paid fan broadcasts.",
     icon: Radio,
     features: ["Live chat", "Gift wallet", "Exclusive streams", "Fan communities"]
   },
   {
     title: "Fan",
     description:
-      "Follow creators, discover local sounds, build playlists, post status updates, DM, and join groups.",
+      "Follow creators, go live, post audio or video, build playlists, start groups, and grow your own fans.",
+    bestFor:
+      "For supporters, curators, reactors, and community starters. Fan audio posts do not need verification before publishing.",
     icon: Headphones,
-    features: ["Discovery feed", "Friends and DMs", "Groups", "Premium access"]
+    features: ["Live streaming", "Audio posts", "Video posts", "Start groups"]
   }
 ];
 
@@ -170,12 +178,12 @@ export default function Home() {
           <div className="hero-copy">
             <div className="hero-kicker">
               <Sparkles size={18} />
-              African-first discovery for music, video, streams, and culture.
+              African-first discovery diving through music, video, streams, and culture.
             </div>
-            <h1>Find the next sound before the world catches up.</h1>
+            <h1>Go deep into the ocean of local sound.</h1>
             <p>
               Artbook is a social media, streaming, and marketplace platform shaped for local
-              creators, niche fan communities, and adaptive artist expression.
+              creators, fan broadcasters, niche communities, and adaptive artist expression.
             </p>
             <div className="hero-actions">
               <a className="primary-button" href="#artists">
@@ -189,8 +197,8 @@ export default function Home() {
             </div>
             <div className="signal-strip" aria-label="Platform stats">
               <div>
-                <strong>3</strong>
-                <span>account modes</span>
+                <strong>AI</strong>
+                <span>feeling search</span>
               </div>
               <div>
                 <strong>160</strong>
@@ -229,7 +237,8 @@ export default function Home() {
           <h2>Local first, niche aware, popularity second.</h2>
           <p>
             The feed demonstrates a scoring model that boosts nearby creators, exact genre
-            affinity, niche interests, live moments, and verified original ownership.
+            affinity, niche interests, feeling-based AI intent, live moments, and verified original
+            ownership.
           </p>
         </div>
         <div className="discovery-layout">
@@ -251,9 +260,26 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            <div className="feeling-search-card">
+              <strong>
+                <Sparkles size={16} />
+                AI search by feeling
+              </strong>
+              <p>Try a mood prompt and let the feed map it to matching creators and fan rooms.</p>
+              <div className="feeling-chip-row">
+                {feelingSearchPrompts.map((prompt) => (
+                  <a
+                    key={prompt}
+                    href={`/api/discovery?feeling=${encodeURIComponent(prompt)}`}
+                  >
+                    {prompt}
+                  </a>
+                ))}
+              </div>
+            </div>
             <div className="api-card">
               <span>API preview</span>
-              <code>/api/discovery?location=Accra&amp;genre=Alté</code>
+              <code>/api/discovery?location=Accra&amp;genre=Alté&amp;feeling=calm%20focus</code>
             </div>
           </aside>
         </div>
@@ -265,11 +291,27 @@ export default function Home() {
           <h2>Creator tools, live rooms, and fan identity in one product.</h2>
         </div>
         <div className="account-grid">
-          {accountTypes.map(({ title, description, icon: Icon, features }) => (
-            <article className="account-card" key={title}>
+          {accountTypes.map(({ title, description, bestFor, icon: Icon, features }) => (
+            <article
+              className="account-card profile-option"
+              key={title}
+              tabIndex={0}
+              aria-describedby={`profile-${title.toLowerCase()}-explainer`}
+            >
               <Icon size={28} />
               <h3>{title}</h3>
               <p>{description}</p>
+              <button className="profile-help" type="button">
+                Who it is for
+              </button>
+              <div
+                className="profile-explainer"
+                id={`profile-${title.toLowerCase()}-explainer`}
+                role="note"
+              >
+                <strong>{title} profile</strong>
+                <span>{bestFor}</span>
+              </div>
               <div className="feature-list">
                 {features.map((feature) => (
                   <span key={feature}>{feature}</span>
@@ -285,8 +327,8 @@ export default function Home() {
           <p className="eyebrow">Streaming hub</p>
           <h2>Live now, scheduled next, archived forever.</h2>
           <p>
-            Streamers can open free or paid rooms, receive real-time gifts, save replays, and keep
-            fan groups active after the stream ends.
+            Artists, streamers, and fans can open free or paid rooms, receive real-time gifts, save
+            replays, and keep fan groups active after the stream ends.
           </p>
           <div className="stream-stack">
             {streams.map((stream) => (
@@ -309,7 +351,7 @@ export default function Home() {
         <div className="live-console">
           <div className="console-video">
             <Video size={42} />
-            <span>LiveKit/WebRTC ready zone</span>
+            <span>Fan and creator livestream ready zone</span>
           </div>
           <div className="chat-bubble left">Drop the chorus again!</div>
           <div className="chat-bubble right">Gift sent: 50 cowries</div>
@@ -327,7 +369,7 @@ export default function Home() {
           <h2>Messages and groups</h2>
           <p>
             Fans can DM creators, add friends, and join community rooms attached to artists,
-            playlists, and live shows.
+            playlists, live shows, and fan-led broadcasts.
           </p>
           <div className="conversation-list">
             {conversations.map((conversation) => (
@@ -346,7 +388,7 @@ export default function Home() {
           <Users size={28} />
           <h2>Status and fan spaces</h2>
           <p>
-            Lightweight stories, listening rooms, local crews, and premium fan circles keep social
+            Lightweight stories, listening rooms, local crews, and fan-started groups keep social
             discovery fluid without burying users in heavy menus.
           </p>
           <div className="status-card">
@@ -406,23 +448,29 @@ export default function Home() {
           <h2>Media intake with ownership protection built into the flow.</h2>
           <p>
             The MVP models upload readiness for MP3, WAV, and MP4 files with genre, niche, location,
-            premium access, and verification checkpoints.
+            premium access, fan publishing, and verification checkpoints.
           </p>
         </div>
         <div className="upload-board">
           <div className="upload-dropzone">
             <UploadCloud size={38} />
             <strong>Drop audio or video</strong>
-            <span>MP3, WAV, and MP4 up to your storage limit</span>
+            <span>Fans can post MP3, WAV, and MP4; audio publishes without verification</span>
           </div>
           <div className="checklist">
+            {mediaVerificationRules.map((rule) => (
+              <div key={rule}>
+                <CheckCircle2 />
+                <span>{rule}</span>
+              </div>
+            ))}
             <div>
               <ShieldCheck />
               <span>Metadata fingerprint queued</span>
             </div>
             <div>
               <BadgeCheck />
-              <span>Original ownership attestation required</span>
+              <span>Ownership attestation applies to monetized video and paid drops</span>
             </div>
             <div>
               <Palette />

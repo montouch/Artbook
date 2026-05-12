@@ -7,10 +7,25 @@ export async function GET(request: Request) {
   const location = searchParams.get("location") ?? undefined;
   const genres = searchParams.getAll("genre");
   const interests = searchParams.getAll("interest");
+  const feelings = [
+    ...searchParams.getAll("feeling"),
+    ...searchParams.getAll("mood")
+  ];
 
   return NextResponse.json({
     generatedAt: new Date().toISOString(),
-    priorities: ["local creators", "niche interests", "genre affinity", "live moments"],
-    feed: getDiscoveryFeed({ location, genres, interests })
+    priorities: [
+      "local creators",
+      "niche interests",
+      "genre affinity",
+      "AI feeling search",
+      "live moments"
+    ],
+    aiFeelingSearch: {
+      enabled: true,
+      queryParams: ["feeling", "mood"],
+      examples: ["calm focus", "hype party", "soulful healing", "experimental visuals"]
+    },
+    feed: getDiscoveryFeed({ location, genres, interests, feelings })
   });
 }

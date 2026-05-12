@@ -5,7 +5,7 @@ export type Creator = {
   id: string;
   name: string;
   handle: string;
-  accountType: Exclude<AccountType, "fan">;
+  accountType: AccountType;
   city: string;
   country: string;
   genres: string[];
@@ -129,6 +129,27 @@ export const creators: Creator[] = [
     latestWork: "Soweto Signal Room",
     story:
       "Pairs Amapiano sets with real-time 3D visuals and fan-directed poster remixes."
+  },
+  {
+    id: "nia-fanlab",
+    name: "Nia Fanlab",
+    handle: "@niafanlab",
+    accountType: "fan",
+    city: "Accra",
+    country: "Ghana",
+    genres: ["Curated Audio", "Fan Video"],
+    niches: ["reaction rooms", "voice-note reviews", "group watch parties"],
+    mood: "hype",
+    followers: 6100,
+    discoveryLift: 76,
+    verified: false,
+    live: true,
+    premium: false,
+    accent: "#0086c9",
+    softAccent: "#d8f3ff",
+    latestWork: "Friday Fan Finds Live",
+    story:
+      "Runs fan-hosted listening rooms, posts video reactions, and shares audio notes without ownership verification."
   }
 ];
 
@@ -216,6 +237,19 @@ export const conversations: Conversation[] = [
 export const discoverySignals = [
   "Local creators receive a baseline boost before global popularity is considered.",
   "Niche tags like kora textures or producer breakdowns help small creators reach the right fans.",
-  "Mood, genre, and recent fan behavior tune the feed color and content rhythm.",
+  "AI feeling search translates moods like calm, hype, soulful, or experimental into matching creators.",
   "Ownership verification and metadata checks are highlighted before monetized uploads go live."
+];
+
+export const mediaVerificationRules = [
+  "Audio posts can go live without verification for fans, artists, and streamers.",
+  "Video posts, paid drops, and monetized live rooms keep ownership checks available before earnings unlock.",
+  "Fan profiles can host livestreams, publish audio or video, start groups, and build their own followers."
+];
+
+export const feelingSearchPrompts = [
+  "calm focus",
+  "hype party",
+  "soulful healing",
+  "experimental visuals"
 ];
