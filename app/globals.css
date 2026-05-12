@@ -752,6 +752,10 @@ p {
   top: 100px;
 }
 
+.ai-coach-panel ul {
+  margin-top: 18px;
+}
+
 .split-section {
   align-items: center;
 }
