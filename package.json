@@ -1,0 +1,23 @@
+{
+  "name": "artbook-platform",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:server dev:web",
+    "dev:server": "npm --workspace server run dev",
+    "dev:web": "npm --workspace web run dev",
+    "build": "npm-run-all build:server build:web",
+    "build:server": "npm --workspace server run build",
+    "build:web": "npm --workspace web run build",
+    "lint": "npm-run-all lint:server lint:web",
+    "lint:server": "npm --workspace server run lint",
+    "lint:web": "npm --workspace web run lint"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
