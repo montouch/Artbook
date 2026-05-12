@@ -237,6 +237,8 @@ main {
 .signal-strip div,
 .account-card,
 .algorithm-panel,
+.ai-coach-panel,
+.insight-card,
 .social-card,
 .money-panel,
 .upload-board,
@@ -393,6 +395,9 @@ p {
 
 .creator-title-row h3,
 .account-card h3,
+.ai-coach-panel h3,
+.insight-card h3,
+.insight-stack-heading h3,
 .stream-card h3,
 .product-card h3,
 .money-panel h3,
@@ -542,6 +547,7 @@ p {
 }
 
 .algorithm-panel,
+.ai-coach-panel,
 .social-card,
 .money-panel,
 .upload-board,
@@ -563,6 +569,7 @@ p {
 }
 
 .algorithm-panel ul,
+.ai-coach-panel ul,
 .money-panel ul {
   display: grid;
   gap: 14px;
@@ -571,14 +578,16 @@ p {
   list-style: none;
 }
 
-.algorithm-panel li {
+.algorithm-panel li,
+.ai-coach-panel li {
   display: flex;
   gap: 10px;
   color: #4e453e;
   line-height: 1.55;
 }
 
-.algorithm-panel li svg {
+.algorithm-panel li svg,
+.ai-coach-panel li svg {
   flex: 0 0 auto;
   color: var(--green);
 }
@@ -613,6 +622,143 @@ p {
 
 .feature-list {
   margin-top: 18px;
+}
+
+.insights-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) 340px;
+  gap: 18px;
+  align-items: start;
+}
+
+.insight-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.insight-stack-heading {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 20px;
+  border: 1px solid var(--stroke);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.insight-stack-heading svg,
+.insight-card-header svg {
+  flex: 0 0 auto;
+  color: var(--clay);
+}
+
+.insight-stack-heading p,
+.ai-coach-panel p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.insight-card {
+  padding: 20px;
+  background:
+    linear-gradient(145deg, var(--soft-accent), rgba(255, 255, 255, 0.84) 56%),
+    var(--card);
+}
+
+.insight-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.insight-card-header span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.metric-card {
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.metric-card span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--accent);
+  font-size: 1.35rem;
+  letter-spacing: -0.05em;
+}
+
+.metric-card em {
+  color: var(--green);
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.metric-card p {
+  margin: 10px 0 0;
+  color: #5a5048;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.coach-note {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--accent) 10%, #ffffff);
+}
+
+.coach-note svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+.coach-note p {
+  margin: 4px 0 8px;
+  color: #4f443c;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.coach-note span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.ai-coach-panel {
+  position: sticky;
+  top: 100px;
+}
+
+.ai-coach-panel ul {
+  margin-top: 18px;
+  margin-bottom: 64px;
+}
+
+.ai-coach-panel .api-card {
+  margin-top: 0;
 }
 
 .split-section {
@@ -913,9 +1059,14 @@ p {
 
   .hero-grid,
   .discovery-layout,
+  .insights-layout,
   .split-section,
   .upload-section {
     grid-template-columns: 1fr;
+  }
+
+  .ai-coach-panel {
+    position: static;
   }
 
   .phone-frame {
@@ -957,7 +1108,8 @@ p {
   }
 
   .signal-strip,
-  .creator-grid {
+  .creator-grid,
+  .metric-grid {
     grid-template-columns: 1fr;
   }
 
