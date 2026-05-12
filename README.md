@@ -1,6 +1,6 @@
 # Artbook
 
-Artbook is a modern creator-discovery MVP for local and niche artists, streamers, and fans. This
+Artbook is a modern creator-discovery MVP for local and niche artists, streamers, and creators. This
 first build focuses on the product surface and modular architecture needed to grow into the full
 platform: discovery scoring, creator profiles, streaming hub concepts, social messaging, upload
 readiness, and marketplace monetization.
@@ -9,10 +9,10 @@ readiness, and marketplace monetization.
 
 - Next.js app router project with TypeScript.
 - African-first, iOS-inspired responsive interface.
-- Three account system: Artist, Streamer, and Fan.
-- Discovery feed scored by location, genre, niche interests, live status, and ownership verification.
+- Three account system: Artist, Streamer, and Creator.
+- Artist search by location, backed by discovery scores for genre, niche interests, live status, and ownership verification.
 - `/api/discovery` endpoint for experimenting with recommendation inputs.
-- Streaming hub, DM/group previews, marketplace, and upload dashboard sections.
+- Multi-page streaming hub, DM/group previews, marketplace, and upload dashboard surfaces.
 
 ## Run locally
 
