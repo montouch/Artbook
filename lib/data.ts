@@ -22,6 +22,21 @@ export type Creator = {
   story: string;
 };
 
+export type CreatorMetric = {
+  key: string;
+  label: string;
+  value: string;
+  trend: string;
+  detail: string;
+};
+
+export type CreatorAnalytics = {
+  creatorId: string;
+  window: string;
+  metrics: CreatorMetric[];
+  learningSignals: string[];
+};
+
 export type Stream = {
   id: string;
   title: string;
@@ -132,6 +147,121 @@ export const creators: Creator[] = [
   }
 ];
 
+export const creatorAnalytics: CreatorAnalytics[] = [
+  {
+    creatorId: "zuri-kora",
+    window: "Last 30 days",
+    metrics: [
+      {
+        key: "catalog-saves",
+        label: "Catalog saves",
+        value: "12.8%",
+        trend: "+3.2%",
+        detail: "Listeners are saving acoustic tracks faster than the cohort average."
+      },
+      {
+        key: "store-conversion",
+        label: "Store conversion",
+        value: "3.4%",
+        trend: "+0.8%",
+        detail: "Kente waveform tee views are turning into purchases after listening rooms."
+      },
+      {
+        key: "premium-unlocks",
+        label: "Premium unlocks",
+        value: "420",
+        trend: "+64",
+        detail: "Supporters are unlocking stems and subscriber-only room replays."
+      }
+    ],
+    learningSignals: ["save velocity", "store path", "premium unlock"]
+  },
+  {
+    creatorId: "musa-lagos",
+    window: "Last 7 streams",
+    metrics: [
+      {
+        key: "watch-time",
+        label: "Avg watch time",
+        value: "42m",
+        trend: "+6m",
+        detail: "Producer breakdowns hold viewers longer than open freestyle segments."
+      },
+      {
+        key: "gift-velocity",
+        label: "Gift velocity",
+        value: "286/hr",
+        trend: "+18%",
+        detail: "Gift spikes cluster around fan hook challenges and chorus replays."
+      },
+      {
+        key: "chat-participation",
+        label: "Chat participation",
+        value: "68%",
+        trend: "+9%",
+        detail: "Viewers respond most when voice-note prompts appear before the beat switch."
+      }
+    ],
+    learningSignals: ["watch time", "gift timing", "chat prompts"]
+  },
+  {
+    creatorId: "ama-nile",
+    window: "Last 30 days",
+    metrics: [
+      {
+        key: "repeat-listens",
+        label: "Repeat listens",
+        value: "61%",
+        trend: "+7%",
+        detail: "Rainy playlist placements are bringing fans back to the same tracks."
+      },
+      {
+        key: "profile-to-follow",
+        label: "Profile to follow",
+        value: "18.2%",
+        trend: "+2.1%",
+        detail: "Choir harmony clips are converting discovery visits into follows."
+      },
+      {
+        key: "store-conversion",
+        label: "Store conversion",
+        value: "2.7%",
+        trend: "+0.4%",
+        detail: "Stem previews are viewed often, but checkout needs clearer placement."
+      }
+    ],
+    learningSignals: ["repeat listens", "profile visits", "checkout path"]
+  },
+  {
+    creatorId: "thabo-visuals",
+    window: "Last 7 streams",
+    metrics: [
+      {
+        key: "watch-time",
+        label: "Avg watch time",
+        value: "36m",
+        trend: "+4m",
+        detail: "Live VJ sets retain viewers when poster remixes start in the first ten minutes."
+      },
+      {
+        key: "replay-saves",
+        label: "Replay saves",
+        value: "1.9k",
+        trend: "+22%",
+        detail: "Motion poster drops are being saved after the live room ends."
+      },
+      {
+        key: "gift-velocity",
+        label: "Gift velocity",
+        value: "174/hr",
+        trend: "+11%",
+        detail: "Gift momentum rises when fans vote on the next visual palette."
+      }
+    ],
+    learningSignals: ["replay saves", "poll timing", "gift momentum"]
+  }
+];
+
 export const streams: Stream[] = [
   {
     id: "mainland-midnight",
@@ -217,5 +347,6 @@ export const discoverySignals = [
   "Local creators receive a baseline boost before global popularity is considered.",
   "Niche tags like kora textures or producer breakdowns help small creators reach the right fans.",
   "Mood, genre, and recent fan behavior tune the feed color and content rhythm.",
-  "Ownership verification and metadata checks are highlighted before monetized uploads go live."
+  "Ownership verification and metadata checks are highlighted before monetized uploads go live.",
+  "Creator insight weights learn from saves, follows, gifts, store paths, and replay behavior."
 ];

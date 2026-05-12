@@ -1,7 +1,9 @@
 import type { CSSProperties } from "react";
 import {
   BadgeCheck,
+  BarChart3,
   Bell,
+  BrainCircuit,
   CalendarClock,
   Camera,
   CheckCircle2,
@@ -22,6 +24,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  TrendingUp,
   UploadCloud,
   Users,
   Video
@@ -33,8 +36,12 @@ import {
   streams,
 } from "@/lib/data";
 import { getDiscoveryFeed, type DiscoveryResult } from "@/lib/discovery";
+import { getCreatorIntelligence, aiLearningLoop, type CreatorIntelligence } from "@/lib/insights";
 
 const feed = getDiscoveryFeed();
+const intelligence = getCreatorIntelligence();
+const artistInsights = intelligence.filter((insight) => insight.accountType === "artist");
+const streamerInsights = intelligence.filter((insight) => insight.accountType === "streamer");
 
 const accountTypes = [
   {
@@ -63,6 +70,7 @@ const accountTypes = [
 const navItems = [
   "Feed",
   "Artists",
+  "Insights",
   "Streams",
   "Messages",
   "Groups",
@@ -78,7 +86,7 @@ const formatFollowers = (followers: number) => {
   return followers.toString();
 };
 
-const creatorStyle = (creator: DiscoveryResult) =>
+const creatorStyle = (creator: Pick<DiscoveryResult, "accent" | "softAccent">) =>
   ({
     "--accent": creator.accent,
     "--soft-accent": creator.softAccent
@@ -137,6 +145,44 @@ function CreatorCard({
           {creator.reasons.map((reason) => (
             <span key={reason}>{reason}</span>
           ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function InsightCard({ insight }: { insight: CreatorIntelligence }) {
+  return (
+    <article className="insight-card" style={creatorStyle(insight)}>
+      <div className="insight-card-header">
+        <div>
+          <p className="eyebrow">{insight.accountType}</p>
+          <h3>{insight.creatorName}</h3>
+          <span>
+            {insight.city}, {insight.country} · {insight.window}
+          </span>
+        </div>
+        <BarChart3 aria-hidden="true" />
+      </div>
+      <div className="metric-grid">
+        {insight.metrics.map((metric) => (
+          <div className="metric-card" key={metric.key}>
+            <span>{metric.label}</span>
+            <strong>{metric.value}</strong>
+            <em>{metric.trend}</em>
+            <p>{metric.detail}</p>
+          </div>
+        ))}
+      </div>
+      <div className="coach-note">
+        <TrendingUp size={18} />
+        <div>
+          <strong>{insight.aiSuggestion.title}</strong>
+          <p>{insight.aiSuggestion.recommendation}</p>
+          <span>
+            Learning from {insight.aiSuggestion.dataUsed.join(", ")} ·{" "}
+            {insight.aiSuggestion.confidence} confidence
+          </span>
         </div>
       </div>
     </article>
@@ -277,6 +323,65 @@ export default function Home() {
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="section insights-section" id="insights">
+        <div className="section-heading">
+          <p className="eyebrow">Creator intelligence</p>
+          <h2>Relevant stats for artists and streamers.</h2>
+          <p>
+            Built-in AI studies internal engagement, revenue, and replay signals to suggest gentle
+            creator improvements without hiding the data behind the recommendation.
+          </p>
+        </div>
+        <div className="insights-layout">
+          <div className="insight-stack">
+            <div className="insight-stack-heading">
+              <Music2 />
+              <div>
+                <h3>Artist statistics</h3>
+                <p>Catalog saves, store conversion, premium unlocks, and repeat listens.</p>
+              </div>
+            </div>
+            {artistInsights.map((insight) => (
+              <InsightCard insight={insight} key={insight.creatorId} />
+            ))}
+          </div>
+          <div className="insight-stack">
+            <div className="insight-stack-heading">
+              <Radio />
+              <div>
+                <h3>Streamer statistics</h3>
+                <p>Watch time, gift velocity, chat participation, and replay saves.</p>
+              </div>
+            </div>
+            {streamerInsights.map((insight) => (
+              <InsightCard insight={insight} key={insight.creatorId} />
+            ))}
+          </div>
+          <aside className="ai-coach-panel">
+            <div className="panel-icon">
+              <BrainCircuit />
+            </div>
+            <h3>Adaptive AI coach</h3>
+            <p>
+              The coach learns from platform-owned activity and teaches creators through small,
+              explainable prompts that can improve the next release or live room.
+            </p>
+            <ul>
+              {aiLearningLoop.map((step) => (
+                <li key={step}>
+                  <CheckCircle2 size={18} />
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="api-card">
+              <span>API preview</span>
+              <code>/api/insights?accountType=artist</code>
+            </div>
+          </aside>
         </div>
       </section>
 
