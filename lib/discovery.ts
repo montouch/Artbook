@@ -67,5 +67,13 @@ export function getDiscoveryFeed(
 ) {
   return creators
     .map((creator) => scoreCreator(creator, preferences))
-    .sort((a, b) => b.matchScore - a.matchScore);
+    .sort((a, b) => {
+      const scoreDelta = b.matchScore - a.matchScore;
+      if (scoreDelta !== 0) {
+        return scoreDelta;
+      }
+
+      // Keep tied scores deterministic across runtimes and test environments.
+      return a.id.localeCompare(b.id);
+    });
 }
