@@ -64,8 +64,8 @@ export const creators: Creator[] = [
     discoveryLift: 94,
     verified: true,
     premium: true,
-    accent: "#f5b66d",
-    softAccent: "#fff0dc",
+    accent: "#60a5fa",
+    softAccent: "#1e3a5f",
     latestWork: "Palmwine Echoes EP",
     story:
       "Blends live kora phrases with warm vocal stacks and field recordings from Osu."
@@ -85,8 +85,8 @@ export const creators: Creator[] = [
     verified: true,
     live: true,
     premium: true,
-    accent: "#ff5d3a",
-    softAccent: "#ffe3dc",
+    accent: "#f97316",
+    softAccent: "#2a1a0a",
     latestWork: "Mainland Midnight Live",
     story:
       "Hosts nightly beat-making streams and turns fan voice notes into hooks on air."
@@ -104,8 +104,8 @@ export const creators: Creator[] = [
     followers: 9300,
     discoveryLift: 91,
     verified: false,
-    accent: "#7d5fff",
-    softAccent: "#ece7ff",
+    accent: "#a78bfa",
+    softAccent: "#1e1638",
     latestWork: "Blue Matoke Sessions",
     story:
       "Writes slow-burn love songs with church choir arrangements and Rhodes-led loops."
@@ -124,8 +124,8 @@ export const creators: Creator[] = [
     discoveryLift: 83,
     verified: true,
     live: true,
-    accent: "#00a884",
-    softAccent: "#d9fff5",
+    accent: "#34d399",
+    softAccent: "#0a2a1e",
     latestWork: "Soweto Signal Room",
     story:
       "Pairs Amapiano sets with real-time 3D visuals and fan-directed poster remixes."
