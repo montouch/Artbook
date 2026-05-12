@@ -1,0 +1,283 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  bio           String?
+  location      String?
+  accountType   String    @default("FAN") // ARTIST, STREAMER, FAN
+  verified      Boolean   @default(false)
+  isPremium     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Profile customization
+  profileFont   String?
+  profileColor  String?   @default("#6366f1")
+  profileLayout String?   @default("default")
+  coverImage    String?
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  content       Content[]
+  albums        Album[]
+  playlists     Playlist[]
+  streams       Stream[]
+  products      Product[]
+  sentMessages  Message[]    @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  comments      Comment[]
+  likes         Like[]
+  followers     Follow[]     @relation("Following")
+  following     Follow[]     @relation("Followers")
+  statusPosts   StatusPost[]
+  groupMembers  GroupMember[]
+  ownedGroups   Group[]
+  subscriptions Subscription[] @relation("Subscriber")
+  subscribers   Subscription[] @relation("SubscribedTo")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Content {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  type        String    // AUDIO, VIDEO
+  url         String
+  thumbnailUrl String?
+  duration    Int?
+  genre       String?
+  niche       String?
+  mood        String?   // calm, hype, chill, dark, uplifting
+  isPremium   Boolean   @default(false)
+  plays       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  artistId    String
+  artist      User      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  albumId     String?
+  album       Album?    @relation(fields: [albumId], references: [id])
+
+  comments    Comment[]
+  likes       Like[]
+  playlistItems PlaylistItem[]
+}
+
+model Album {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  genre       String?
+  releaseDate DateTime?
+  createdAt   DateTime  @default(now())
+
+  artistId    String
+  artist      User      @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tracks      Content[]
+}
+
+model Playlist {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  isPublic    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       PlaylistItem[]
+}
+
+model PlaylistItem {
+  id          String   @id @default(cuid())
+  position    Int
+  addedAt     DateTime @default(now())
+
+  playlistId  String
+  playlist    Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  contentId   String
+  content     Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+}
+
+model Stream {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  thumbnailUrl String?
+  isLive      Boolean   @default(false)
+  isPremium   Boolean   @default(false)
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  viewerCount Int       @default(0)
+  recordingUrl String?
+  createdAt   DateTime  @default(now())
+
+  streamerId  String
+  streamer    User      @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  chatMessages ChatMessage[]
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  content   String
+  isGift    Boolean  @default(false)
+  giftValue Float?
+  createdAt DateTime @default(now())
+
+  streamId  String
+  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  price       Float
+  image       String?
+  type        String   // MERCH, DIGITAL
+  inStock     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  senderId   String
+  sender     User    @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User    @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentId String
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentId String
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  followerId  String
+  follower    User     @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
+
+model StatusPost {
+  id        String   @id @default(cuid())
+  text      String?
+  imageUrl  String?
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+  isPrivate   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  role     String   @default("MEMBER") // ADMIN, MODERATOR, MEMBER
+  joinedAt DateTime @default(now())
+
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId  String
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  tier      String   @default("BASIC") // BASIC, PREMIUM
+  price     Float
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  subscriberId  String
+  subscriber    User   @relation("Subscriber", fields: [subscriberId], references: [id], onDelete: Cascade)
+  subscribedToId String
+  subscribedTo  User   @relation("SubscribedTo", fields: [subscribedToId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, subscribedToId])
+}
