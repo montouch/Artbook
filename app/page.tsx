@@ -1,16 +1,11 @@
-import type { CSSProperties } from "react";
 import {
   BadgeCheck,
-  Bell,
   CalendarClock,
   Camera,
-  CheckCircle2,
   CircleDollarSign,
   Disc3,
   Headphones,
   HeartHandshake,
-  MapPin,
-  MessageCircle,
   Mic2,
   Music2,
   Package,
@@ -19,20 +14,16 @@ import {
   Radio,
   Search,
   Send,
-  ShieldCheck,
-  ShoppingBag,
   Sparkles,
   UploadCloud,
   Users,
   Video
 } from "lucide-react";
-import {
-  conversations,
-  discoverySignals,
-  products,
-  streams,
-} from "@/lib/data";
-import { getDiscoveryFeed, type DiscoveryResult } from "@/lib/discovery";
+import { CreatorCard } from "@/app/components/CreatorCard";
+import { ProductCard } from "@/app/components/ProductCard";
+import { SiteNav } from "@/app/components/SiteNav";
+import { conversations, products, streams } from "@/lib/data";
+import { getDiscoveryFeed } from "@/lib/discovery";
 
 const feed = getDiscoveryFeed();
 
@@ -40,131 +31,34 @@ const accountTypes = [
   {
     title: "Artist",
     description:
-      "Release audio and video, build albums, sell merch, verify ownership, and unlock paid fan content.",
+      "Release audio and video, build albums, sell merch, verify ownership, and unlock paid creator content.",
     icon: Music2,
     features: ["Music uploads", "Albums and playlists", "Premium drops", "Profile design studio"]
   },
   {
     title: "Streamer",
     description:
-      "Go live, schedule paid rooms, receive gifts in real time, and save stream archives for fans.",
+      "Go live, schedule paid rooms, receive gifts in real time, and save stream archives for creators.",
     icon: Radio,
-    features: ["Live chat", "Gift wallet", "Exclusive streams", "Fan communities"]
+    features: ["Live chat", "Gift wallet", "Exclusive streams", "Creator communities"]
   },
   {
-    title: "Fan",
+    title: "Creator",
     description:
-      "Follow creators, discover local sounds, build playlists, post status updates, DM, and join groups.",
+      "Discover local sounds, build playlists, post status updates, DM, join groups, and sell curated goods.",
     icon: Headphones,
-    features: ["Discovery feed", "Friends and DMs", "Groups", "Premium access"]
+    features: ["Discovery feed", "Friends and DMs", "Groups", "Creator marketplace"]
   }
 ];
-
-const navItems = [
-  "Feed",
-  "Artists",
-  "Streams",
-  "Messages",
-  "Groups",
-  "Store",
-  "Upload"
-];
-
-const formatFollowers = (followers: number) => {
-  if (followers >= 1000) {
-    return `${(followers / 1000).toFixed(followers > 10000 ? 0 : 1)}k`;
-  }
-
-  return followers.toString();
-};
-
-const creatorStyle = (creator: DiscoveryResult) =>
-  ({
-    "--accent": creator.accent,
-    "--soft-accent": creator.softAccent
-  }) as CSSProperties;
-
-function CreatorCard({
-  creator,
-  featured = false
-}: {
-  creator: DiscoveryResult;
-  featured?: boolean;
-}) {
-  return (
-    <article
-      className={`creator-card ${featured ? "creator-card-featured" : ""}`}
-      style={creatorStyle(creator)}
-    >
-      <div className="creator-visual">
-        <div className="pattern-band" />
-        <div className="avatar-orb">
-          {creator.name
-            .split(" ")
-            .map((part) => part[0])
-            .join("")}
-        </div>
-        {creator.live ? <span className="live-pill">Live</span> : null}
-      </div>
-      <div className="creator-body">
-        <div className="creator-title-row">
-          <div>
-            <p className="eyebrow">{creator.accountType}</p>
-            <h3>{creator.name}</h3>
-          </div>
-          {creator.verified ? (
-            <BadgeCheck className="verified-icon" aria-label="Verified creator" />
-          ) : (
-            <ShieldCheck className="pending-icon" aria-label="Verification pending" />
-          )}
-        </div>
-        <p className="handle">
-          <MapPin size={14} /> {creator.city}, {creator.country} · {creator.handle}
-        </p>
-        <p className="creator-story">{creator.story}</p>
-        <div className="tag-row">
-          {creator.genres.map((genre) => (
-            <span key={genre}>{genre}</span>
-          ))}
-        </div>
-        <div className="creator-meta">
-          <strong>{formatFollowers(creator.followers)}</strong>
-          <span>followers</span>
-          <strong>{creator.matchScore}</strong>
-          <span>match</span>
-        </div>
-        <div className="reason-row">
-          {creator.reasons.map((reason) => (
-            <span key={reason}>{reason}</span>
-          ))}
-        </div>
-      </div>
-    </article>
-  );
-}
 
 export default function Home() {
   const [leadCreator, ...supportingCreators] = feed;
+  const previewProducts = products.slice(0, 3);
 
   return (
     <main>
-      <section className="hero-shell" id="feed">
-        <nav className="top-nav" aria-label="Main navigation">
-          <a className="brand" href="#feed" aria-label="Artbook home">
-            <span className="brand-mark">A</span>
-            <span>Artbook</span>
-          </a>
-          <div className="nav-links">
-            {navItems.map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`}>
-                {item}
-              </a>
-            ))}
-          </div>
-          <button className="ghost-button" type="button">
-            Join beta
-          </button>
-        </nav>
+      <section className="hero-shell">
+        <SiteNav />
 
         <div className="hero-grid">
           <div className="hero-copy">
@@ -175,16 +69,16 @@ export default function Home() {
             <h1>Find the next sound before the world catches up.</h1>
             <p>
               Artbook is a social media, streaming, and marketplace platform shaped for local
-              creators, niche fan communities, and adaptive artist expression.
+              creators, niche communities, and adaptive artist expression.
             </p>
             <div className="hero-actions">
-              <a className="primary-button" href="#artists">
-                Explore creators
-                <Play size={18} fill="currentColor" />
+              <a className="primary-button" href="/artists">
+                Search artists by location
+                <Search size={18} />
               </a>
-              <a className="secondary-button" href="#upload">
-                Start uploading
-                <UploadCloud size={18} />
+              <a className="secondary-button" href="/marketplace">
+                Open marketplace
+                <Play size={18} fill="currentColor" />
               </a>
             </div>
             <div className="signal-strip" aria-label="Platform stats">
@@ -197,8 +91,8 @@ export default function Home() {
                 <span>discovery score cap</span>
               </div>
               <div>
-                <strong>5%</strong>
-                <span>sample platform fee</span>
+                <strong>3</strong>
+                <span>marketplace lanes</span>
               </div>
             </div>
           </div>
@@ -206,7 +100,7 @@ export default function Home() {
           <div className="phone-frame" aria-label="Artbook discovery preview">
             <div className="phone-header">
               <span>For you in Accra</span>
-              <Bell size={18} />
+              <BadgeCheck size={18} />
             </div>
             <CreatorCard creator={leadCreator} featured />
             <div className="mini-player">
@@ -223,46 +117,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section" id="artists">
-        <div className="section-heading">
-          <p className="eyebrow">Discovery system</p>
-          <h2>Local first, niche aware, popularity second.</h2>
-          <p>
-            The feed demonstrates a scoring model that boosts nearby creators, exact genre
-            affinity, niche interests, live moments, and verified original ownership.
-          </p>
-        </div>
-        <div className="discovery-layout">
-          <div className="creator-grid">
-            {supportingCreators.map((creator) => (
-              <CreatorCard key={creator.id} creator={creator} />
-            ))}
-          </div>
-          <aside className="algorithm-panel">
-            <div className="panel-icon">
-              <Search />
-            </div>
-            <h3>Discovery signals</h3>
-            <ul>
-              {discoverySignals.map((signal) => (
-                <li key={signal}>
-                  <CheckCircle2 size={18} />
-                  <span>{signal}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="api-card">
-              <span>API preview</span>
-              <code>/api/discovery?location=Accra&amp;genre=Alté</code>
-            </div>
-          </aside>
-        </div>
-      </section>
-
       <section className="section account-section">
         <div className="section-heading">
           <p className="eyebrow">Three account system</p>
-          <h2>Creator tools, live rooms, and fan identity in one product.</h2>
+          <h2>Artists, streamers, and creators each get a clear lane.</h2>
         </div>
         <div className="account-grid">
           {accountTypes.map(({ title, description, icon: Icon, features }) => (
@@ -280,13 +138,50 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section split-section" id="streams">
+      <section className="section">
+        <div className="section-heading">
+          <p className="eyebrow">Location discovery</p>
+          <h2>Artist search now starts with place.</h2>
+          <p>
+            Search by city or country, then rank artists using genre affinity, niche interests,
+            live moments, and ownership signals.
+          </p>
+        </div>
+        <div className="discovery-layout">
+          <div className="creator-grid">
+            {supportingCreators.slice(0, 4).map((creator) => (
+              <CreatorCard key={creator.id} creator={creator} />
+            ))}
+          </div>
+          <aside className="algorithm-panel">
+            <div className="panel-icon">
+              <Search />
+            </div>
+            <h3>Search routes</h3>
+            <ul>
+              <li>
+                <Search size={18} />
+                <span>Use `/artists?location=Accra` to search artist profiles by location.</span>
+              </li>
+              <li>
+                <Video size={18} />
+                <span>Streams, community, marketplace, and upload now live on separate pages.</span>
+              </li>
+            </ul>
+            <a className="inline-link" href="/artists?location=Accra">
+              Try Accra artist search
+            </a>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section split-section">
         <div>
           <p className="eyebrow">Streaming hub</p>
           <h2>Live now, scheduled next, archived forever.</h2>
           <p>
             Streamers can open free or paid rooms, receive real-time gifts, save replays, and keep
-            fan groups active after the stream ends.
+            creator groups active after the stream ends.
           </p>
           <div className="stream-stack">
             {streams.map((stream) => (
@@ -321,13 +216,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section social-grid" id="messages">
+      <section className="section social-grid">
         <div className="social-card">
-          <MessageCircle size={28} />
+          <Send size={28} />
           <h2>Messages and groups</h2>
           <p>
-            Fans can DM creators, add friends, and join community rooms attached to artists,
-            playlists, and live shows.
+            Creators can DM, add friends, and join community rooms attached to artists, playlists,
+            and live shows.
           </p>
           <div className="conversation-list">
             {conversations.map((conversation) => (
@@ -342,12 +237,12 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <div className="social-card" id="groups">
+        <div className="social-card">
           <Users size={28} />
-          <h2>Status and fan spaces</h2>
+          <h2>Status and creator spaces</h2>
           <p>
-            Lightweight stories, listening rooms, local crews, and premium fan circles keep social
-            discovery fluid without burying users in heavy menus.
+            Lightweight stories, listening rooms, local crews, and premium creator circles keep
+            social discovery fluid.
           </p>
           <div className="status-card">
             <Camera />
@@ -356,35 +251,20 @@ export default function Home() {
               <span>Poll: soft keys or choir outro?</span>
             </div>
           </div>
-          <div className="status-card">
-            <Send />
-            <div>
-              <strong>Accra alté crew</strong>
-              <span>28 fans building a Friday night playlist.</span>
-            </div>
-          </div>
         </div>
       </section>
 
-      <section className="section split-section" id="store">
+      <section className="section split-section">
         <div>
           <p className="eyebrow">Marketplace</p>
-          <h2>Music, merch, and digital products tied to the creator graph.</h2>
+          <h2>Distinct stores for artists, streamers, and creators.</h2>
           <p>
-            Artists and streamers sell directly. Fans can unlock selling after upgrading to premium
-            accounts, while the platform can take a configurable percentage from each sale.
+            Artists sell releases and merch, streamers sell room access and replays, and creators
+            sell curated goods in a separate marketplace lane.
           </p>
           <div className="store-grid">
-            {products.map((product) => (
-              <article className="product-card" key={product.id}>
-                <ShoppingBag />
-                <span>{product.kind}</span>
-                <h3>{product.title}</h3>
-                <p>
-                  {product.seller} · {product.palette}
-                </p>
-                <strong>{product.price}</strong>
-              </article>
+            {previewProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
@@ -394,13 +274,13 @@ export default function Home() {
           <ul>
             <li>Subscriptions and premium drops for artists.</li>
             <li>Paid streams and real-time gifts for streamers.</li>
-            <li>Stripe or PayPal checkout adapters for sales.</li>
+            <li>Creator marketplace listings for zines, guides, presets, and community goods.</li>
             <li>Platform fee accounting for subscriptions, gifts, and store orders.</li>
           </ul>
         </aside>
       </section>
 
-      <section className="section upload-section" id="upload">
+      <section className="section upload-section">
         <div className="upload-copy">
           <p className="eyebrow">Upload dashboard</p>
           <h2>Media intake with ownership protection built into the flow.</h2>
@@ -417,12 +297,8 @@ export default function Home() {
           </div>
           <div className="checklist">
             <div>
-              <ShieldCheck />
-              <span>Metadata fingerprint queued</span>
-            </div>
-            <div>
               <BadgeCheck />
-              <span>Original ownership attestation required</span>
+              <span>Metadata fingerprint queued</span>
             </div>
             <div>
               <Palette />

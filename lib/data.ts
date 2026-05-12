@@ -1,11 +1,11 @@
-export type AccountType = "artist" | "streamer" | "fan";
+export type AccountType = "artist" | "streamer" | "creator";
 export type Mood = "calm" | "hype" | "soulful" | "experimental";
 
 export type Creator = {
   id: string;
   name: string;
   handle: string;
-  accountType: Exclude<AccountType, "fan">;
+  accountType: AccountType;
   city: string;
   country: string;
   genres: string[];
@@ -37,9 +37,11 @@ export type Product = {
   id: string;
   title: string;
   seller: string;
-  kind: "merch" | "digital" | "music";
+  sellerType: AccountType;
+  kind: "merch" | "digital" | "music" | "live" | "creator-good";
   price: string;
   palette: string;
+  description: string;
 };
 
 export type Conversation = {
@@ -78,7 +80,7 @@ export const creators: Creator[] = [
     city: "Lagos",
     country: "Nigeria",
     genres: ["Afrobeats", "Street Pop"],
-    niches: ["dance battles", "producer breakdowns", "fan cyphers"],
+    niches: ["dance battles", "producer breakdowns", "creator cyphers"],
     mood: "hype",
     followers: 52200,
     discoveryLift: 88,
@@ -89,7 +91,7 @@ export const creators: Creator[] = [
     softAccent: "#ffe3dc",
     latestWork: "Mainland Midnight Live",
     story:
-      "Hosts nightly beat-making streams and turns fan voice notes into hooks on air."
+      "Hosts nightly beat-making streams and turns creator voice notes into hooks on air."
   },
   {
     id: "ama-nile",
@@ -118,7 +120,7 @@ export const creators: Creator[] = [
     city: "Johannesburg",
     country: "South Africa",
     genres: ["Amapiano", "Visual Art"],
-    niches: ["live VJ sets", "streetwear drops", "motion posters"],
+    niches: ["live VJ sets", "streetwear drops", "creator-directed posters"],
     mood: "experimental",
     followers: 27700,
     discoveryLift: 83,
@@ -128,14 +130,33 @@ export const creators: Creator[] = [
     softAccent: "#d9fff5",
     latestWork: "Soweto Signal Room",
     story:
-      "Pairs Amapiano sets with real-time 3D visuals and fan-directed poster remixes."
+      "Pairs Amapiano sets with real-time 3D visuals and creator-directed poster remixes."
+  },
+  {
+    id: "kojo-curates",
+    name: "Kojo Curates",
+    handle: "@kojocurates",
+    accountType: "creator",
+    city: "Accra",
+    country: "Ghana",
+    genres: ["Alté", "Highlife"],
+    niches: ["playlist essays", "local guides", "cover art swaps"],
+    mood: "calm",
+    followers: 4100,
+    discoveryLift: 72,
+    verified: false,
+    accent: "#2f8cff",
+    softAccent: "#e3f0ff",
+    latestWork: "Soft Trotros Vol. 4",
+    story:
+      "Builds city-by-city playlists, zines, and listening maps around emerging neighborhood scenes."
   }
 ];
 
 export const streams: Stream[] = [
   {
     id: "mainland-midnight",
-    title: "Mainland Midnight: fan hook challenge",
+    title: "Mainland Midnight: creator hook challenge",
     creatorName: "Musa Lagos",
     city: "Lagos",
     startsAt: "Live now",
@@ -170,32 +191,58 @@ export const products: Product[] = [
     id: "kente-tee",
     title: "Limited Kente waveform tee",
     seller: "Zuri Kora",
+    sellerType: "artist",
     kind: "merch",
     price: "$38",
-    palette: "Sunset gold"
+    palette: "Sunset gold",
+    description: "Artist merch tied to an EP rollout and subscriber drops."
   },
   {
     id: "sample-pack",
     title: "Street Pop drum kit Vol. 1",
     seller: "Musa Lagos",
+    sellerType: "streamer",
     kind: "digital",
     price: "$12",
-    palette: "Lagos red"
+    palette: "Lagos red",
+    description: "Streamer-made production assets unlocked after live sessions."
   },
   {
     id: "blue-matoke",
     title: "Blue Matoke stems",
     seller: "Ama Nile",
+    sellerType: "artist",
     kind: "music",
     price: "$9",
-    palette: "Violet rain"
+    palette: "Violet rain",
+    description: "Artist stems, alternate mixes, and premium listening files."
+  },
+  {
+    id: "soweto-room-pass",
+    title: "Signal Room replay pass",
+    seller: "Thabo Visuals",
+    sellerType: "streamer",
+    kind: "live",
+    price: "$6",
+    palette: "Neon green",
+    description: "Streamer replay access, live room perks, and gift bundles."
+  },
+  {
+    id: "soft-trotros-zine",
+    title: "Soft Trotros city zine",
+    seller: "Kojo Curates",
+    sellerType: "creator",
+    kind: "creator-good",
+    price: "$7",
+    palette: "Accra blue",
+    description: "Creator marketplace goods: zines, playlist guides, presets, and community finds."
   }
 ];
 
 export const conversations: Conversation[] = [
   {
     id: "zuri",
-    name: "Zuri Kora fan room",
+    name: "Zuri Kora creator room",
     preview: "New demo unlocked for Palmwine supporters.",
     unread: 3
   },
@@ -215,7 +262,7 @@ export const conversations: Conversation[] = [
 
 export const discoverySignals = [
   "Local creators receive a baseline boost before global popularity is considered.",
-  "Niche tags like kora textures or producer breakdowns help small creators reach the right fans.",
-  "Mood, genre, and recent fan behavior tune the feed color and content rhythm.",
+  "Niche tags like kora textures or producer breakdowns help small creators reach the right audience.",
+  "Mood, genre, and recent creator behavior tune the feed color and content rhythm.",
   "Ownership verification and metadata checks are highlighted before monetized uploads go live."
 ];

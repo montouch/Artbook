@@ -1,9 +1,10 @@
-import { creators, type Creator } from "./data";
+import { creators, type AccountType, type Creator } from "./data";
 
 export type DiscoveryPreferences = {
   location?: string;
   genres?: string[];
   interests?: string[];
+  accountTypes?: AccountType[];
 };
 
 export type DiscoveryResult = Creator & {
@@ -12,6 +13,16 @@ export type DiscoveryResult = Creator & {
 };
 
 const normalize = (value: string) => value.trim().toLowerCase();
+
+export const matchesLocation = (creator: Creator, location: string) => {
+  const searchValue = normalize(location);
+
+  if (!searchValue) {
+    return true;
+  }
+
+  return normalize(`${creator.city} ${creator.country}`).includes(searchValue);
+};
 
 export function scoreCreator(
   creator: Creator,
@@ -24,7 +35,7 @@ export function scoreCreator(
 
   let score = creator.discoveryLift;
 
-  if (location && normalize(creator.city).includes(location)) {
+  if (location && matchesLocation(creator, location)) {
     score += 28;
     reasons.push("local signal");
   }
@@ -65,7 +76,12 @@ export function getDiscoveryFeed(
     interests: ["kora textures", "producer breakdowns"]
   }
 ) {
+  const accountTypes = preferences.accountTypes
+    ? new Set(preferences.accountTypes)
+    : undefined;
+
   return creators
+    .filter((creator) => !accountTypes || accountTypes.has(creator.accountType))
     .map((creator) => scoreCreator(creator, preferences))
     .sort((a, b) => b.matchScore - a.matchScore);
 }
