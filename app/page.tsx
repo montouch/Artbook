@@ -171,7 +171,7 @@ export default function Home() {
   const [betaJoined, setBetaJoined] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [latestGift, setLatestGift] = useState("Gift sent: 50 cowries");
+  const [latestGift, setLatestGift] = useState("Choose a gift to support this room.");
   const [giftTotal, setGiftTotal] = useState(1430);
   const [uploadFiles, setUploadFiles] = useState<string[]>([]);
   const [isDraggingUpload, setIsDraggingUpload] = useState(false);
@@ -181,7 +181,9 @@ export default function Home() {
     const nextTotal = giftTotal + gift.value;
 
     setGiftTotal(nextTotal);
-    setLatestGift(`You sent ${gift.name}: +${gift.value} cowries`);
+    setLatestGift(
+      `You sent ${gift.name}: +${gift.value} cowries. Room total: ${nextTotal.toLocaleString()} gifts.`
+    );
   };
 
   const handleFiles = (fileList: FileList | null) => {
