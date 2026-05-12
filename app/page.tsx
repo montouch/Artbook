@@ -1,9 +1,12 @@
-import type { CSSProperties } from "react";
+"use client";
+
+import { type ChangeEvent, type CSSProperties, type DragEvent, useRef, useState } from "react";
 import {
   BadgeCheck,
   Bell,
   CalendarClock,
   Camera,
+  ChevronDown,
   CheckCircle2,
   CircleDollarSign,
   Disc3,
@@ -15,6 +18,7 @@ import {
   Music2,
   Package,
   Palette,
+  Pause,
   Play,
   Radio,
   Search,
@@ -61,14 +65,23 @@ const accountTypes = [
 ];
 
 const navItems = [
-  "Feed",
-  "Artists",
-  "Streams",
-  "Messages",
-  "Groups",
-  "Store",
-  "Upload"
+  { label: "Feed", href: "#feed" },
+  { label: "Artists", href: "#artists" },
+  { label: "Access", href: "#access" },
+  { label: "Streams", href: "#streams" },
+  { label: "Messages", href: "#messages" },
+  { label: "Groups", href: "#groups" },
+  { label: "Store", href: "#store" },
+  { label: "Upload", href: "#upload" }
 ];
+
+const giftOptions = [
+  { name: "Cowrie", value: 50 },
+  { name: "Drum", value: 120 },
+  { name: "Crown", value: 250 }
+];
+
+const acceptedUploadTypes = ".mp3,.wav,.mp4,audio/mpeg,audio/wav,audio/wave,video/mp4";
 
 const formatFollowers = (followers: number) => {
   if (followers >= 1000) {
@@ -76,6 +89,14 @@ const formatFollowers = (followers: number) => {
   }
 
   return followers.toString();
+};
+
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
 const creatorStyle = (creator: DiscoveryResult) =>
@@ -145,6 +166,42 @@ function CreatorCard({
 
 export default function Home() {
   const [leadCreator, ...supportingCreators] = feed;
+  const [accessOpen, setAccessOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(accountTypes[0].title);
+  const [betaJoined, setBetaJoined] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [latestGift, setLatestGift] = useState("Gift sent: 50 cowries");
+  const [giftTotal, setGiftTotal] = useState(1430);
+  const [uploadFiles, setUploadFiles] = useState<string[]>([]);
+  const [isDraggingUpload, setIsDraggingUpload] = useState(false);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  const handleGift = (gift: (typeof giftOptions)[number]) => {
+    const nextTotal = giftTotal + gift.value;
+
+    setGiftTotal(nextTotal);
+    setLatestGift(`You sent ${gift.name}: +${gift.value} cowries`);
+  };
+
+  const handleFiles = (fileList: FileList | null) => {
+    const files = Array.from(fileList ?? []);
+    const supportedFiles = files.filter((file) => /\.(mp3|wav|mp4)$/i.test(file.name));
+
+    setUploadFiles(
+      supportedFiles.map((file) => `${file.name} · ${formatFileSize(file.size)}`)
+    );
+  };
+
+  const handleUploadChange = (event: ChangeEvent<HTMLInputElement>) => {
+    handleFiles(event.target.files);
+  };
+
+  const handleUploadDrop = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    setIsDraggingUpload(false);
+    handleFiles(event.dataTransfer.files);
+  };
 
   return (
     <main>
@@ -154,16 +211,57 @@ export default function Home() {
             <span className="brand-mark">A</span>
             <span>Artbook</span>
           </a>
-          <div className="nav-links">
-            {navItems.map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`}>
-                {item}
-              </a>
-            ))}
+          <div className="access-menu">
+            <button
+              className="access-trigger"
+              type="button"
+              aria-expanded={accessOpen}
+              aria-controls="access-dropdown"
+              onClick={() => setAccessOpen((isOpen) => !isOpen)}
+            >
+              Access Artbook
+              <ChevronDown size={16} aria-hidden="true" />
+            </button>
+            {accessOpen ? (
+              <div className="access-dropdown" id="access-dropdown">
+                <div className="access-links" aria-label="Page sections">
+                  {navItems.map((item) => (
+                    <a key={item.label} href={item.href} onClick={() => setAccessOpen(false)}>
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+                <div className="access-panel">
+                  <p className="eyebrow">Beta access</p>
+                  <label htmlFor="account-mode">Account mode</label>
+                  <select
+                    id="account-mode"
+                    value={selectedAccount}
+                    onChange={(event) => {
+                      setSelectedAccount(event.target.value);
+                      setBetaJoined(false);
+                    }}
+                  >
+                    {accountTypes.map((accountType) => (
+                      <option key={accountType.title}>{accountType.title}</option>
+                    ))}
+                  </select>
+                  <button
+                    className="ghost-button access-submit"
+                    type="button"
+                    onClick={() => setBetaJoined(true)}
+                  >
+                    Join beta
+                  </button>
+                  <p className="access-feedback" aria-live="polite">
+                    {betaJoined
+                      ? `${selectedAccount} beta access is queued. Watch for the invite email.`
+                      : "Choose an account type and request access from here."}
+                  </p>
+                </div>
+              </div>
+            ) : null}
           </div>
-          <button className="ghost-button" type="button">
-            Join beta
-          </button>
         </nav>
 
         <div className="hero-grid">
@@ -206,17 +304,39 @@ export default function Home() {
           <div className="phone-frame" aria-label="Artbook discovery preview">
             <div className="phone-header">
               <span>For you in Accra</span>
-              <Bell size={18} />
+              <button
+                className="notification-button"
+                type="button"
+                aria-label="Toggle discovery notifications"
+                aria-pressed={notificationsOpen}
+                onClick={() => setNotificationsOpen((isOpen) => !isOpen)}
+              >
+                <Bell size={18} />
+              </button>
             </div>
+            {notificationsOpen ? (
+              <div className="phone-alert" role="status">
+                3 new updates: Zuri dropped a preview, Musa is live, and the Accra crew posted.
+              </div>
+            ) : null}
             <CreatorCard creator={leadCreator} featured />
             <div className="mini-player">
               <Disc3 className="spin" size={34} />
               <div>
                 <strong>{leadCreator.latestWork}</strong>
-                <span>Emotion UI: {leadCreator.mood} tones</span>
+                <span>
+                  {isPlaying
+                    ? `Playing preview · ${leadCreator.mood} tones`
+                    : `Paused · ${leadCreator.mood} tones`}
+                </span>
               </div>
-              <button type="button" aria-label="Play featured track">
-                <Play size={16} fill="currentColor" />
+              <button
+                type="button"
+                aria-label={isPlaying ? "Pause featured track" : "Play featured track"}
+                aria-pressed={isPlaying}
+                onClick={() => setIsPlaying((playing) => !playing)}
+              >
+                {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
               </button>
             </div>
           </div>
@@ -251,15 +371,15 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <div className="api-card">
+            <a className="api-card" href="/api/discovery?location=Accra&genre=Alt%C3%A9">
               <span>API preview</span>
               <code>/api/discovery?location=Accra&amp;genre=Alté</code>
-            </div>
+            </a>
           </aside>
         </div>
       </section>
 
-      <section className="section account-section">
+      <section className="section account-section" id="access">
         <div className="section-heading">
           <p className="eyebrow">Three account system</p>
           <h2>Creator tools, live rooms, and fan identity in one product.</h2>
@@ -312,12 +432,19 @@ export default function Home() {
             <span>LiveKit/WebRTC ready zone</span>
           </div>
           <div className="chat-bubble left">Drop the chorus again!</div>
-          <div className="chat-bubble right">Gift sent: 50 cowries</div>
-          <div className="gift-row">
-            <button type="button">Cowrie</button>
-            <button type="button">Drum</button>
-            <button type="button">Crown</button>
+          <div className="chat-bubble right" aria-live="polite">
+            {latestGift}
           </div>
+          <div className="gift-row">
+            {giftOptions.map((gift) => (
+              <button key={gift.name} type="button" onClick={() => handleGift(gift)}>
+                {gift.name}
+              </button>
+            ))}
+          </div>
+          <p className="gift-total" aria-live="polite">
+            {giftTotal.toLocaleString()} total gifts sent in this room
+          </p>
         </div>
       </section>
 
@@ -410,12 +537,46 @@ export default function Home() {
           </p>
         </div>
         <div className="upload-board">
-          <div className="upload-dropzone">
+          <label
+            className={`upload-dropzone ${isDraggingUpload ? "is-dragging" : ""} ${
+              uploadFiles.length ? "has-files" : ""
+            }`}
+            htmlFor="media-upload"
+            onDragOver={(event) => {
+              event.preventDefault();
+              setIsDraggingUpload(true);
+            }}
+            onDragLeave={() => setIsDraggingUpload(false)}
+            onDrop={handleUploadDrop}
+          >
+            <input
+              ref={uploadInputRef}
+              id="media-upload"
+              type="file"
+              accept={acceptedUploadTypes}
+              multiple
+              onChange={handleUploadChange}
+            />
             <UploadCloud size={38} />
-            <strong>Drop audio or video</strong>
-            <span>MP3, WAV, and MP4 up to your storage limit</span>
-          </div>
+            <strong>{uploadFiles.length ? "Media ready for checks" : "Drop audio or video"}</strong>
+            <span>
+              {uploadFiles.length
+                ? `${uploadFiles.length} supported file${uploadFiles.length === 1 ? "" : "s"} selected`
+                : "MP3, WAV, and MP4 up to your storage limit"}
+            </span>
+            <span className="upload-cta">Choose files</span>
+          </label>
           <div className="checklist">
+            {uploadFiles.length ? (
+              <section className="upload-summary" aria-live="polite">
+                <strong>Ready for metadata review</strong>
+                <ul>
+                  {uploadFiles.map((file) => (
+                    <li key={file}>{file}</li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
             <div>
               <ShieldCheck />
               <span>Metadata fingerprint queued</span>
