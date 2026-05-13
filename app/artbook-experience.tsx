@@ -207,7 +207,7 @@ export default function ArtbookExperience({ initialFeed }: ArtbookExperienceProp
     fileName: ""
   });
 
-  const [leadCreator, ...supportingCreators] = feed;
+  const [leadCreator] = feed;
   const currentCreator = feed.find((creator) => creator.id === currentTrackId) ?? leadCreator;
 
   const allGenres = useMemo(
@@ -453,7 +453,7 @@ export default function ArtbookExperience({ initialFeed }: ArtbookExperienceProp
         </div>
         <div className="discovery-layout">
           <div className="creator-grid">
-            {supportingCreators.map((creator) => (
+            {feed.map((creator) => (
               <CreatorCard
                 key={creator.id}
                 creator={creator}
