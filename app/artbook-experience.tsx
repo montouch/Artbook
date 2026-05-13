@@ -200,10 +200,10 @@ export default function ArtbookExperience({ initialFeed }: ArtbookExperienceProp
   const [messageDraft, setMessageDraft] = useState("");
   const [sentMessages, setSentMessages] = useState<string[]>([]);
   const [uploadDetails, setUploadDetails] = useState<UploadDetails>({
-    title: "",
+    title: "Palmwine Echoes live cut",
     kind: "audio",
-    genre: "",
-    location: "",
+    genre: "Afrosoul",
+    location: "Accra",
     premium: false,
     verifiedOwnership: false,
     fileName: ""
@@ -739,6 +739,7 @@ export default function ArtbookExperience({ initialFeed }: ArtbookExperienceProp
               <input
                 value={uploadDetails.title}
                 onChange={(event) => updateUpload("title", event.target.value)}
+                onInput={(event) => updateUpload("title", event.currentTarget.value)}
                 placeholder="Palmwine Echoes live cut"
               />
             </label>
@@ -747,6 +748,7 @@ export default function ArtbookExperience({ initialFeed }: ArtbookExperienceProp
               <input
                 value={uploadDetails.genre}
                 onChange={(event) => updateUpload("genre", event.target.value)}
+                onInput={(event) => updateUpload("genre", event.currentTarget.value)}
                 placeholder="Afrosoul"
               />
             </label>
@@ -755,6 +757,7 @@ export default function ArtbookExperience({ initialFeed }: ArtbookExperienceProp
               <input
                 value={uploadDetails.location}
                 onChange={(event) => updateUpload("location", event.target.value)}
+                onInput={(event) => updateUpload("location", event.currentTarget.value)}
                 placeholder="Accra"
               />
             </label>
