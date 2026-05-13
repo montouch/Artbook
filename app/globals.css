@@ -265,9 +265,68 @@ main {
 .reason-row span,
 .api-card span,
 .product-card span,
-.upload-dropzone span {
+.upload-dropzone span,
+.beta-card span,
+.cart-summary span,
+.status-line {
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.beta-card,
+.message-composer {
+  display: grid;
+  gap: 10px;
+}
+
+.beta-card {
+  max-width: 640px;
+  grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) 130px 140px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 18px 60px rgba(79, 48, 20, 0.1);
+}
+
+.beta-card strong {
+  display: block;
+  margin-top: 3px;
+}
+
+.beta-card input,
+.beta-card select,
+.message-composer input,
+.field-label input,
+.field-label select {
+  width: 100%;
+  padding: 12px 13px;
+  color: var(--ink);
+  border: 1px solid rgba(21, 18, 15, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  outline: none;
+}
+
+.beta-card input:focus,
+.beta-card select:focus,
+.message-composer input:focus,
+.field-label input:focus,
+.field-label select:focus {
+  border-color: var(--clay);
+  box-shadow: 0 0 0 4px rgba(201, 91, 44, 0.1);
+}
+
+.beta-card button,
+.message-composer button,
+.cart-summary button {
+  padding: 12px 14px;
+  color: var(--cream);
+  border: 0;
+  border-radius: 16px;
+  background: var(--ink);
+  font-weight: 900;
 }
 
 .phone-frame {
@@ -470,6 +529,25 @@ p {
   background: color-mix(in srgb, var(--accent) 14%, #ffffff);
 }
 
+.follow-button,
+.cart-button,
+.small-action {
+  margin-top: 16px;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent, #c95b2c) 22%, transparent);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.follow-button.active,
+.cart-button.active,
+.filter-group button.active {
+  color: var(--cream);
+  background: var(--ink);
+}
+
 .mini-player {
   gap: 14px;
   margin-top: 16px;
@@ -583,6 +661,41 @@ p {
   color: var(--green);
 }
 
+.field-label {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #4e453e;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.filter-group button {
+  padding: 9px 11px;
+  border: 1px solid rgba(21, 18, 15, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 0.83rem;
+  font-weight: 900;
+}
+
+.full-width {
+  justify-content: center;
+  width: 100%;
+}
+
+.status-line {
+  margin: 12px 0 18px;
+  line-height: 1.45;
+}
+
 .api-card {
   display: grid;
   gap: 8px;
@@ -635,6 +748,11 @@ p {
 
 .stream-card div:nth-child(2) {
   flex: 1;
+}
+
+.stream-card .small-action {
+  margin-top: 0;
+  border-color: rgba(21, 18, 15, 0.12);
 }
 
 .stream-card p {
@@ -739,6 +857,17 @@ p {
   margin-top: 22px;
 }
 
+.message-composer {
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 20px;
+}
+
+.message-composer button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .conversation,
 .status-card {
   gap: 12px;
@@ -746,6 +875,11 @@ p {
   border: 1px solid rgba(21, 18, 15, 0.08);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.66);
+}
+
+.conversation.sent {
+  border-color: rgba(15, 123, 98, 0.2);
+  background: rgba(15, 123, 98, 0.08);
 }
 
 .conversation-avatar {
@@ -797,6 +931,9 @@ p {
 }
 
 .product-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
   min-height: 210px;
   padding: 18px;
   border: 1px solid var(--stroke);
@@ -810,7 +947,6 @@ p {
 
 .product-card span {
   display: block;
-  margin-top: 20px;
   font-weight: 900;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -826,6 +962,11 @@ p {
   font-size: 1.3rem;
 }
 
+.cart-button {
+  margin-top: 8px;
+  border-color: rgba(21, 18, 15, 0.12);
+}
+
 .money-panel {
   background:
     linear-gradient(145deg, rgba(21, 18, 15, 0.9), rgba(77, 45, 29, 0.88)),
@@ -837,6 +978,26 @@ p {
   color: rgba(255, 250, 241, 0.7);
 }
 
+.cart-summary {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cart-summary strong {
+  font-size: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.cart-summary button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .upload-section {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
@@ -846,7 +1007,7 @@ p {
 
 .upload-board {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: 0.85fr 1fr 1fr;
   gap: 18px;
 }
 
@@ -872,6 +1033,29 @@ p {
   font-size: 1.3rem;
 }
 
+.upload-dropzone input {
+  width: 100%;
+  max-width: 220px;
+  padding: 10px;
+  border: 1px solid rgba(21, 18, 15, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.upload-form {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+}
+
+.toggle-field {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #4e453e;
+  font-weight: 900;
+}
+
 .checklist {
   display: grid;
   gap: 12px;
@@ -882,6 +1066,16 @@ p {
   padding: 14px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.68);
+}
+
+.checklist div.complete {
+  border: 1px solid rgba(15, 123, 98, 0.18);
+  background: rgba(15, 123, 98, 0.1);
+}
+
+.checklist .upload-status {
+  color: var(--ink);
+  font-weight: 900;
 }
 
 .checklist svg {
@@ -933,6 +1127,10 @@ p {
   .upload-board {
     grid-template-columns: 1fr;
   }
+
+  .beta-card {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 680px) {
@@ -967,9 +1165,14 @@ p {
 
   .stream-card {
     align-items: flex-start;
+    flex-wrap: wrap;
   }
 
   .stream-price {
     text-align: left;
+  }
+
+  .message-composer {
+    grid-template-columns: 1fr;
   }
 }
