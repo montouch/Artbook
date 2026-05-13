@@ -120,6 +120,8 @@ function CreatorCard({
   followed: boolean;
   onFollow: (creatorId: string) => void;
 }) {
+  const displayedFollowers = creator.followers + (followed ? 1 : 0);
+
   return (
     <article
       className={`creator-card ${featured ? "creator-card-featured" : ""}`}
@@ -152,7 +154,7 @@ function CreatorCard({
           ))}
         </div>
         <div className="creator-meta">
-          <strong>{formatFollowers(creator.followers)}</strong>
+          <strong>{formatFollowers(displayedFollowers)}</strong>
           <span>followers</span>
           <strong>{creator.matchScore}</strong>
           <span>match</span>
@@ -774,6 +776,10 @@ export default function ArtbookExperience({ initialFeed }: ArtbookExperienceProp
             </label>
           </form>
           <div className="checklist">
+            <div className={`upload-status ${uploadReady ? "complete" : ""}`}>
+              {uploadReady ? <BadgeCheck /> : <ShieldCheck />}
+              <span>{uploadReady ? "Ready to publish" : `${completedUploadChecks}/4 checks complete`}</span>
+            </div>
             {uploadChecks.map((check) => (
               <div className={check.complete ? "complete" : ""} key={check.label}>
                 {check.complete ? <BadgeCheck /> : <ShieldCheck />}

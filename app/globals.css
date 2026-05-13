@@ -1073,6 +1073,11 @@ p {
   background: rgba(15, 123, 98, 0.1);
 }
 
+.checklist .upload-status {
+  color: var(--ink);
+  font-weight: 900;
+}
+
 .checklist svg {
   flex: 0 0 auto;
   color: var(--green);
