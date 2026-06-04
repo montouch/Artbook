@@ -15864,6 +15864,11 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app; `pidof com.steward.artbook` returned `25283`.
   - `dumpsys window` reported `mFocusedApp=ActivityRecord ... com.steward.artbook/.MainActivity`; notification shade remained `mCurrentFocus`, so launch proof is present but top-window focus is shade-obscured.
   - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- GitHub:
+  - Synced `current-mobile/src/artbook-mobile.html` and QA notes into `C:\Users\brown\Documents\GitHub\Artbook`.
+  - Forbidden-file scan found no APKs, `.idsig`, `.env`, backup folders or `.idea` metadata in the synced paths.
+  - `git diff --check` passed with only Windows LF-to-CRLF notices.
+  - Committed and pushed to `origin/main`: `447936c Apply Figma reference shell updates`.
 - Moto World:
   - no Moto World item was archived because this was a founder-selected UIUX/Figma shell pass, not a Moto World-supplied issue.
   - Moto World remains AI-labeled, owner-controlled and alive.
@@ -15872,4 +15877,4 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Provider callback replay, hosted public HTTPS backend proof, production provider activation proof, Play release signing and Play Store evidence remain external launch blockers.
   - Accessibility warnings remain non-failing for podcast chip/compose heuristics and should be cleaned in a dedicated micro-pass.
 - Next focus:
-  - push the updated `current-mobile/` and `qa/` sync to GitHub, then do a focused podcast/live/Sound Circle screenshot pass on-device or in-browser to judge premium feel beyond automated audits.
+  - do a focused podcast/live/Sound Circle screenshot pass on-device or in-browser to judge premium feel beyond automated audits, then clean the remaining non-failing podcast chip/compose accessibility warnings.
