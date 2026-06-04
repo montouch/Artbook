@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Artbook Backend Handoff</title>
+<style>
+@page{size:A4;margin:18mm 16mm}
+*{box-sizing:border-box}
+body{margin:0;color:#17131f;background:#fff;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;line-height:1.48}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:34px;line-height:1.05;letter-spacing:-.04em;margin-bottom:12px}
+h2{font-size:21px;letter-spacing:-.025em;margin:26px 0 10px;color:#312043}
+h3{font-size:14px;margin:18px 0 6px;color:#5a3575}
+p,li,td,th{font-size:11.5px}
+.cover{min-height:235mm;display:flex;flex-direction:column;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.mark{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#f472b6,#a78bfa,#38bdf8);display:grid;place-items:center;color:#fff;font-weight:950;font-size:31px}
+.eyebrow{display:inline-flex;padding:7px 11px;border-radius:999px;background:#f5ecff;color:#6d3aa0;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.subtitle{font-size:15px;color:#5a5364;max-width:620px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+.meta div,.card{border:1px solid #e6dde9;border-radius:14px;padding:12px;background:#fbf8ff}
+.meta strong,.card strong{display:block;color:#20162b;font-size:12px;margin-bottom:3px}
+.meta span,.muted{color:#665f70;font-size:11px}
+.toc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.toc div{border-left:4px solid #a78bfa;background:#fbf8ff;padding:9px 11px;border-radius:10px}
+.toc strong{display:block;font-size:12px}
+.page-break{break-before:page}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.three{grid-template-columns:1fr 1fr 1fr}
+.pill{display:inline-flex;border-radius:999px;background:#eef9ff;color:#12687e;border:1px solid #cfeefa;padding:5px 8px;font-size:10.5px;font-weight:800;margin:0 5px 5px 0}
+table{width:100%;border-collapse:collapse;margin:9px 0 15px}
+th{background:#241832;color:#fff;text-align:left}
+th,td{border:1px solid #e3d9e8;padding:7px;vertical-align:top}
+tr:nth-child(even) td{background:#fcfaff}
+code{font-family:Consolas,ui-monospace,monospace;font-size:10.5px;background:#f1edf5;border:1px solid #e4dbe9;border-radius:5px;padding:1px 4px}
+.flow{border:1px solid #e2d8e8;border-radius:14px;overflow:hidden;margin:10px 0 16px}
+.step{display:grid;grid-template-columns:34px 1fr;border-bottom:1px solid #e2d8e8}
+.step:last-child{border-bottom:0}
+.num{background:#a78bfa;color:#fff;font-weight:950;display:grid;place-items:center}
+.step div:last-child{padding:9px 11px}
+.warning{border:1px solid #fed7aa;background:#fff7ed;border-radius:14px;padding:12px;margin:12px 0}
+.good{border:1px solid #bbf7d0;background:#f0fdf4;border-radius:14px;padding:12px;margin:12px 0}
+.footer{color:#77707e;font-size:10px;border-top:1px solid #e6dde9;padding-top:8px;margin-top:24px}
+</style>
+</head>
+<body>
+<section class="cover">
+  <div>
+    <div class="brand"><div class="mark">A</div><div><strong>Artbook</strong><br><span class="muted">Mobile creative marketplace prototype</span></div></div>
+    <span class="eyebrow">Backend Handoff Pack</span>
+    <h1>Artbook Backend Handoff</h1>
+    <p class="subtitle">A practical guide for turning the current phone prototype into a backend-backed app. The APK demonstrates the product behavior; this document explains what must become server-owned, what is fake, and how a backend engineer can start implementing it.</p>
+    <div class="meta">
+      <div><strong>Prototype app</strong><span>Single-file mobile WebView prototype at <code>src/artbook-mobile.html</code></span></div>
+      <div><strong>Installable demo</strong><span><code>artbook-phone-install.apk</code> for Android testing</span></div>
+      <div><strong>Backend scaffold</strong><span>Plain Node API scaffold in <code>server/src</code></span></div>
+      <div><strong>Local API</strong><span><code>http://127.0.0.1:8787</code> when running <code>server/src/server.mjs</code></span></div>
+    </div>
+    <div class="toc">
+      <div><strong>1. Product Scope</strong><span class="muted">What the app is trying to become.</span></div>
+      <div><strong>2. Fake vs Real</strong><span class="muted">What must move to backend ownership.</span></div>
+      <div><strong>3. Feature Matrix</strong><span class="muted">Screens and required services.</span></div>
+      <div><strong>4. API Contract</strong><span class="muted">Endpoints and responsibilities.</span></div>
+      <div><strong>5. Data Model</strong><span class="muted">Core entities and relationships.</span></div>
+      <div><strong>6. Build Plan</strong><span class="muted">Backend milestones and launch gates.</span></div>
+    </div>
+  </div>
+  <div class="footer">Prepared for backend implementation review. This is a prototype handoff, not a production certification.</div>
+</section>
+
+<section class="page-break">
+  <h2>1. Product Summary</h2>
+  <p>Artbook is a creator-first social, commerce, audio, live, booking and collaboration app. It blends artist profiles, streamer subscription vaults, business services, marketplace listings, events, GPS/manual local discovery, Tour Mode, personal messages, wallet flows and collaborative rooms.</p>
+  <div class="grid">
+    <div class="card"><strong>Creator identity</strong><p class="muted">Artists, streamers, businesses, creators and institutions have role-aware profile pages, statuses, privacy settings and studio analytics.</p></div>
+    <div class="card"><strong>Commerce</strong><p class="muted">Products, services, tickets, digital assets, classes and subscriptions have search, filters, reviews, upload metadata, delivery checks, business-model walk-ins, POS register operations and QR sale paths.</p></div>
+    <div class="card"><strong>Rooms</strong><p class="muted">Messages, audio rooms, video/audio calls, listen-together sessions and collaboration rooms share a communication model.</p></div>
+    <div class="card"><strong>Trust</strong><p class="muted">Identity, content rights, delivery route checks, Provenance Seals, forwarding consent and booking protocols are visible in the prototype.</p></div>
+  </div>
+
+  <h2>2. Prototype Boundary</h2>
+  <div class="warning"><strong>Important:</strong> the current APK is fake-local. It is good for product review, but it is not a production backend. It uses phone/browser storage and seeded data so all buttons are tappable.</div>
+  <table>
+    <thead><tr><th>Prototype Behavior</th><th>Backend Reality Needed</th></tr></thead>
+    <tbody>
+      <tr><td>Local fake wallet balance and PIN <code>0000</code>.</td><td>Server ledger, immutable transactions, KYC gates, fraud controls, payout provider.</td></tr>
+      <tr><td>Identity checks instantly approve demo scopes.</td><td>KYC provider, document/selfie review, manual escalation, audit logs.</td></tr>
+      <tr><td>Messages and attachments are local placeholders.</td><td>Realtime messaging, object storage, media scanning, abuse reporting.</td></tr>
+      <tr><td>Calls open simulated audio/video modals.</td><td>Call provider such as LiveKit, Daily, Agora or Twilio with permission gates.</td></tr>
+      <tr><td>Delivery routes are static demo rules.</td><td>Courier quote/dispatch/tracking, proof of delivery, disputes and seller payout release.</td></tr>
+      <tr><td>GPS and locality matching are demo scene matches.</td><td>Server geocoding, privacy precision, distance ranking and anti-spoofing controls.</td></tr>
+      <tr><td>Provenance Seals and reports are local demo records.</td><td>Server-owned vouching tied to real orders, bookings, collabs, events, delivery proof and admin review.</td></tr>
+      <tr><td>Subscriptions and digital buys subtract fake cash.</td><td>Google Play Billing entitlements where policy requires, plus server entitlement checks.</td></tr>
+      <tr><td>Reviews, likes, posts and collabs live locally.</td><td>Database models, moderation, notifications, privacy and anti-spam systems.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Recommended App Shape</h2>
+  <p>The prototype is strongest if the backend follows five connected workspaces:</p>
+  <span class="pill">Home: feed and urgent work</span>
+  <span class="pill">Profile: public identity and trust</span>
+  <span class="pill">Studio: analytics and tasks</span>
+  <span class="pill">Market: commerce and bookings</span>
+  <span class="pill">Rooms: messages, live, collabs, calls</span>
+</section>
+
+<section class="page-break">
+  <h2>4. Feature Matrix</h2>
+  <table>
+    <thead><tr><th>Area</th><th>Prototype State</th><th>Backend Services Needed</th></tr></thead>
+    <tbody>
+      <tr><td>Accounts</td><td>Switchable demo accounts.</td><td>Auth, sessions, MFA, profile ownership, role verification.</td></tr>
+      <tr><td>Profiles</td><td>Status, privacy, role-specific layouts.</td><td>Profile API, privacy enforcement, media upload, social links.</td></tr>
+      <tr><td>Discovery and Tour Mode</td><td>Country/city/locality filters, themed pickers, GPS scene matching and scene lenses.</td><td>Search index, geocoding, privacy precision, distance ranking, local content feeds.</td></tr>
+      <tr><td>Social feed</td><td>Posts, comments, likes, forwarding policy.</td><td>Feed service, moderation, notifications, reporting.</td></tr>
+      <tr><td>Music and audio</td><td>Albums, player, listen-together demo.</td><td>Media catalog, streaming URLs, rights metadata, live queue/presence.</td></tr>
+      <tr><td>Marketplace/POS</td><td>Products, services, digital, tickets, classes, vaults, QR sale prompts, anonymous walk-ins, guest intake, split tender, gift cards, staff and drawer controls.</td><td>Listings, inventory, reviews, search, QR tokens, counter release codes, prompt verification, business operating model, service-location validation, staff PINs, tender settlement, gift-card liability, cash drawer sessions, orders, disputes.</td></tr>
+      <tr><td>Provenance Seals</td><td>Local vouching, seller score, reports and seller protocol modals.</td><td>Relationship-backed seals, risk scoring, reporting queue, payout/listing holds.</td></tr>
+      <tr><td>Bookings</td><td>Calendar, reschedule/cancel protocol.</td><td>Booking state machine, reminders, deposits, refund rules.</td></tr>
+      <tr><td>Messaging</td><td>Text, voice/image/video/GIF placeholders.</td><td>Realtime chat, media storage, read receipts, blocking/reporting.</td></tr>
+      <tr><td>Calls</td><td>Simulated audio/video modal.</td><td>Provider rooms, consultation gate, call logs, safety tools.</td></tr>
+      <tr><td>Collabs</td><td>Rooms, splits, rights ledger, deliverables.</td><td>Permission model, shared workspace, contract/rights records.</td></tr>
+      <tr><td>Wallet</td><td>Fake balance, PIN gate, local transactions.</td><td>Ledger, KYC, payment provider, Play Billing entitlements, reconciliation.</td></tr>
+      <tr><td>Delivery</td><td>Static route matrix and blocked route examples.</td><td>Courier integration, quotes, dispatch, tracking, proof, disputes.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Core Data Model</h2>
+  <div class="grid three">
+    <div class="card"><strong>User</strong><p class="muted">Auth identity, email/phone, password hash or OAuth link, session metadata.</p></div>
+    <div class="card"><strong>Profile</strong><p class="muted">Role, handle, location, status, privacy, verification scopes, media.</p></div>
+    <div class="card"><strong>Post</strong><p class="muted">Author, text/media, tags, co-creators, forwarding policy, moderation state.</p></div>
+    <div class="card"><strong>Listing</strong><p class="muted">Owner, kind, price, delivery/resale policies, stock/capacity, review state.</p></div>
+    <div class="card"><strong>QRSale</strong><p class="muted">Listing/service/ticket token, seller, active/expired state, scan count, prompt link and audit trail.</p></div>
+    <div class="card"><strong>SalePrompt</strong><p class="muted">Customer ask-ahead queue request, counter-only release code, quantity, window, verification state and handoff proof.</p></div>
+    <div class="card"><strong>Order</strong><p class="muted">Buyer, items, payment state, delivery state, settlement and disputes.</p></div>
+    <div class="card"><strong>POSSession</strong><p class="muted">Register/device, staff, drawer open/close, starting cash, paid in/out, counted cash, variance and audit trail.</p></div>
+    <div class="card"><strong>Tender</strong><p class="muted">Payment method, amount, gift-card/wallet/payment reference, processor status and refund link.</p></div>
+    <div class="card"><strong>ServiceIntake</strong><p class="muted">Guest reference, consent/allergy/access notes, service place, customer-provided address, privacy level and check-in/out audit.</p></div>
+    <div class="card"><strong>Booking</strong><p class="muted">Booker/provider, slot, deposit, protocol state, reschedule/cancel events.</p></div>
+    <div class="card"><strong>Conversation</strong><p class="muted">Members, message permissions, blocks, read state and moderation flags.</p></div>
+    <div class="card"><strong>Collab</strong><p class="muted">Participants, accepted state, rights ledger, split, deliverables, room notes.</p></div>
+    <div class="card"><strong>Ledger</strong><p class="muted">Immutable wallet entries, external references, entitlements and audit trail.</p></div>
+    <div class="card"><strong>TrustSeal</strong><p class="muted">From profile, target profile, type, relationship, evidence, weight, status and audit trail.</p></div>
+    <div class="card"><strong>TrustReport</strong><p class="muted">Reporter, target, reason, evidence, moderation status, outcome and safety notes.</p></div>
+    <div class="card"><strong>LocationPreference</strong><p class="muted">GPS/manual mode, country, city, locality, privacy precision, last fix and audit trail.</p></div>
+  </div>
+</section>
+
+<section class="page-break">
+  <h2>6. API Contract Summary</h2>
+  <p>The plain Node scaffold in <code>server/src/server.mjs</code> demonstrates endpoint shape and server-owned policy decisions. It uses local JSON storage only for development.</p>
+  <table>
+    <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td><code>/api/auth/register</code></td><td>Create user, profile and wallet.</td></tr>
+      <tr><td>POST</td><td><code>/api/auth/login</code></td><td>Return bearer token.</td></tr>
+      <tr><td>GET/PATCH</td><td><code>/api/me</code>, <code>/api/profiles/me</code></td><td>Read/update profile, status and privacy.</td></tr>
+      <tr><td>GET/POST</td><td><code>/api/feed</code>, <code>/api/posts</code></td><td>Fetch and create moderated posts.</td></tr>
+      <tr><td>GET</td><td><code>/api/discover?country=&amp;city=&amp;locality=&amp;role=&amp;lat=&amp;lng=</code>, <code>/api/locations/resolve</code></td><td>Manual/GPS discovery and server-side scene resolution.</td></tr>
+      <tr><td>GET/POST</td><td><code>/api/listings</code></td><td>Marketplace listings and review-pending creation.</td></tr>
+      <tr><td>POST/GET/PATCH</td><td><code>/api/qr-sales</code>, <code>/api/sale-prompts</code></td><td>QR sale token creation, scan resolution, in-shop code release and pickup prompt verification.</td></tr>
+      <tr><td>POST/PATCH</td><td><code>/api/pos/sessions</code>, <code>/api/pos/tenders/split</code>, <code>/api/pos/gift-cards/redeem</code></td><td>Register sessions, drawer closeout, split tender settlement, gift-card redemption and loyalty accrual.</td></tr>
+      <tr><td>POST/PATCH</td><td><code>/api/bookings</code>, <code>/api/bookings/:id/reschedule</code>, <code>/api/bookings/:id/cancel</code></td><td>Booking protocol state machine.</td></tr>
+      <tr><td>POST</td><td><code>/api/messages</code>, <code>/api/media/upload-url</code>, <code>/api/calls</code></td><td>Messaging, media and call room handoff.</td></tr>
+      <tr><td>POST</td><td><code>/api/payments/intent</code>, <code>/api/orders/checkout</code></td><td>Payment intent and order creation.</td></tr>
+      <tr><td>POST</td><td><code>/api/delivery/quote</code></td><td>Delivery quote provider adapter.</td></tr>
+      <tr><td>GET/POST</td><td><code>/api/trust/:profileId</code>, <code>/api/trust/seals</code>, <code>/api/trust/reports</code></td><td>Provenance Seals, seller score and suspicious seller reporting.</td></tr>
+      <tr><td>POST</td><td><code>/api/collabs</code>, <code>/api/collabs/:id</code></td><td>Collab request and room updates.</td></tr>
+      <tr><td>POST</td><td><code>/api/data-export</code>, <code>/api/deletion-requests</code></td><td>Privacy rights workflows.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. QR Pickup Queue</h2>
+  <div class="flow">
+    <div class="step"><div class="num">1</div><div><strong>Ask</strong><br><span class="muted">Customer asks ahead. This creates a queue request only, with no release code.</span></div></div>
+    <div class="step"><div class="num">2</div><div><strong>Hold</strong><br><span class="muted">Seller accepts or declines. Accepted holds reserve stock/capacity until a clear expiry window.</span></div></div>
+    <div class="step"><div class="num">3</div><div><strong>Arrive</strong><br><span class="muted">Customer reaches the shop/counter. Seller confirms presence before release.</span></div></div>
+    <div class="step"><div class="num">4</div><div><strong>Release</strong><br><span class="muted">Seller creates a short-lived counter code, verifies it, then moves the item into checkout.</span></div></div>
+  </div>
+
+  <h2>8. Booking Protocol</h2>
+  <div class="flow">
+    <div class="step"><div class="num">1</div><div><strong>Book</strong><br><span class="muted">Booker chooses provider, service and slot. Server creates confirmed booking and deposit/payment state.</span></div></div>
+    <div class="step"><div class="num">2</div><div><strong>Reschedule</strong><br><span class="muted">Server records previous slot, new slot, note, actor and whether provider approval is needed.</span></div></div>
+    <div class="step"><div class="num">3</div><div><strong>Cancel</strong><br><span class="muted">Server applies cancellation policy, refund percentage, wallet/payment adjustment and notifies both sides.</span></div></div>
+    <div class="step"><div class="num">4</div><div><strong>Audit</strong><br><span class="muted">All booking changes are immutable audit events.</span></div></div>
+  </div>
+
+  <h2>9. Trust And Safety Rules</h2>
+  <ul>
+    <li>Money actions must require identity and server-side ledger checks.</li>
+    <li>Artist uploads need rights declarations: original work, controlled label catalog or written permission.</li>
+    <li>Streamer subscription vaults need identity, age/content policy and consent checks for people shown.</li>
+    <li>Business selling requires seller verification, payout setup, refund terms and delivery policy.</li>
+    <li>QR sale tokens must be server-owned, expiring and revocable. Customer prompt codes should be created only when the customer is at the shop, then used to release the queued item once.</li>
+    <li>Provenance Seals should count only when tied to orders, bookings, collabs, venue proof, delivery proof, identity review or trusted local relationships.</li>
+    <li>Low seller score or open reports should trigger listing review, checkout hold, payout delay or manual investigation.</li>
+    <li>Forwarding content depends on creator permission, collaboration state and content license.</li>
+    <li>Location ranking must respect user privacy: exact GPS, locality, city or hidden.</li>
+    <li>Direct business calls are blocked unless caller is a business, artist or streamer; otherwise book consultation.</li>
+  </ul>
+</section>
+
+<section class="page-break">
+  <h2>10. Build Roadmap</h2>
+  <div class="flow">
+    <div class="step"><div class="num">1</div><div><strong>API and database</strong><br><span class="muted">Move profiles, feed, listings, bookings, messages and collabs to PostgreSQL-backed APIs.</span></div></div>
+    <div class="step"><div class="num">2</div><div><strong>Media and realtime</strong><br><span class="muted">Add object storage, signed upload URLs, realtime messaging and room presence.</span></div></div>
+    <div class="step"><div class="num">3</div><div><strong>Trust providers</strong><br><span class="muted">Wire KYC, Provenance Seals, seller scoring, moderation, reporting, admin queues and audit logs.</span></div></div>
+    <div class="step"><div class="num">4</div><div><strong>Commerce</strong><br><span class="muted">Implement orders, reviews, QR sale prompts with counter-only release codes, tickets, subscriptions, Google Play Billing and payout settlement.</span></div></div>
+    <div class="step"><div class="num">5</div><div><strong>Location, delivery and bookings</strong><br><span class="muted">Add geocoding/privacy, delivery quotes/tracking and full booking state machine with refunds.</span></div></div>
+    <div class="step"><div class="num">6</div><div><strong>Release engineering</strong><br><span class="muted">Convert to release-grade Android project, add signing/versioning, privacy policy, terms and Play Console assets.</span></div></div>
+  </div>
+
+  <h2>11. Local Developer Commands</h2>
+  <table>
+    <thead><tr><th>Command</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><code>node server/src/server.mjs</code></td><td>Run local prototype API.</td></tr>
+      <tr><td><code>node server/src/server.mjs --check</code></td><td>Validate the API scaffold imports.</td></tr>
+      <tr><td><code>node tools/build-native-artbook-apk.mjs</code></td><td>Rebuild the Android wrapper with location permission support.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="good">
+    <strong>Best next step for a backend developer:</strong>
+    <p>Run the server scaffold, read <code>docs/API_CONTRACT.md</code>, then choose the first vertical slice: auth + profiles + posts. Once that is server-backed, repeat for marketplace, bookings, messages and collabs.</p>
+  </div>
+
+  <div class="warning">
+    <strong>Play Store note:</strong>
+    <p>The prototype APK is useful for showing the product on a phone. It should not be submitted to Play Store as-is. Before launch, the app needs production backend services, release signing, privacy/data-safety work, Google Play Billing where required, moderation tools and compliance documentation.</p>
+  </div>
+
+  <div class="footer">Files to give the backend person: this PDF, <code>docs/API_CONTRACT.md</code>, <code>docs/BACKEND_HANDOFF.md</code>, <code>docs/FEATURE_MATRIX.md</code>, and <code>server/src</code>.</div>
+</section>
+</body>
+</html>

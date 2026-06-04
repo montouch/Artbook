@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Artbook App Prototype Review</title>
+<style>
+@page{size:A4;margin:18mm}
+*{box-sizing:border-box}
+body{margin:0;color:#162033;background:#f6fbff;font-family:Inter,Segoe UI,Arial,sans-serif;line-height:1.45}
+h1{font-size:34px;line-height:1.05;margin:0;color:#0e1726;letter-spacing:-.04em}
+h2{font-size:18px;margin:26px 0 8px;color:#0f2742}
+h3{font-size:13px;margin:0 0 4px;color:#102033}
+p{margin:0 0 9px}
+.muted{color:#5d6c7f}
+.cover{padding:26px;border-radius:28px;background:linear-gradient(135deg,#e0f7ff,#fff3fb 55%,#ecfdf5);border:1px solid #d5e4ef;margin-bottom:18px}
+.kicker{display:inline-flex;padding:7px 10px;border-radius:999px;background:#dff7ff;color:#075985;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#fff;border:1px solid #dbe6ef;border-radius:18px;padding:14px;break-inside:avoid}
+.card strong{display:block;margin-bottom:4px}
+.shot{width:100%;border-radius:18px;border:1px solid #d4e2ec;background:#fff;box-shadow:0 16px 42px rgba(31,50,77,.12)}
+.shot-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin:12px 0 18px}
+.pill{display:inline-flex;margin:3px 4px 3px 0;padding:6px 8px;border-radius:999px;background:#eef6ff;color:#174366;font-size:11px;font-weight:700}
+table{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:8px}
+td,th{text-align:left;vertical-align:top;background:#fff;border-top:1px solid #dbe6ef;border-bottom:1px solid #dbe6ef;padding:10px;font-size:12px}
+th{background:#eaf6ff;color:#12324e;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+td:first-child,th:first-child{border-left:1px solid #dbe6ef;border-radius:12px 0 0 12px;font-weight:700}
+td:last-child,th:last-child{border-right:1px solid #dbe6ef;border-radius:0 12px 12px 0}
+.note{padding:13px;border-radius:16px;background:#fff7e6;border:1px solid #f2d69b;color:#58390b;margin:10px 0}
+.ok{padding:13px;border-radius:16px;background:#e9fbf4;border:1px solid #afe8d0;color:#114d38;margin:10px 0}
+.page-break{break-before:page}
+code{background:#edf5fb;padding:2px 5px;border-radius:6px}
+</style>
+</head>
+<body>
+<section class="cover">
+  <span class="kicker">Prototype review</span>
+  <h1>Artbook Mobile App</h1>
+  <p class="muted">Functional Android prototype review for backend/mobile handoff. This document describes what the current APK demonstrates, what is fake-local, and what a production team should connect next.</p>
+  <div>
+    <span class="pill">GPS scene matching</span>
+    <span class="pill">Themed pickers</span>
+    <span class="pill">Provenance Seals</span>
+    <span class="pill">Marketplace safety</span>
+    <span class="pill">Studio dashboard</span>
+    <span class="pill">Chat/collab rooms</span>
+  </div>
+</section>
+
+<h2>Current App Shape</h2>
+<div class="grid">
+  <div class="card"><strong>Home</strong><p class="muted">Strokes, comments, forwarding rules, quick actions and live/social discovery.</p></div>
+  <div class="card"><strong>Profile</strong><p class="muted">Role-aware artist, streamer, business and institution profiles with media, services, trust and privacy.</p></div>
+  <div class="card"><strong>More Hub</strong><p class="muted">Navigation, account switching, theme selection, trust desk, delivery, location and backend handoff.</p></div>
+  <div class="card"><strong>Market</strong><p class="muted">Products, services, tickets, classes, digital assets, reviews, route checks and checkout holds.</p></div>
+</div>
+
+<h2>Recent Improvement Pass</h2>
+<div class="shot-row">
+  <div>
+    <img class="shot" src="../build/app-review-discover.png" alt="Discover location picker screenshot">
+  </div>
+  <div>
+    <h3>Discovery and locality</h3>
+    <p class="muted">Country, city and locality now use Artbook-styled picker buttons instead of plain dropdowns. Discover and Tour can use manual scenes or GPS scene matching.</p>
+    <h3>GPS behavior</h3>
+    <p class="muted">The native wrapper requests Android location permission, then the app maps the phone fix to the nearest supported Artbook scene. Exact GPS should remain private unless the user chooses otherwise.</p>
+    <div class="ok">Main result: searching, filtering and location selection now stay visually aligned with themes and are more touch-friendly.</div>
+  </div>
+</div>
+
+<div class="shot-row">
+  <div>
+    <img class="shot" src="../build/app-review-location.png" alt="Location settings screenshot">
+  </div>
+  <div>
+    <h3>Location settings</h3>
+    <p class="muted">Users can switch between phone GPS and profile/manual area. Discover and Tour areas can differ, which supports local discovery and exploring another city.</p>
+    <h3>Backend requirement</h3>
+    <p class="muted">Production needs server geocoding, privacy precision, spoofing controls and distance-aware ranking. Location must also affect delivery and pickup availability.</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+<h2>Function Review</h2>
+<table>
+  <thead><tr><th>Area</th><th>Prototype behavior</th><th>Production connection</th></tr></thead>
+  <tbody>
+    <tr><td>Discovery/Tour</td><td>Themed pickers, GPS/manual scenes, local artists/businesses/streamers.</td><td>Search index, geocoder, privacy rules, ranking, local content feeds.</td></tr>
+    <tr><td>Trust</td><td>Provenance Seals, reports, seller score and checkout holds.</td><td>Relationship-backed vouching, admin queue, disputes, payout holds.</td></tr>
+    <tr><td>Market</td><td>Search, type/sort pickers, reviews, services, products, tickets, digital assets.</td><td>Listings, inventory, order ledger, delivery provider, tax/settlement.</td></tr>
+    <tr><td>Messages</td><td>Text, voice/image/video/GIF placeholders, emoji, calls and collab shortcuts.</td><td>Realtime messaging, object storage, media scanning, call provider.</td></tr>
+    <tr><td>Finance</td><td>PIN-locked fake balance, send/request/top-up/checkout flows.</td><td>Immutable ledger, KYC, payment rails, Google Play Billing where required.</td></tr>
+    <tr><td>Collabs</td><td>Accepted rooms with split, phase, rights, tasks and publish tools.</td><td>Permissions, rights ledger, notifications, shared workspace records.</td></tr>
+    <tr><td>Profiles</td><td>Artist albums, business media, streamer vaults, privacy and status.</td><td>Profile media storage, verification, role policies, analytics aggregation.</td></tr>
+  </tbody>
+</table>
+
+<h2>What I Would Improve Next</h2>
+<div class="grid">
+  <div class="card"><strong>Release wrapper</strong><p class="muted">Move from prototype WebView packaging to a proper Android project with release signing, Play Console metadata and permission rationale screens.</p></div>
+  <div class="card"><strong>Backend truth</strong><p class="muted">Keep all sensitive state server-owned: balances, identity, orders, delivery, Seals, reports and media rights.</p></div>
+  <div class="card"><strong>Admin console</strong><p class="muted">Moderation, seller verification, event legitimacy, report triage and payout holds need an operations dashboard.</p></div>
+  <div class="card"><strong>Design QA</strong><p class="muted">Continue testing each theme on small Android screens and add accessibility contrast checks before public launch.</p></div>
+</div>
+
+<div class="note">Prototype truth: the APK is functional for review and product conversation, but payments, KYC, calls, delivery and uploads are still simulated until the backend and providers are connected.</div>
+</body>
+</html>

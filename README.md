@@ -14,6 +14,18 @@ readiness, and marketplace monetization.
 - `/api/discovery` endpoint for experimenting with recommendation inputs.
 - Streaming hub, DM/group previews, marketplace, and upload dashboard sections.
 
+## Current mobile app
+
+The latest Kenya-first Artbook mobile prototype is tracked in `current-mobile/`.
+It includes the single-file mobile UI, bundled app assets, backend handoff server,
+review documents, and audit/build tools from the active Codex workspace.
+
+Generated APKs, signing sidecars, local `.env` files, and workspace backups are
+intentionally excluded from GitHub. Use `current-mobile/tools/build-native-artbook-apk.mjs`
+from the active workspace when a fresh Android install package is needed.
+
+QA and founder/product-owner progress notes are tracked under `qa/`.
+
 ## Run locally
 
 ```bash
