@@ -1,6 +1,5 @@
-import ArtbookExperience from "./artbook-experience";
-import { getDiscoveryFeed } from "@/lib/discovery";
+import ArtbookEnhanced from "./artbook-enhanced";
 
 export default function Home() {
-  return <ArtbookExperience initialFeed={getDiscoveryFeed()} />;
+  return <ArtbookEnhanced />;
 }

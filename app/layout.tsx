@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./artbook-premium.css";
 
 export const metadata: Metadata = {
-  title: "Artbook | Discover local artists",
+  title: "Artbook | Kenya-first social marketplace",
   description:
-    "A modern African-first discovery platform for artists, streamers, fans, music, video, live content, and marketplace drops."
+    "Premium Kenya-first social marketplace and business operating app. Discover products, services, events, and connect with local businesses."
 };
 
 export default function RootLayout({
