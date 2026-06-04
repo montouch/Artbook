@@ -15878,3 +15878,39 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Accessibility warnings remain non-failing for podcast chip/compose heuristics and should be cleaned in a dedicated micro-pass.
 - Next focus:
   - do a focused podcast/live/Sound Circle screenshot pass on-device or in-browser to judge premium feel beyond automated audits, then clean the remaining non-failing podcast chip/compose accessibility warnings.
+
+### 2026-06-05 09:24 +09:30 - Podcast and compose touch-target warning cleanup
+- Scope:
+  - Cleaned the remaining non-failing accessibility warnings from the Figma reference shell without changing app logic.
+  - Added a final stylesheet touch lock for the Podcast Studio lens chips and the compose publish CTA so compact/reference UI rules cannot shrink them below thumb size.
+  - Preserved the Figma-inspired premium UI shell, dark-mode compatibility and Android policy boundary; no creator monetization or money movement behavior was added.
+- Changed `incoming\Artbook-transfer-v181\src\artbook-mobile.html`:
+  - `page-podcasts` lens buttons now render at `48px` height with explicit min-height/padding.
+  - Compose sheet publish button now renders at `48px` height with explicit min-height/padding.
+- Verification:
+  - Inline script syntax extraction passed: 1 script, `3,536,864` bytes.
+  - Focused computed-style check at `390x844` confirmed Podcast lens chips render at `85x48` and compose `Post stroke` renders at `338x48`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures, 0 warnings, no page errors and no console errors.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems, no page errors and no console errors.
+  - `tools\tap-audit-artbook.mjs`: passed, 129 clicks, 0 failures, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `008D7E0EE8CE6A0794ADFB6A562A37D051B647D979F53351FFDDB933E0B4E31A`.
+  - Version: `1.181` / versionCode `181`; size `31,679,882` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - Direct SDK ADB installed the fresh APK on `ZY22JSRL8G` successfully.
+  - `adb shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app; `pidof com.steward.artbook` returned `27785`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord ... com.steward.artbook/.MainActivity`; notification shade remained `mCurrentFocus`, so foreground app proof is present but top-window focus is still shade-obscured.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash line for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected accessibility/premium shell cleanup, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Provider callback replay, hosted public HTTPS backend proof, production provider activation proof, Play release signing and Play Store evidence remain external launch blockers.
+  - APK remains local-debug signed; Play release signing remains separate.
+- Next focus:
+  - do the focused Podcast/Live/Sound Circle visual screenshot review now that automated accessibility is fully quiet, then continue toward hosted/backend provider callback replay proof.
