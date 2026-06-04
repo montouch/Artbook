@@ -15829,3 +15829,47 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Play release signing and Play Store evidence remain external launch blockers.
 - Next focus:
   - after GitHub push, reconcile the Figma premium UI branch with `current-mobile/` so design source, app source and launch QA evidence stay in one traceable lane.
+
+### 2026-06-05 09:11 +09:30 - Figma reference shell: Sound Circle, money management, live/podcast polish
+- Scope:
+  - Implemented the newest Figma UIUX references inside `incoming\Artbook-transfer-v181\src\artbook-mobile.html`.
+  - Added artist `Sound Circle` capacity for artist accounts: audio social room card, voice-prompt desk, fan circle desk, rights/replay boundaries, live room start wiring and artist-controlled prompt state.
+  - Added a Figma money-management inspired Wallet panel with KES preview hierarchy, partner-led request/ledger rows, limits, saved/paid fee metrics and explicit no-custody/no-settlement boundary copy.
+  - Tightened Live and Podcast copy to remove risky Android creator-monetization language; live rooms now emphasize chat, hand raise, profile proof, reviewed pinned offers, replay consent and provider/backend review.
+  - Added a SaaS podcasting platform inspired command header using the Figma cover pattern: white SaaS badge, bold stacked podcasting-platform title, purple `create & review` CTA, show ops, publish path and rights desk actions.
+  - Updated the in-app Figma reference map with Live Streaming, Zuzu Short Video, Audio Social Network UI, Money Management Mobile App and SaaS Podcasting Platform references.
+  - Updated the Figma working board `https://www.figma.com/design/ihL1y9CswAc7WhopfaQkhi` on page `Artbook Full Shell Redesign V3` with frame `Artbook UIUX References / Live Audio Wallet Podcast v4`.
+- Figma evidence:
+  - Read `Zuzu Short Video` node `1328:18683`, `Audio Social Network UI` node `38:47`, `Money Management Mobile App` node `905:2099`, and `SaaS Podcasting Platform` nodes `3:40` / `3:36`.
+  - The SaaS podcast reference included a dark podcast-host cover, white SaaS badge, oversized stacked title and purple `create & monetize` label; Artbook deliberately adapted that label to `create & review` for Android policy safety.
+  - Figma write created 33 nodes on the existing Artbook board after `figma-use` skill resource lookup failed with unknown resource; used Figma Plugin API with `setCurrentPageAsync` and local Inter font fallback.
+- Verification:
+  - Inline script syntax extraction passed after the final patch: 1 script, `3,536,864` bytes, no parse errors.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 console/page errors. Remaining warnings were pre-existing/same heuristic reports for podcast chips and one compose button height; follow-up CSS was added but the audit still reports them as warnings, not failures.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures, no page errors and no console errors.
+  - `tools\tap-audit-artbook.mjs`: passed, 129 clicks, 0 failures, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `EECFC010C27CCD888B408109F009532C1AFC1C1C4B4B48D2AC82DFEBC7142C9D`.
+  - Version: `1.181` / versionCode `181`; size `31,679,882` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - Direct SDK ADB found `ZY22JSRL8G` online and `emulator-5562` offline.
+  - `tools\phone-install-readiness.mjs` verified target APK SHA `EECFC010C27CCD888B408109F009532C1AFC1C1C4B4B48D2AC82DFEBC7142C9D`, version `1.181` / versionCode `181`, signature schemes v1/v2/v3, and `ready_in_place_signature_matches`.
+  - First generic ADB install attempt hit `more than one device/emulator` because of the offline emulator; serial-targeted install on `ZY22JSRL8G` succeeded.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app; `pidof com.steward.artbook` returned `25283`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord ... com.steward.artbook/.MainActivity`; notification shade remained `mCurrentFocus`, so launch proof is present but top-window focus is shade-obscured.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected UIUX/Figma shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Figma Community internals were only as accessible as concrete node URLs allowed; some supplied nodes contained limited text-only context, so Artbook uses them directionally and preserves its own UI/data.
+  - Provider callback replay, hosted public HTTPS backend proof, production provider activation proof, Play release signing and Play Store evidence remain external launch blockers.
+  - Accessibility warnings remain non-failing for podcast chip/compose heuristics and should be cleaned in a dedicated micro-pass.
+- Next focus:
+  - push the updated `current-mobile/` and `qa/` sync to GitHub, then do a focused podcast/live/Sound Circle screenshot pass on-device or in-browser to judge premium feel beyond automated audits.
