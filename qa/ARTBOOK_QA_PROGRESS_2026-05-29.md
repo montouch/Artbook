@@ -17267,3 +17267,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - turn the support readiness surface into a concrete backend/API contract for customer care, including message delivery receipts, SLA owners, provider callback mapping and immutable care-note audit rows.
+
+### 2026-06-05 22:08 +09:30 - Support backend API contract handoff
+- Scope:
+  - Continued the support backend readiness work by turning the visible blockers into a copyable backend/API contract.
+  - Focused on customer care infrastructure: support cases, message delivery receipts, SLA escalation, provider callback mapping, immutable care audit and money-sensitive closeout.
+  - Preserved Play Store-safe wording: Android can show readiness and collect owner notes, but server/provider-owned systems decide delivery, callbacks, closeout and money-sensitive truth.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a `Copy support backend API contract` details panel under `Support backend readiness`.
+    - Added contract lanes for `POST /api/support/cases`, `POST /api/messages/deliveries`, `POST /api/support/cases/:id/sla-actions`, `POST /api/providers/callbacks/:rail`, `POST /api/audit/care-notes` and `POST /api/support/cases/:id/closeout`.
+    - Added a copyable `Artbook Support Backend API Contract - Review Ops Handoff` packet with local evidence counts, current readiness gates, required endpoints, server-owned rules and Android/Play Store boundaries.
+    - Added `App.copySupportBackendApiContractPacket()` so copying the handoff records a backend audit event without changing provider, money, wallet, refund, payout or founder revenue state.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - Source markers confirm `data-support-backend-contract`, `supportBackendApiContractPacketText`, `copySupportBackendApiContractPacket`, `POST /api/support/cases` and `POST /api/messages/deliveries` are present.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,749,514 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Recent logcat after launch showed no Artbook `AndroidRuntime` fatal exception.
+  - Used the live WebView devtools target for the installed app to open Backend Sync; DOM confirmed the support API contract, packet textarea, copy method, support/message/provider/audit endpoints and Android/provider boundary.
+  - Captured on-device screenshot at `phone-artbook-support-backend-api-contract.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend/provider readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - This is a copyable implementation contract only. No live support backend, message/email delivery provider, SLA worker, provider callback processor, immutable audit table or settlement provider is connected from the APK.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - start implementing or scaffolding the real backend support tables/routes in the chosen backend stack, or add a hosted-backend proof checklist for support delivery and callback verification.
