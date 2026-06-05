@@ -3,6 +3,14 @@ node_modules/
 out/
 dist/
 coverage/
+current-mobile/build/
+current-mobile/**/*.apk
+current-mobile/**/*.idsig
+current-mobile/**/*.aab
+current-mobile/**/*.keystore
+current-mobile/**/*.jks
+current-mobile/.env.local
+current-mobile/.env
 .env
 .env*.local
 .idea/

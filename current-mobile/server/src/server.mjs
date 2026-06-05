@@ -249,6 +249,7 @@ function ensureWalletStore(store) {
   store.walletBalances = store.walletBalances || {};
   store.walletLedger = store.walletLedger || [];
   store.walletRequests = store.walletRequests || [];
+  store.walletReplayPackets = store.walletReplayPackets || [];
   store.settlementAudits = store.settlementAudits || [];
   store.settlementWebhookEvents = store.settlementWebhookEvents || [];
 }
@@ -2085,11 +2086,12 @@ function providerPaymentBoundaryReadiness(store = {}) {
   const deliveryJobs = Array.isArray(store.deliveryJobs) ? store.deliveryJobs : [];
   const walletLedger = Array.isArray(store.walletLedger) ? store.walletLedger : [];
   const walletRequests = Array.isArray(store.walletRequests) ? store.walletRequests : [];
+  const walletReplayPackets = Array.isArray(store.walletReplayPackets) ? store.walletReplayPackets : [];
   const settlementAudits = Array.isArray(store.settlementAudits) ? store.settlementAudits : [];
   const boundaryEvents = Array.isArray(store.providerPaymentBoundaryEvents) ? store.providerPaymentBoundaryEvents : [];
   const rails = (store.providerPaymentRails || []).map(publicProviderPaymentRail);
   const playBilling = playBillingEntitlementReadiness(store);
-  const physicalProviderRecordCount = physicalOrders.length + bookings.length + deliveryJobs.length + walletLedger.length + walletRequests.length + settlementAudits.length;
+  const physicalProviderRecordCount = physicalOrders.length + bookings.length + deliveryJobs.length + walletLedger.length + walletRequests.length + walletReplayPackets.length + settlementAudits.length;
   return {
     status: "provider_payment_boundary_review_only_no_money_movement",
     settlementStatus: "provider_payment_boundary_review_only_no_money_movement",
@@ -2109,6 +2111,7 @@ function providerPaymentBoundaryReadiness(store = {}) {
       deliveryJobCount: deliveryJobs.length,
       walletLedgerCount: walletLedger.length,
       walletRequestCount: walletRequests.length,
+      walletReplayPacketCount: walletReplayPackets.length,
       settlementAuditCount: settlementAudits.length,
       physicalProviderRecordCount,
       boundaryEventCount: boundaryEvents.length,
@@ -5577,16 +5580,19 @@ function paymentProviderReadiness(store = {}) {
   };
   const settlementReplayReady = Array.isArray(store.settlementWebhookEvents);
   const deliveryReplayReady = Array.isArray(store.deliveryProviderEvents);
+  const walletReplayPacketReady = Array.isArray(store.walletReplayPackets);
   const settlementEventCount = settlementReplayReady ? store.settlementWebhookEvents.length : 0;
   const deliveryProviderEventCount = deliveryReplayReady ? store.deliveryProviderEvents.length : 0;
+  const walletReplayPacketCount = walletReplayPacketReady ? store.walletReplayPackets.length : 0;
   const replayStoreReadiness = {
-    status: settlementReplayReady && deliveryReplayReady ? "scaffold_ready_not_production_immutable" : "missing_replay_store",
-    ready: settlementReplayReady && deliveryReplayReady,
-    eventCount: settlementEventCount + deliveryProviderEventCount,
+    status: settlementReplayReady && deliveryReplayReady && walletReplayPacketReady ? "scaffold_ready_not_production_immutable" : "missing_replay_store",
+    ready: settlementReplayReady && deliveryReplayReady && walletReplayPacketReady,
+    eventCount: settlementEventCount + deliveryProviderEventCount + walletReplayPacketCount,
     settlementEventCount,
     deliveryProviderEventCount,
+    walletReplayPacketCount,
     retention: "latest_1000_json_dev_rows_per_replay_lane",
-    requiredForProduction: ["database uniqueness on provider event id", "immutable audit log", "terminal-state transition table", "operator review queue", "delivery provider event replay uniqueness and expiry"],
+    requiredForProduction: ["database uniqueness on provider event id", "immutable audit log", "terminal-state transition table", "operator review queue", "delivery provider event replay uniqueness and expiry", "wallet replay packet digest uniqueness and retention"],
     nonSettling: true
   };
   const providerPaymentBoundary = providerPaymentBoundaryReadiness(store);
@@ -6212,6 +6218,7 @@ function providerReadinessExportSnapshot(readiness = {}) {
   lines.push(`- ${readiness.replayStoreReadiness?.status || "unchecked"}; event rows ${Number(readiness.replayStoreReadiness?.eventCount || 0)}`);
   lines.push(`  Settlement replay rows: ${Number(readiness.replayStoreReadiness?.settlementEventCount || 0)}`);
   lines.push(`  Delivery replay rows: ${Number(readiness.replayStoreReadiness?.deliveryProviderEventCount || 0)}`);
+  lines.push(`  Wallet replay packets: ${Number(readiness.replayStoreReadiness?.walletReplayPacketCount || 0)}`);
   for (const item of readiness.replayStoreReadiness?.requiredForProduction || []) lines.push(`  Required: ${item}`);
   const runtimeDeployment = readiness.runtimeDeploymentReadiness || {};
   lines.push("", "Production Runtime Deployment Readiness");
@@ -8239,6 +8246,153 @@ function replayWalletRows(store, profile, body) {
   return { acceptedLedger, acceptedRequests, rejectedLedger, rejectedRequests, balance: store.walletBalances[profile.id] || null };
 }
 
+function walletReplayCount(value, fallback = 0) {
+  const count = Number(value);
+  if (!Number.isFinite(count) || count < 0) return fallback;
+  return Math.floor(count);
+}
+
+function walletReplayPacketDigest(body = {}, profileId = "") {
+  const reviewPacket = body && typeof body.reviewPacket === "object" && body.reviewPacket ? body.reviewPacket : {};
+  const ledger = Array.isArray(body.ledger) ? body.ledger.slice(0, 40) : [];
+  const requests = Array.isArray(body.requests) ? body.requests.slice(0, 24) : [];
+  const digestBody = {
+    profileId,
+    balance: body.balance ?? null,
+    currency: cleanWalletText(body.currency || reviewPacket.currency, "KES"),
+    providerBoundary: cleanWalletText(reviewPacket.providerBoundary || body.providerBoundary, "licensed_provider_required"),
+    reviewPacket: {
+      providerCalled: reviewPacket.providerCalled === true,
+      providerActivationEnabled: reviewPacket.providerActivationEnabled === true,
+      walletCreditEnabled: reviewPacket.walletCreditEnabled === true,
+      escrowReleaseEnabled: reviewPacket.escrowReleaseEnabled === true,
+      payoutEnabled: reviewPacket.payoutEnabled === true,
+      founderRevenueRecognized: reviewPacket.founderRevenueRecognized === true,
+      moneyMovementEnabled: reviewPacket.moneyMovementEnabled === true,
+      spendable: reviewPacket.spendable === true,
+      nonSettling: reviewPacket.nonSettling === true
+    },
+    ledger: ledger.map(row => ({
+      sourceId: cleanWalletText(row?.id || row?.sourceId || row?.request || "", ""),
+      kind: cleanWalletText(row?.kind, ""),
+      amount: cleanWalletAmount(row?.amount),
+      status: cleanWalletText(row?.status, ""),
+      parties: walletParties(row).sort()
+    })),
+    requests: requests.map(row => ({
+      sourceId: cleanWalletText(row?.id || row?.sourceId || "", ""),
+      amount: cleanWalletAmount(row?.amount),
+      status: cleanWalletText(row?.status, ""),
+      parties: walletParties(row).sort()
+    }))
+  };
+  return `sha256:${crypto.createHash("sha256").update(stableSettlementJson(digestBody)).digest("hex")}`;
+}
+
+function walletReplayPacketVisible(row, profileId) {
+  if (!row || !profileId) return false;
+  return row.account === profileId
+    || row.sourceAccount === profileId
+    || (Array.isArray(row.parties) && row.parties.includes(profileId));
+}
+
+function walletReplayPacketSummary(row) {
+  return {
+    id: row.id,
+    sourceAccount: row.sourceAccount,
+    payloadDigest: row.payloadDigest,
+    ledgerReadyCount: row.ledgerReadyCount || 0,
+    requestReadyCount: row.requestReadyCount || 0,
+    providerCandidateCount: row.providerCandidateCount || 0,
+    acceptedLedgerCount: row.acceptedLedgerCount || 0,
+    acceptedRequestCount: row.acceptedRequestCount || 0,
+    rejectedLedgerCount: row.rejectedLedgerCount || 0,
+    rejectedRequestCount: row.rejectedRequestCount || 0,
+    currency: row.currency || "KES",
+    settlementStatus: row.settlementStatus || "client_wallet_replay_packet_review_only_no_settlement",
+    providerBoundary: row.providerBoundary || "licensed_provider_required",
+    providerStatus: row.providerStatus || "provider_review_required",
+    providerCalled: false,
+    providerActivationEnabled: false,
+    walletCreditEnabled: false,
+    escrowReleaseEnabled: false,
+    payoutEnabled: false,
+    founderRevenueRecognized: false,
+    moneyMovementEnabled: false,
+    spendable: false,
+    nonSettling: true,
+    duplicate: row.duplicate === true,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
+  };
+}
+
+function recordWalletReplayPacket(store, profile, body = {}, replay = {}) {
+  ensureWalletStore(store);
+  const reviewPacket = body && typeof body.reviewPacket === "object" && body.reviewPacket ? body.reviewPacket : {};
+  const ledgerSourceCount = Array.isArray(body.ledger) ? Math.min(body.ledger.length, 40) : 0;
+  const requestSourceCount = Array.isArray(body.requests) ? Math.min(body.requests.length, 24) : 0;
+  const acceptedLedgerCount = Array.isArray(replay.acceptedLedger) ? replay.acceptedLedger.length : 0;
+  const acceptedRequestCount = Array.isArray(replay.acceptedRequests) ? replay.acceptedRequests.length : 0;
+  const rejectedLedgerCount = walletReplayCount(replay.rejectedLedger, 0);
+  const rejectedRequestCount = walletReplayCount(replay.rejectedRequests, 0);
+  const payloadDigest = walletReplayPacketDigest(body, profile.id);
+  const sourceKey = `${profile.id}:${payloadDigest}`;
+  const existing = store.walletReplayPackets.find(row => row.sourceKey === sourceKey);
+  if (existing) return { ...existing, duplicate: true };
+  const createdAt = nowISO();
+  const blockedActions = Array.isArray(reviewPacket.blockedActions)
+    ? reviewPacket.blockedActions.slice(0, 12).map(action => cleanWalletText(action, "").slice(0, 120)).filter(Boolean)
+    : [];
+  const row = {
+    id: `wallet_replay_${crypto.randomUUID()}`,
+    sourceKey,
+    account: profile.id,
+    sourceAccount: profile.id,
+    parties: [profile.id],
+    source: "client_wallet_replay_packet",
+    payloadDigest,
+    ledgerReadyCount: walletReplayCount(reviewPacket.ledgerReadyCount, ledgerSourceCount),
+    requestReadyCount: walletReplayCount(reviewPacket.requestReadyCount, requestSourceCount),
+    providerCandidateCount: walletReplayCount(reviewPacket.providerCandidateCount, 0),
+    acceptedLedgerCount,
+    acceptedRequestCount,
+    rejectedLedgerCount,
+    rejectedRequestCount,
+    currency: cleanWalletText(body.currency || reviewPacket.currency, "KES"),
+    settlementStatus: "client_wallet_replay_packet_review_only_no_settlement",
+    providerBoundary: cleanWalletText(reviewPacket.providerBoundary || body.providerBoundary, "licensed_provider_required"),
+    providerStatus: cleanWalletText(reviewPacket.providerStatus, "provider_review_required"),
+    providerCalled: false,
+    providerActivationEnabled: false,
+    walletCreditEnabled: false,
+    escrowReleaseEnabled: false,
+    payoutEnabled: false,
+    founderRevenueRecognized: false,
+    moneyMovementEnabled: false,
+    spendable: false,
+    nonSettling: true,
+    metadata: {
+      reviewPacketAccepted: reviewPacket.nonSettling === true,
+      requestedProviderCalled: reviewPacket.providerCalled === true,
+      requestedWalletCreditEnabled: reviewPacket.walletCreditEnabled === true,
+      requestedEscrowReleaseEnabled: reviewPacket.escrowReleaseEnabled === true,
+      requestedPayoutEnabled: reviewPacket.payoutEnabled === true,
+      requestedMoneyMovementEnabled: reviewPacket.moneyMovementEnabled === true,
+      requestedSpendable: reviewPacket.spendable === true,
+      blockedActions,
+      ledgerSourceCount,
+      requestSourceCount
+    },
+    clientTime: cleanWalletText(body.clientTime || reviewPacket.clientTime, ""),
+    createdAt,
+    updatedAt: createdAt
+  };
+  store.walletReplayPackets.unshift(row);
+  store.walletReplayPackets = store.walletReplayPackets.slice(0, 1000);
+  return row;
+}
+
 function replaySettlementAudits(store, profile, body) {
   ensureWalletStore(store);
   const sourceRows = Array.isArray(body.audits) ? body.audits.slice(0, 40) : [];
@@ -8321,11 +8475,12 @@ function dataCategories(store, profileId) {
     + store.jurisdictionProfiles.filter(row => row.profileId === profileId).length
     + store.verificationAiDrafts.filter(row => row.profileId === profileId).length;
   const musicCount = store.musicReleasePackets.filter(row => row.ownerId === profileId).length;
+  const walletReplayPacketCount = store.walletReplayPackets.filter(row => walletReplayPacketVisible(row, profileId)).length;
   return [
     { name: "Profile and privacy settings", count: store.profiles.filter(p => p.id === profileId).length, retention: "Until changed or deletion completes." },
     { name: "Posts and media metadata", count: store.posts.filter(p => p.authorId === profileId).length, retention: "While published; rights disputes may keep audit metadata." },
     { name: "Messages and follow-ups", count: store.messages.filter(m => m.from === profileId || m.to === profileId).length + store.followUps.filter(f => f.profileId === profileId || f.entity === profileId).length, retention: "For user history, support and safety investigations." },
-    { name: "Wallet ledger, money requests and settlement audits", count: store.walletLedger.filter(row => walletRowVisible(row, profileId)).length + store.walletRequests.filter(row => walletRowVisible(row, profileId)).length + settlementCount + webhookEventCount, retention: "Receipts, reconciliation, fraud review, KYC and legal audit can outlive account removal." },
+    { name: "Wallet ledger, money requests, replay packets and settlement audits", count: store.walletLedger.filter(row => walletRowVisible(row, profileId)).length + store.walletRequests.filter(row => walletRowVisible(row, profileId)).length + walletReplayPacketCount + settlementCount + webhookEventCount, retention: "Receipts, replay proof, reconciliation, fraud review, KYC and legal audit can outlive account removal." },
     { name: "Listings and commerce records", count: commerceCount, retention: "Receipts, tax, fraud and dispute obligations can outlive account removal." },
     { name: "Artist release packets and rights checklists", count: musicCount, retention: "Rights, royalty, takedown and release-review records can outlive takedowns or account closure." },
     { name: "Trust, identity and safety logs", count: identityCount + store.trustSeals.filter(row => row.from === profileId || row.to === profileId).length + store.trustReports.filter(row => row.from === profileId || row.to === profileId).length, retention: "Abuse prevention, appeals, KYC, country-passport review and legal audit trail." }
@@ -8497,6 +8652,10 @@ function aiVisibleRecordSet(store, profile, body = {}) {
     .filter(row => walletRowVisible(row, profileId))
     .slice(0, limit)
     .map(row => ({ id: row.id, amount: row.amount || 0, currency: row.currency || "KES", status: row.status || "", settlementStatus: row.settlementStatus || "client_replayed_not_settled", note: safeAiText(row.note || row.label, "", 120), providerVerified: row.providerVerified === true, spendable: row.spendable === true }));
+  const walletReplayPackets = store.walletReplayPackets
+    .filter(row => walletReplayPacketVisible(row, profileId))
+    .slice(0, limit)
+    .map(row => ({ id: row.id, ledgerReadyCount: row.ledgerReadyCount || 0, requestReadyCount: row.requestReadyCount || 0, providerCandidateCount: row.providerCandidateCount || 0, settlementStatus: row.settlementStatus || "client_wallet_replay_packet_review_only_no_settlement", providerStatus: row.providerStatus || "provider_review_required", providerVerified: row.providerVerified === true, spendable: row.spendable === true }));
   const settlementAudits = store.settlementAudits
     .filter(row => settlementAuditVisible(row, profileId))
     .slice(0, limit)
@@ -8525,7 +8684,7 @@ function aiVisibleRecordSet(store, profile, body = {}) {
     .filter(row => row.ownerId === profileId)
     .slice(0, limit)
     .map(row => ({ id: row.id, title: safeAiText(row.title, "Release", 100), status: row.status || "packet_review", marketCountry: safeAiText(row.marketCountry, "", 80), legalFilingStatus: row.readiness?.legalFilingStatus || "not_filed_provider_or_authority_required", distributionEnabled: false }));
-  const samples = { profile: profileSummary, posts, listings, orders, bookings, deliveryJobs, messages, followUps, walletLedger, walletRequests, settlementAudits, trust, support, identity, musicReleasePackets };
+  const samples = { profile: profileSummary, posts, listings, orders, bookings, deliveryJobs, messages, followUps, walletLedger, walletRequests, walletReplayPackets, settlementAudits, trust, support, identity, musicReleasePackets };
   const recordCounts = {
     posts: store.posts.filter(row => row.authorId === profileId).length,
     listings: store.listings.filter(row => row.ownerId === profileId).length,
@@ -8536,6 +8695,7 @@ function aiVisibleRecordSet(store, profile, body = {}) {
     followUps: store.followUps.filter(row => row.profileId === profileId || row.entity === profileId).length,
     walletLedger: store.walletLedger.filter(row => walletRowVisible(row, profileId)).length,
     walletRequests: store.walletRequests.filter(row => walletRowVisible(row, profileId)).length,
+    walletReplayPackets: store.walletReplayPackets.filter(row => walletReplayPacketVisible(row, profileId)).length,
     settlementAudits: store.settlementAudits.filter(row => settlementAuditVisible(row, profileId)).length,
     trust: store.trustSeals.filter(row => row.from === profileId || row.to === profileId).length + store.trustReports.filter(row => row.from === profileId || row.to === profileId).length,
     support: store.supportIncidents.filter(row => row.reporter === profileId || row.target === profileId || (row.parties || []).includes(profileId)).length,
@@ -8560,7 +8720,7 @@ function aiVisibleRecordSet(store, profile, body = {}) {
 function aiRiskFlags(records) {
   const counts = records.recordCounts || {};
   const flags = [];
-  if (counts.walletLedger || counts.walletRequests || counts.settlementAudits) flags.push({ id: "money_visible", severity: "high", copy: "Money, refund, payout or escrow rows are visible. AI can summarize only; provider reconciliation and balances stay human/server owned." });
+  if (counts.walletLedger || counts.walletRequests || counts.walletReplayPackets || counts.settlementAudits) flags.push({ id: "money_visible", severity: "high", copy: "Money, refund, payout or escrow rows are visible. AI can summarize only; provider reconciliation and balances stay human/server owned." });
   if (counts.trust) flags.push({ id: "trust_visible", severity: "high", copy: "Trust rows are visible. AI cannot grant Seals, change scores or resolve reports." });
   if (counts.deliveryJobs) flags.push({ id: "delivery_visible", severity: "medium", copy: "Delivery dispatch rows are visible. AI can summarize proof, route and incident gaps only; it cannot assign riders, expose contacts or release payout." });
   if (counts.identity) flags.push({ id: "identity_visible", severity: "high", copy: "Identity check metadata is visible. AI cannot approve KYC or expose legal-ID material." });
@@ -8956,7 +9116,7 @@ function schema() {
       commerce: ["GET /api/listings", "POST /api/listings", "POST /api/delivery/quote", "POST /api/orders/checkout", "PATCH /api/orders/:id/status", "POST /api/payments/intent"],
       delivery: ["POST /api/delivery/jobs", "GET /api/delivery/jobs/available", "POST /api/delivery/jobs/:id/accept", "PATCH /api/delivery/jobs/:id/status", "POST /api/delivery/jobs/:id/proof", "POST /api/delivery/jobs/:id/incidents", "POST /api/delivery/webhooks/:provider", "POST /api/couriers/register", "PATCH /api/couriers/me/shift", "GET /api/couriers/me/payouts"],
       bookings: ["POST /api/bookings", "PATCH /api/bookings/:id/complete"],
-      finance: ["GET /api/wallet/ledger", "POST /api/wallet/ledger/replay", "POST /api/pay-lens/extract-draft", "POST /api/pay-lens/validate-draft", "GET /api/payments/provider-boundary", "POST /api/payments/provider-boundary-events", "GET /api/founder/finance-export", "GET /api/settlements/state-machine", "GET /api/settlements/escrow-audits", "POST /api/settlements/escrow-audits", "GET /api/settlements/exceptions", "GET /api/settlements/webhook-events", "POST /api/settlements/webhook-events/:id/review-decisions", "GET /api/settlements/exceptions/:id/reconciliation-preview", "POST /api/settlements/exceptions/:id/review-notes", "POST /api/settlements/exceptions/:id/receipt-candidates"],
+      finance: ["GET /api/wallet/ledger", "GET /api/wallet/replay-packets", "POST /api/wallet/ledger/replay", "POST /api/pay-lens/extract-draft", "POST /api/pay-lens/validate-draft", "GET /api/payments/provider-boundary", "POST /api/payments/provider-boundary-events", "GET /api/founder/finance-export", "GET /api/settlements/state-machine", "GET /api/settlements/escrow-audits", "POST /api/settlements/escrow-audits", "GET /api/settlements/exceptions", "GET /api/settlements/webhook-events", "POST /api/settlements/webhook-events/:id/review-decisions", "GET /api/settlements/exceptions/:id/reconciliation-preview", "POST /api/settlements/exceptions/:id/review-notes", "POST /api/settlements/exceptions/:id/receipt-candidates"],
       identity: ["POST /api/identity/checks", "GET /api/identity/jurisdiction-profiles/me", "POST /api/identity/jurisdiction-profiles", "POST /api/identity/ai-verification-drafts", "GET /api/identity/provider-gateway", "POST /api/identity/provider-sessions", "POST /api/identity/provider-webhooks/:provider"],
       music: ["GET /api/music/release-packets", "POST /api/music/release-packets", "PATCH /api/music/release-packets/:id/artist-approval"],
       trust: ["GET /api/trust/:profileId", "POST /api/trust/seals", "POST /api/trust/reports", "POST /api/trust/reports/:id/evidence-responses"],
@@ -9632,15 +9792,42 @@ async function handle(req, res) {
       return send(res, 200, { balance: store.walletBalances[profile.id] || null, ledger, requests });
     }
 
+    if (key === "GET /api/wallet/replay-packets") {
+      ensureWalletStore(store);
+      const packets = store.walletReplayPackets
+        .filter(row => walletReplayPacketVisible(row, profile.id))
+        .slice(0, 40)
+        .map(walletReplayPacketSummary);
+      return send(res, 200, {
+        packets,
+        count: packets.length,
+        settlementStatus: "wallet_replay_packets_review_only_no_settlement",
+        providerCalled: false,
+        providerActivationEnabled: false,
+        walletCreditEnabled: false,
+        escrowReleaseEnabled: false,
+        payoutEnabled: false,
+        founderRevenueRecognized: false,
+        moneyMovementEnabled: false,
+        spendable: false,
+        nonSettling: true
+      });
+    }
+
     if (key === "POST /api/wallet/ledger/replay") {
       const body = await readJson(req);
       const replay = replayWalletRows(store, profile, body);
+      const replayPacket = recordWalletReplayPacket(store, profile, body, replay);
       audit(store, user.id, "wallet.ledger.replay", "wallet", profile.id, {
         ledgerAccepted: replay.acceptedLedger.length,
         requestsAccepted: replay.acceptedRequests.length,
         ledgerRejected: replay.rejectedLedger,
         requestsRejected: replay.rejectedRequests,
-        settlementStatus: "client_replayed_not_settled"
+        replayPacketId: replayPacket.id,
+        payloadDigest: replayPacket.payloadDigest,
+        walletReplayPacketDuplicate: replayPacket.duplicate === true,
+        settlementStatus: "client_replayed_not_settled",
+        walletReplayPacketSettlementStatus: "client_wallet_replay_packet_review_only_no_settlement"
       });
       await saveStore(store, storePath);
       return send(res, 202, {
@@ -9653,6 +9840,7 @@ async function handle(req, res) {
           ledgerIds: Object.fromEntries(replay.acceptedLedger.map(row => [row.sourceId, row.id])),
           requestIds: Object.fromEntries(replay.acceptedRequests.map(row => [row.sourceId, row.id])),
           settlementStatus: "client_replayed_not_settled",
+          replayPacket: walletReplayPacketSummary(replayPacket),
           reviewPacketAccepted: body?.reviewPacket?.nonSettling === true,
           providerBoundary: cleanWalletText(body?.reviewPacket?.providerBoundary || body?.providerBoundary, "licensed_provider_required"),
           providerCalled: false,

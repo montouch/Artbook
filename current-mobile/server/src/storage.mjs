@@ -42,6 +42,7 @@ function seedStore() {
     walletBalances: {},
     walletLedger: [],
     walletRequests: [],
+    walletReplayPackets: [],
     settlementAudits: [],
     identityChecks: [],
     jurisdictionProfiles: [],

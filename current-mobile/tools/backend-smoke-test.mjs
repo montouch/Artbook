@@ -76,6 +76,7 @@ try {
   assert(schema.json.endpoints?.privacy?.includes("GET /privacy-policy"), "schema missing privacy policy web resource endpoint");
   assert(schema.json.endpoints?.privacy?.includes("GET /account-deletion") && schema.json.endpoints?.privacy?.includes("POST /api/public/deletion-requests"), "schema missing public deletion web resource endpoints");
   assert(schema.json.endpoints?.finance?.includes("POST /api/wallet/ledger/replay"), "schema missing wallet replay endpoint");
+  assert(schema.json.endpoints?.finance?.includes("GET /api/wallet/replay-packets"), "schema missing wallet replay packet trail endpoint");
   assert(schema.json.endpoints?.finance?.includes("POST /api/pay-lens/extract-draft"), "schema missing Pay Lens extraction handoff endpoint");
   assert(schema.json.endpoints?.finance?.includes("POST /api/pay-lens/validate-draft"), "schema missing Pay Lens draft validation endpoint");
   assert(schema.json.endpoints?.finance?.includes("GET /api/payments/provider-boundary"), "schema missing provider-led payment boundary endpoint");
@@ -301,7 +302,7 @@ try {
   assert(mpesaReadiness.requiredSecrets?.includes("DARAJA_CONSUMER_KEY") && cardReadiness.requiredSecrets?.includes("CARD_PROVIDER_SECRET_KEY") && payoutReadiness.requiredSecrets?.includes("PAYOUT_PROVIDER_API_KEY") && deliveryReadiness.requiredSecrets?.includes("DELIVERY_PROVIDER_API_KEY") && playReadiness.requiredSecrets?.includes("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"), "provider readiness should report required secret names");
   assert((readiness.secretGroups || []).every(group => (group.secrets || []).every(secret => secret.name && ["present", "missing"].includes(secret.status) && !Object.prototype.hasOwnProperty.call(secret, "value"))), "provider readiness should expose secret status only, never values");
   assert(readiness.rawBodyReadiness?.ready === false && /raw request bytes/i.test((readiness.rawBodyReadiness?.required || []).join(" ")), "provider readiness should flag raw-body webhook signature work");
-  assert(readiness.replayStoreReadiness?.ready === true && typeof readiness.replayStoreReadiness?.eventCount === "number" && typeof readiness.replayStoreReadiness?.deliveryProviderEventCount === "number", "provider readiness should report settlement and delivery replay-store scaffold status");
+  assert(readiness.replayStoreReadiness?.ready === true && typeof readiness.replayStoreReadiness?.eventCount === "number" && typeof readiness.replayStoreReadiness?.deliveryProviderEventCount === "number" && typeof readiness.replayStoreReadiness?.walletReplayPacketCount === "number", "provider readiness should report settlement, delivery and wallet replay-store scaffold status");
   assert(readiness.runtimeDeploymentReadiness?.status === "runtime_deployment_readiness_review_only_no_provider_activation" && readiness.runtimeDeploymentReadiness?.deploymentEnabled === false && readiness.runtimeDeploymentReadiness?.providerActivationEnabled === false && readiness.runtimeDeploymentReadiness?.moneyMovementEnabled === false, "runtime deployment readiness should be review-only and fail closed");
   assert(readiness.runtimeDeploymentReadiness?.counts?.environmentGroupCount >= 5 && readiness.runtimeDeploymentReadiness?.counts?.sandboxCallbackCheckCount >= 6 && readiness.runtimeDeploymentReadiness?.counts?.deploymentRunbookStepCount >= 6 && readiness.runtimeDeploymentReadiness?.counts?.hostingChecklistCount >= 8 && readiness.runtimeDeploymentReadiness?.counts?.sandboxFixtureExecutionCount >= 6 && readiness.runtimeDeploymentReadiness?.counts?.executedSandboxFixtureCount === 0 && readiness.runtimeDeploymentReadiness?.counts?.providerCalledSandboxFixtureCount === 0 && readiness.runtimeDeploymentReadiness?.counts?.fixtureResultCaptureRowCount >= 6 && readiness.runtimeDeploymentReadiness?.counts?.capturedFixtureResultRowCount === 0 && readiness.runtimeDeploymentReadiness?.counts?.fixtureReceiptCandidateCreatedCount === 0 && readiness.runtimeDeploymentReadiness?.counts?.backendDeploymentEvidenceRowCount >= 8 && readiness.runtimeDeploymentReadiness?.counts?.backendDeploymentProductionReadyCount === 0 && readiness.runtimeDeploymentReadiness?.counts?.localReplayCountsAsProductionCount === 0 && readiness.runtimeDeploymentReadiness?.counts?.blockedRuntimeGateCount >= 1, "runtime deployment readiness should summarize env groups, sandbox callbacks, hosting checks, fixture evidence, capture rows, backend deployment evidence and runbook gates");
   assert(["backend_public_runtime", "payment_provider_runtime", "delivery_call_runtime", "play_android_runtime", "compliance_support_runtime"].every(id => readiness.runtimeDeploymentReadiness?.environmentGroups?.some(row => row.id === id && row.deploymentEnabled === false && row.moneyMovementEnabled === false && Array.isArray(row.missingNames))), "runtime deployment readiness should expose blocked env and secret groups");
@@ -757,11 +758,15 @@ try {
       currency: "KES",
       reviewPacket: {
         providerBoundary: "licensed_provider_required",
+        ledgerReadyCount: 1,
+        requestReadyCount: 1,
+        providerCandidateCount: 0,
         providerCalled: false,
         walletCreditEnabled: false,
         moneyMovementEnabled: false,
         spendable: false,
-        nonSettling: true
+        nonSettling: true,
+        blockedActions: ["wallet_credit", "escrow_release", "payout_release"]
       },
       ledger: [{ id: "smoke_wallet_send", kind: "internal send", label: "Smoke internal send", from: registered.json.user.profileId, to: "zuri", parties: [registered.json.user.profileId, "zuri"], amount: 700, status: "sent", feeSaved: 11 }],
       requests: [{ id: "smoke_wallet_request", from: registered.json.user.profileId, to: "zuri", parties: [registered.json.user.profileId, "zuri"], amount: 450, status: "pending", note: "Smoke request" }]
@@ -769,10 +774,18 @@ try {
   });
   assert(walletReplay.status === 202 && walletReplay.json.wallet?.ledgerAccepted === 1 && walletReplay.json.wallet?.requestsAccepted === 1, "wallet replay did not accept ledger and request rows");
   assert(walletReplay.json.wallet?.providerCalled === false && walletReplay.json.wallet?.walletCreditEnabled === false && walletReplay.json.wallet?.moneyMovementEnabled === false && walletReplay.json.wallet?.spendable === false && walletReplay.json.wallet?.reviewPacketAccepted === true, "wallet replay should remain provider-review only with no money movement");
+  assert(walletReplay.json.wallet?.replayPacket?.id && walletReplay.json.wallet.replayPacket.payloadDigest?.startsWith("sha256:") && walletReplay.json.wallet.replayPacket.ledgerReadyCount === 1 && walletReplay.json.wallet.replayPacket.requestReadyCount === 1, "wallet replay packet was not returned with digest and counts");
+  assert(walletReplay.json.wallet.replayPacket.providerCalled === false && walletReplay.json.wallet.replayPacket.walletCreditEnabled === false && walletReplay.json.wallet.replayPacket.moneyMovementEnabled === false && walletReplay.json.wallet.replayPacket.spendable === false && walletReplay.json.wallet.replayPacket.nonSettling === true, "wallet replay packet should remain fail-closed");
 
   const wallet = await request(base, "/api/wallet/ledger", { headers: auth });
   assert(wallet.status === 200 && wallet.json.balance?.amount === 24100 && wallet.json.ledger?.some(row => row.sourceId === "smoke_wallet_send" && row.settlementStatus === "client_replayed_not_settled"), "wallet ledger replay was not readable");
   assert(wallet.json.balance?.walletCreditEnabled === false && wallet.json.balance?.moneyMovementEnabled === false && wallet.json.balance?.spendable === false && wallet.json.ledger?.some(row => row.sourceId === "smoke_wallet_send" && row.walletCreditEnabled === false && row.moneyMovementEnabled === false && row.spendable === false), "wallet replay persisted rows should not become spendable or credited");
+
+  const walletReplayPackets = await request(base, "/api/wallet/replay-packets", { headers: auth });
+  const replayPacketId = walletReplay.json.wallet.replayPacket.id;
+  const savedReplayPacket = walletReplayPackets.json.packets?.find(row => row.id === replayPacketId);
+  assert(walletReplayPackets.status === 200 && savedReplayPacket?.payloadDigest === walletReplay.json.wallet.replayPacket.payloadDigest, "wallet replay packet trail was not readable");
+  assert(savedReplayPacket.providerCalled === false && savedReplayPacket.walletCreditEnabled === false && savedReplayPacket.moneyMovementEnabled === false && savedReplayPacket.spendable === false && savedReplayPacket.nonSettling === true, "saved wallet replay packet should not enable money movement");
 
   const rejectedWalletReplay = await request(base, "/api/wallet/ledger/replay", {
     method: "POST",

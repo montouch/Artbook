@@ -16837,3 +16837,120 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Production still needs hosted provider callback replay, real provider sandbox credentials, Supabase project provisioning, release signing and payment/legal review.
 - Next focus:
   - wire Node backend wallet replay to a Supabase repository layer when a project/env exists, or add provider callback proof-capture tables and docs for hosted replay evidence.
+
+### 2026-06-05 17:58 +09:30 - Node wallet replay packet trail
+- Scope:
+  - Continued backend/provider launch readiness after the Supabase wallet replay packet table pass.
+  - Chose the Node backend parity gap: Android/backend wallet replay could persist ledger/request rows, and Supabase now had a launch table, but the local API did not preserve a digestable replay packet trail.
+  - Preserved provider-led payment language, no Artbook-held escrow/custody claim, no wallet credit, no payout, no spendable balance and no explicit creator monetization.
+- Changed:
+  - `incoming\Artbook-transfer-v181\server\src\server.mjs`
+    - Added `walletReplayPackets` store initialization, replay packet digesting, duplicate protection, visibility scoping and fail-closed packet summaries.
+    - Added `GET /api/wallet/replay-packets`.
+    - Updated `POST /api/wallet/ledger/replay` to return and audit a non-settling replay packet with SHA-256 digest, source counts and provider-review status.
+    - Included replay packets in privacy/data categories, AI context counts and provider replay-store/payment-boundary readiness counts.
+  - `incoming\Artbook-transfer-v181\server\src\storage.mjs`
+    - Added `walletReplayPackets: []` to the seed store.
+  - `incoming\Artbook-transfer-v181\tools\backend-smoke-test.mjs`
+    - Added schema, response, readable packet trail and fail-closed assertions for wallet replay packets.
+- Verification:
+  - `node --check server\src\server.mjs`: passed.
+  - `node --check tools\backend-smoke-test.mjs`: passed.
+  - `tools\backend-smoke-test.mjs`: passed with 344 checks.
+  - `tools\backend-sync-ui-test.mjs`: passed with 348 checks, no page errors and no console errors.
+- Rebuild / device:
+  - APK rebuild not run because this pass changed Node backend/storage/test files only; Android runtime source was unchanged from the already installed `8718D69E9822330DDD54D0CCC008E209155E35031A085ED9C6DF26600CD043D6` build.
+  - ADB install/launch not repeated for the same reason.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live provider sandbox credentials or Supabase project/env are configured here, so the packet trail is verified in the local JSON-dev backend and static Supabase migration rather than production storage.
+  - Full frame-by-frame Figma parity still depends on connector-readable source frames or exported design context from the referenced community files.
+- Next focus:
+  - wire wallet replay packet writes to the Supabase repository layer once project/env access exists, or resume Figma frame-by-frame UI parity on a connector-readable screen set.
+
+### 2026-06-05 19:34 +09:30 - Local GitHub sync for latest mobile backend/provider readiness
+- Scope:
+  - Continued the launch-readiness loop after the Figma Make handoff attempt.
+  - Chose local GitHub sync as the highest-value move because `github-sync\Artbook\current-mobile` was behind the active `incoming\Artbook-transfer-v181` workspace for wallet replay packet, Supabase launch and provider-boundary files.
+  - Preserved the Android Play Store-safe boundary: provider-led payment review, proof before release, owner approval language, no Artbook-held escrow/custody claim, no spendable wallet balances and no explicit Android creator monetization.
+- Changed:
+  - Synced latest source/docs/tooling into `github-sync\Artbook\current-mobile`:
+    - `src\artbook-mobile.html`
+    - `server\src\server.mjs`
+    - `server\src\storage.mjs`
+    - `tools\backend-smoke-test.mjs`
+    - `tools\smoke-test-artbook.mjs`
+    - `tools\state-flow-audit-artbook.mjs`
+    - `tools\visual-audit-artbook.mjs`
+    - `tools\accessibility-audit-artbook.mjs`
+    - `docs\SUPABASE_LAUNCH_BACKEND.md`
+    - `supabase\config.toml`
+    - `supabase\functions\provider-webhook\index.ts`
+    - `supabase\migrations\20260605014500_artbook_launch_core.sql`
+    - `tools\supabase-launch-backend-audit.mjs`
+  - Synced the root QA progress note into `github-sync\Artbook\qa\ARTBOOK_QA_PROGRESS_2026-05-29.md`.
+  - Did not copy APKs, signing sidecars, `.env.local`, local build output or backups into GitHub.
+- Verification:
+  - Hash verification confirmed representative synced files in `current-mobile` match the active workspace copies.
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `node --check server\src\server.mjs`: passed.
+  - `node --check tools\backend-smoke-test.mjs`: passed.
+  - `node --check tools\supabase-launch-backend-audit.mjs`: passed.
+  - `node --check tools\smoke-test-artbook.mjs`: passed.
+  - `tools\backend-smoke-test.mjs`: passed with 344 checks.
+  - `tools\supabase-launch-backend-audit.mjs`: passed with 16 tables, 45 RLS policies and fail-closed money/provider boundaries.
+  - `tools\smoke-test-artbook.mjs`: passed; Wallet proof card present with money/provider/wallet-credit flags all `false`.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+- Visible UI review:
+  - Smoke output reviewed the Home/Today first viewport text: Riley - Westlands, verified/provider-led status, KES 24,800 provider-review total, quick access tiles and artist command room are visible without a floating Pay Lens or floating AI overlay.
+  - Visual and accessibility audits saved screenshots under `github-sync\Artbook\current-mobile\build\artbook-apk\visual-audit` and `github-sync\Artbook\current-mobile\build\artbook-apk\accessibility-audit`.
+- Figma note:
+  - Figma Make accepted the Artbook redesign prompt and created `Artbook Mobile App Redesign`, but generation is blocked by Figma account credits until July 4. The handoff command and Make run status are saved in `C:\Users\brown\Desktop\Artbook Figma References`.
+- Rebuild / device:
+  - APK rebuild not run because this pass synced already-built workspace source/docs/tooling into the local GitHub repo; Android runtime behavior was unchanged from the previously rebuilt and installed `8718D69E9822330DDD54D0CCC008E209155E35031A085ED9C6DF26600CD043D6` build.
+  - ADB install/launch not repeated for the same reason.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected GitHub/backend-readiness sync, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - `github-sync\Artbook` still has uncommitted/untracked repo changes (`README.md`, `current-mobile/`, `qa/`) that need an intentional Git commit/push when the user wants the local GitHub repo published.
+  - Figma Make generation is account-credit blocked until July 4.
+  - Live Supabase/Convex/Base44 project provisioning, provider sandbox credentials, hosted callback replay, release signing and production payment/legal review remain external blockers.
+- Next focus:
+  - commit/push the synced GitHub repo when asked, or continue backend-provider readiness by wiring replay packet writes to a real Supabase repository layer once project/env access exists.
+
+### 2026-06-05 19:53 +09:30 - Self-led Figma-reference Home layout and flow pass
+- Scope:
+  - Took over the UI work after Figma Make hit the account-side AI credit blocker.
+  - Focused this pass on look, layout and flow for the first Artbook mobile viewport, because Home/Today is the launch-critical shell that should prove the Figma direction immediately.
+  - Used the captured Figma reference pack as product direction: DesignCode system, SaaS organization, Money Management/e-wallet hierarchy, Scheddo/Calendar booking flow, Event Booking status, and Omnichart/Journey Map proof stages.
+  - Preserved Android Play Store-safe payment language: provider-led payment review, proof before release, owner approval, no Artbook-held escrow/custody claim, no spendable wallet promise and no explicit creator monetization.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Rebuilt the reference-mode Home composition into a premium mobile cockpit with a fintech-style hero, KES provider-review card, booking/order/review stats, clean command tiles, proof timeline, live work rows and quick workbench cards.
+    - Added `data-self-led-redesign-v3`, `data-no-floating-home="true"` and reference-stack markers for auditability.
+    - Kept core navigation actions wired to Marketplace, Calendar, Wallet, Business/Owner Desk, Events and Customer Letters.
+    - Adjusted wrapping and copy so the new layout does not clip on 390px mobile viewports.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` returned Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed; Home first viewport now shows the new Today cockpit, KES 24,800 provider review total, Quick Access, proof status, Calendar/Wallet/Marketplace tiles and no boot errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems after fixing clipped Home row copy.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\head-to-toe-audit-artbook.mjs`: passed 5 roles x 20 routes plus cross-account commerce isolation, exact work trails and major modal health.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the updated APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,737,226 bytes. Signing source: default debug keystore.
+  - ADB install/launch was blocked because ADB only reported `emulator-5562` as `offline`; no authorized online device was available.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected UI/layout pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Literal 100% pixel-for-pixel cloning of third-party/community Figma kits is blocked unless the editable source/license explicitly permits production reuse. This pass implements an Artbook-original production UI that follows the captured reference structure and flow closely.
+  - Figma Make remains blocked by account AI credits until July 4.
+- Next focus:
+  - extend the same frame-by-frame treatment beyond Home into Calendar/Booking detail, Wallet/payment partner status, Marketplace product detail, Events/Tickets and Inbox so the whole app shell carries the same reference-quality flow.
