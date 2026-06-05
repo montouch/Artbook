@@ -16491,3 +16491,55 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - build a Figma reference frame audit map for all supplied links, then port the next screen from an accessible real frame rather than generic inspiration; Calendar bookings, Wallet/payment partner status and Events/Tickets are the best next frame-based surfaces.
+
+### 2026-06-05 15:45 +09:30 - Figma frame-based Wallet / payment partner shell
+- Scope:
+  - Founder-selected Figma UI pass after Booking Detail.
+  - Tightened Wallet to the real Money Management Mobile App frame while preserving the existing live wallet, Pay Lens, requests, ledger, provider boundary and booking activity underneath.
+  - Chose Wallet because provider-led payment language and KES clarity are launch-risk surfaces for Play Store review.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added the wallet hamburger icon path used by the Figma header.
+    - Reworked `figmaAiBossWalletHTML(...)` to follow Money Management frame `6101:379`: centered Wallet header, Welcome block, 203px gradient partner card, five Easy Operations tiles, Previous Transactions rows, then review/boundary content below.
+    - Added exact child Figma markers for operations (`6101:410`, `6101:420`, `6101:427`, `6101:434`, `6101:444`) and transaction rows (`6101:457`, `6101:468`, `6101:480`).
+    - Added `figma-ai-wallet-live-head` before the preserved live wallet engine.
+    - Cleaned provider-led copy so Android shows KES previews, M-Pesa-style partner review, receipts and proof trails without direct custody, settlement or spendable-balance claims.
+    - Adjusted the fifth operation tile to fit fully on 390px audit viewports; exact Figma peeking was rejected by the visual audit, so app usability won.
+- Figma evidence:
+  - Figma connector `get_design_context` for Money Management file `4nV0kOCYJeA8GqqQ5YsoRR`, node `6101:379`.
+  - Exposed frame details used: 414x896 rounded mobile frame, `#fafafa` background, header node `6101:380`, Welcome node `6101:389`, gradient card node `6101:392`, Easy Operations node `6101:403`, Previous Transactions node `6101:453`.
+  - The Artbook Wallet DOM now carries those node references and keeps the app-specific provider-led model.
+- Visible UI review:
+  - Targeted Playwright probe opened `riley_biz` in reference mode on Wallet, unlocked the visible demo finance PIN, and confirmed `.figma-ai-wallet[data-node-id="6101:379"]`, five operation tiles, three transaction rows, masked `KES **** 5678` card text, child node markers, no risky visible money/creator wording, and the preserved live wallet engine.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\wallet-money-management-figma-frame-light-settled.png`.
+  - Dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\wallet-money-management-figma-frame-dark-settled.png`.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: initially caught the offscreen Figma-style More tile; after fitting all five tiles, passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `6F78AC1B6A6FA01D1A765F8D5A8582588596A5A9DE484C183D9D12545E06D938`.
+  - Version: `1.181` / versionCode `181`; size `31,729,034` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 15:43:39`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `20817`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord{... com.steward.artbook/.MainActivity ...}`; `mCurrentFocus` remained `NotificationShade` after non-secret wake/dismiss-keyguard, so a manual visible-foreground check may require unlocking the phone.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact frame-by-frame copying is now limited only by what the Figma connector exposes for each community file and by app QA rules; if a frame intentionally clips controls, Artbook should keep the frame quality but make controls usable.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port Events/Tickets or Calendar/Appointments from another accessible real Figma frame, then start backend-provider wiring for wallet/payment review once UI surfaces are coherent.
