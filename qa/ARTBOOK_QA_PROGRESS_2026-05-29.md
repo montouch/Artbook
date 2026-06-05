@@ -16543,3 +16543,54 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port Events/Tickets or Calendar/Appointments from another accessible real Figma frame, then start backend-provider wiring for wallet/payment review once UI surfaces are coherent.
+
+### 2026-06-05 16:04 +09:30 - Figma frame-based Calendar / appointments shell
+- Scope:
+  - Continued the Figma-led UI pass after Wallet.
+  - Targeted Calendar/Appointments because the Event Booking and numeric Calendar community links did not expose usable app frames through the connector, while the Scheddo bookings file exposed concrete booking/stat frames.
+  - Preserved Artbook's live booking engine, Kenya data, provider-led payment review and proof-before-release language.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Reworked the reference-mode Calendar quick stats to follow Scheddo frame `310:1790`: Quick Stats label, 110px white cards, 32px values, muted business labels and red pending emphasis.
+    - Reworked Calendar booking tiles to follow Scheddo frame `310:1705`: 208px cards, title, Service, Date, Time and purple/muted text-link actions.
+    - Added exact Figma node markers for stats (`310:1791`, `310:1795`, `310:1799`, `310:1805`) and booking tiles (`310:1706`, `310:1720`, `310:1734`, `310:1748`, `310:1762`, `310:1776`).
+    - Kept role, price, status, place and worker data in attributes/details while simplifying visible card text to match the Figma frame.
+    - Fixed a post-audit touch-target warning by giving text actions a minimum 44px width.
+- Figma evidence:
+  - Figma connector `get_metadata` and `get_design_context` for Scheddo file `AuetlZoxdbeNNJ8wyKgaRo`, page `307:64`.
+  - Implemented exposed frames `310:1705` Bookings and `310:1790` Stats.
+  - Event Booking file `Gju56AmIeuui8uj37ZuEY7` exposed only cover/mockup metadata in this pass; Calendar community numeric file `1087092786661212228` was not connector-readable as a concrete design key.
+- Visible UI review:
+  - Targeted Playwright probe opened `riley_biz` in reference mode on Calendar and confirmed `.figma-ai-calendar[data-node-id="310:1705"]`, stat cards at `160x110`, booking cards at `208px` height, no page/console errors and 0 horizontal overflow.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\calendar-scheddo-light.png`.
+  - Dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\calendar-scheddo-dark.png`.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: initially warned on 42px Policy text buttons; after the 44px min-width fix, passed 102 checked with 0 failures and 0 warnings.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `B487D7FD0B71211E4616414492C2C82E0CE5BE62E8ADEC8F9D36EBBD6C407FFB`.
+  - Version: `1.181` / versionCode `181`; size `31,729,034` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 16:04:14`, installed APK SHA-256 `B487D7FD0B71211E4616414492C2C82E0CE5BE62E8ADEC8F9D36EBBD6C407FFB`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `25437`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord{... com.steward.artbook/.MainActivity ...}`; `mCurrentFocus` remained `NotificationShade`, so a manual visible-foreground check may require unlocking/dismissing the shade.
+  - Recent logcat sample found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact frame-by-frame work is practical only when Figma exposes the actual frame node; community cover pages and numeric community IDs still need user selection, duplication into the workspace or node-specific URLs.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port Events/Tickets from an accessible real event frame if the user selects/duplicates one; otherwise continue frame-based polish on Inbox, AI guidance or analytics using connector-readable Figma frames.
