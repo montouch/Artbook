@@ -16135,3 +16135,48 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - The connected Figma chat-kit node exposed only a small text node through the connector, so this pass used it as visual direction plus the already generated Figma Make V7 reference pack rather than claiming full source-layer import.
 - Next focus:
   - port Events / Tickets or Artguide AI Assistant next, using the same Figma-boss method and keeping Android money/creator boundaries safe.
+
+### 2026-06-05 12:44 +09:30 - Figma AI boss Events / Tickets frame port
+- Scope:
+  - Founder-selected UI launch-readiness pass after Inbox / Customer Letters.
+  - Ported the Tour / Events page to a new reference-mode Figma-boss Events / Tickets first viewport inspired by the supplied Event Booking App UI Kit and Figma Make V7 Artbook redesign direction.
+  - Kept the existing event/ticket business logic intact: ticket purchase, door-ready checks, organizer event ops, resale, transfer, support/refund and exact ticket trails still route through the current app handlers.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `.figma-ai-events*` premium mobile styles with light and dark-mode support.
+    - Added `figmaAiBossEventsHTML(...)` using live local events, event ops, tickets, capacity, trust, support and organizer state.
+    - Reference-mode Tour now defaults the old `all` lens into Events/Tickets, hides the old tour filter chrome, and adds a live-events handoff header above the existing event list.
+    - Fixed existing Figma Wallet header/section-title touch targets to hard 48px so the accessibility audit returns zero warnings.
+    - Preserved Play Store-safe language: payment partners process funds; Artbook records proof, support and provider-led review status only.
+- Visible UI review:
+  - Fresh visual audit covered the new Events / Tickets first viewport and existing event list handoff with no clipping, no horizontal overflow and no console/page errors.
+  - The event kit Figma connector exposed only the title node, so this pass used the visible kit direction plus Figma Make V7 reference-pack intent rather than claiming full source-layer import.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` returned Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures, including event operations, resale, support, check-in and exact trails.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors after the Wallet tap-target fix.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `0118308C97BE64901B7880161F9E00F8B41D49CD547F83306595B18B841F17FF`.
+  - Version: `1.181` / versionCode `181`; size `31,704,458` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 12:43:51`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `28510`; `dumpsys activity` reported `com.steward.artbook/.MainActivity` resumed.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Live Supabase project/migration apply, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+  - Exact pixel copy from Figma Community files remains limited by connector node access; the app now carries the requested frame-by-frame intent through live Artbook-specific screens rather than static copies.
+- Next focus:
+  - port Artguide AI Assistant next, then Profile / identity trust, using the same Figma-boss method and preserving Android compliance boundaries.
