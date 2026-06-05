@@ -17199,3 +17199,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - polish Inbox/customer letters or Backend/provider readiness next so paid actions have clear customer support, proof evidence and partner-status follow-through.
+
+### 2026-06-05 21:48 +09:30 - Customer letters reply proof cockpit
+- Scope:
+  - Continued the customer support handoff after Marketplace detail checkout gained proof/payment readiness.
+  - Focused on the Customer Letters work-room decision moment before a reply, refund note, reschedule, care follow-up or support close-out.
+  - Preserved Play Store-safe wording: owner sends, AI drafts only, record-scoped care, provider-led money, provider/backend money truth and no custody claim.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a `Customer reply proof cockpit` inside `customerLetterV7CommandHTML`.
+    - The cockpit now derives record route, proof signals, reply owner status and support-clear status from the actual customer rows/messages.
+    - Added visible boundary chips for `Owner sends`, `AI drafts only`, `Record scoped`, `Provider-led money`, `Private profile isolated`, `Provider/backend money truth`, `Receipt proof`, `Care trail`, `Kenya-first support` and `No custody claim`.
+    - Added responsive, reference-mode and compact tile styling so the customer record matches the premium Figma-inspired frame language.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - Source markers confirm `Customer reply proof cockpit`, `data-customer-letter-v7-proof-cockpit`, `Provider/backend money truth` and `No custody claim` are present.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,745,418 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Recent logcat after launch showed no Artbook `AndroidRuntime` fatal exception.
+  - Used the live WebView devtools target for the installed app to run `App.setAccount('riley_biz',{silent:true}); App.customerLetter('maya_adl')`; DOM confirmed the cockpit, `reply ready`, `Provider/backend money truth` and `No custody claim` inside `file:///android_asset/index.html#work`.
+  - Captured on-device screenshot at `phone-artbook-customer-letter-proof-cockpit.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Customer Letters UI-flow pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live provider, settlement, KYC/KYB, support SLA or message/email backend is connected from the APK; this remains a front-end evidence/status surface.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - continue backend/provider readiness for customer support: message/email delivery, support SLA, provider callback status, and server-owned care-note audit trails.
