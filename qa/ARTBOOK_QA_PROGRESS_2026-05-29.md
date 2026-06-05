@@ -17611,3 +17611,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference frame-quality pass on Wallet/Payment Partner status, then revisit Marketplace/Home first-viewport density after the Events and Calendar functional frames are stable.
+
+### 2026-06-06 00:22 +09:30 - Wallet payment partner evidence frame
+- Scope:
+  - Continued the Figma-reference frame-quality pass on Wallet/Payment Partner status after Events/Tickets.
+  - Focused on making the wallet feel like premium fintech while exposing launch-critical backend/provider gates in the first Wallet frame.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, wallet credit, spendable balance, payout, custody or local settlement action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a `figma-ai-wallet-evidence` board inside `figmaAiBossWalletHTML`.
+    - Surfaced 6 evidence cards: Replay queue, Provider labels, Requests, Support hold, Receipt proof and Boundary rails.
+    - Added a provider-proof rail, replay packet drawer and explicit audit flags: `data-provider-called=false`, `data-money-enabled=false`, `data-wallet-credit-enabled=false`, `data-spendable=false`, and `data-money-movement-enabled=false`.
+    - Added light/dark responsive CSS for the new wallet evidence board so it fits 390px Motorola-class screens without clipped cards or CTA overlap.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Wallet render check passed for `riley_biz`: `data-figma-ai-wallet-evidence-board` present, 6 evidence cards, provider rail present, replay packet drawer present, `data-provider-called=false`, `data-money-enabled=false`, `data-wallet-credit-enabled=false`, `data-spendable=false`, `data-money-movement-enabled=false`, and no bad Android money-copy in the Wallet frame.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\wallet-evidence-board-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `A42D952AE7C1E10CC9ACC90392EB983E53A783030FD05EA8EFAF6737EC298E2A`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot/UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-wallet-frame-pass.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-wallet-frame-ui.xml`; Wallet-specific frame proof is captured by the targeted Playwright screenshot/check above.
+  - Recent crash log query returned no `AndroidRuntime` crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Wallet/Payment Partner UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - revisit Home/Marketplace first-viewport density and continue visual simplification now that Calendar, Events and Wallet have functional Figma-reference frames with provider-boundary proof.
