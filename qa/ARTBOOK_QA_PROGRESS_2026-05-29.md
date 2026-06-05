@@ -15999,3 +15999,48 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - APK remains local-debug signed; Play release signing remains separate.
 - Next focus:
   - port Calendar/Bookings next using the Calendar Mobile App and Scheddo references, because booking confidence is the next highest-value trust surface after Home, Wallet and Marketplace.
+
+### 2026-06-05 11:02 +09:30 - Figma AI boss Calendar / Bookings frame port
+- Scope:
+  - Ported the next frame-by-frame Figma boss surface into `incoming\Artbook-transfer-v181\src\artbook-mobile.html`: Calendar now opens with a standalone premium mobile Bookings frame instead of the old reference wrapper.
+  - Used the Scheddo booking-card structure from Figma node `AuetlZoxdbeNNJ8wyKgaRo / 310:1705`: clean header, booking stats, date strip, white request cards, service/date/time/status fields and paired actions.
+  - Kept the existing Artbook booking engine underneath: booking desk tabs, schedule board, policy, forms, programs, reports, timeline, booking details, booking messages, reschedule/cancel/no-show rules and provider handoff remain intact.
+  - Removed the old visible Figma frame bar from Calendar and added a `Live booking engine` divider before the preserved working desk.
+  - Cleaned the remaining generic reference frame-bar touch warnings by lifting nav/title/avatar controls to true 48px targets.
+  - Preserved Android Play Store-safe language: provider-led payment, payment partner review, proof before release, owner approval, no Artbook custody/settlement claim and no explicit creator monetization.
+- Figma evidence:
+  - Calendar Mobile App community file metadata was inaccessible from the connector during this pass, so the app uses it as directional product intent only.
+  - Scheddo metadata and design context were readable; the useful source was the `Bookings` group with six white 290x208 request cards, service/date/time labels and accept/decline-style paired actions.
+  - Artbook adapted those patterns into unique Kenya-first booking cards using live KES bookings, staff/resource labels, provider-led policy and message/detail actions.
+- Visible UI review:
+  - Captured fresh Calendar screenshot at `incoming\Artbook-transfer-v181\build\artbook-apk\figma-ai-calendar.png`.
+  - Confirmed `.figma-ai-calendar` renders at the full 390px mobile viewport, old `.figma-frame-bar` is absent on Calendar, old `.booking-tabs` are hidden in reference mode, no horizontal scroll is introduced and no Calendar cards/buttons/date tiles are below 44px.
+- Verification:
+  - Inline script syntax extraction passed: 1 script, `3,570,343` bytes.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems after converting the new booking cards to a single-column mobile stack so service names/status/place lines wrap cleanly.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures, including booking calendar writes and booking protocol/no-show gates.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures, 0 warnings, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `1496CDFD4C5B52DDEE482A38936C13DE21A00D9DBDE4EFDC6B1A0833606AE3F9`.
+  - Version: `1.181` / versionCode `181`; size `31,696,266` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G`, verified target APK SHA `1496CDFD4C5B52DDEE482A38936C13DE21A00D9DBDE4EFDC6B1A0833606AE3F9`, version `1.181` / versionCode `181`, signature schemes v1/v2/v3 and `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r` succeeded.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app; `pidof com.steward.artbook` returned `13137`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord ... com.steward.artbook/.MainActivity`; notification shade remained `mCurrentFocus`, so foreground app proof is present but top-window focus is shade-obscured.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Other pages still need frame-by-frame Figma boss ports, but the generic frame bar is now accessibility-quiet while those pages wait.
+  - Provider callback replay, hosted public HTTPS backend proof, production provider activation proof, Play release signing and Play Store evidence remain external launch blockers.
+  - APK remains local-debug signed; Play release signing remains separate.
+- Next focus:
+  - port Inbox / Customer Letters / booking messages next using the supplied chat app UI kit, because Calendar now exposes message actions and customer trust depends on clean work conversations.
