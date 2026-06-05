@@ -17000,3 +17000,35 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Moto World remains AI-labeled, owner-controlled and alive.
 - Next focus:
   - continue the same frame-quality treatment on Calendar/Booking detail or Wallet/payment partner status, since Home is now installed and visually verified on Motorola.
+
+### 2026-06-05 20:32 +09:30 - Calendar booking-day frame polish and Motorola install
+- Scope:
+  - Continued the Figma-reference shell work on Calendar/Booking after Home was installed on the Motorola.
+  - Focused on the booking/appointments reference need: clear day stages, slots, provider schedule, staff handoff, payment partner review and proof-before-release actions.
+  - Kept Play Store-safe wording: provider-led payment, payment partner review, receipts, owner approval and proof before release; no Artbook-held escrow/custody language and no Android creator monetization.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a Calendar booking-day command frame inside the reference-mode Calendar shell.
+    - Added staged journey cards for Request, Staff, Partner review and Proof.
+    - Added responsive slot chips for booked, held and open appointment times.
+    - Added direct actions for Day command, Week table and booking/care messages.
+    - Fixed the new slot strip to wrap as a grid after visual audit caught one chip extending past the 390px viewport.
+- Verification:
+  - Used bundled Codex Node runtime because root/system Node is unreliable on this machine.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems after the responsive slot-grid fix.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,737,226 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G` with `adb install -r -d`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Recent logcat after launch showed no `AndroidRuntime` fatal exception for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Calendar/Booking UI-flow pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Figma Make still appears account-credit blocked, so this pass implemented the frame directly in source using the provided references as product/design direction.
+  - Literal 100% copying from third-party/community Figma kits remains dependent on the editable file license allowing production reuse; the implemented UI is Artbook-original while matching the requested look/layout/flow patterns.
+- Next focus:
+  - apply the same reference-frame treatment to Wallet/payment partner status or Marketplace detail, then capture a fresh on-device screenshot of the touched route if the phone stays awake.
