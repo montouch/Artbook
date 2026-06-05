@@ -18030,3 +18030,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on Inbox/customer-letter AI assistance so protected letters, view-once previews and Artguide draft actions feel cleaner and less crowded on the Motorola viewport.
+
+### 2026-06-06 03:09 +09:30 - Active customer-letter Artguide draft guard
+- Scope:
+  - Continued the Figma-reference polish pass on Inbox/customer-letter AI assistance.
+  - Added a compact Artguide draft guard directly under the active customer-letter proof rail, so the reply path clearly separates AI drafting from owner sending, private preview access, payment/provider review and privacy controls.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added reusable active-thread proof tile styling for non-reference and reference-style inbox frames.
+    - Added the active customer-letter Artguide draft guard with `Draft reply`, `Record` and `Privacy` actions.
+    - Added audit flags for owner-approved replies, AI drafts only, visible-context-only drafting, no auto-send, redacted private previews, provider-led payment review and blocked protected actions.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted active-letter render check passed on Zuri: guard rendered at 342px wide in a 390px mobile viewport, 3 actions rendered, all action touch targets were 53px tall, draft action opened Artguide with a scoped visible-thread prompt, reply proof stayed 3 buttons, and protected-action/payment/provider/custody/publish flags stayed blocked/false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\active-letter-ai-draft-guard.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `38F4EA793DA7FAAED2FAFE8316BA582968E51D0FDAE8F006E7630599AE1CFE78`.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Installed APK SHA-256 matched the fresh build hash above.
+  - Motorola launch screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-active-letter-ai-draft-launch.png`; exact draft-guard visual proof is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Inbox/customer-letter UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on Calendar/booking appointment flow so booking cards, reschedule/cancel status and Today planning match the cleaner tile/proof language now used in Inbox.
