@@ -17750,3 +17750,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - improve the active Customer Letter / chat detail frame so the conversation itself shows the same work-record, proof-before-release and owner-approval clarity as the Inbox landing card.
+
+### 2026-06-06 01:12 +09:30 - Active customer letter reply proof rail
+- Scope:
+  - Continued the Inbox / Customer Letters pass from the landing frame into the active conversation detail.
+  - Focused on the first visible chat detail: replies now keep owner review, scoped records and proof/payment boundary visible before the message stream.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, wallet credit, spendable balance, payout, custody, local settlement action or provider call.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added an active-thread Reply Proof rail with three touch-safe actions: Owner, Records and Proof.
+    - Added active chat audit flags: `data-owner-approved-replies=true`, `data-ai-drafts-only=true`, `data-no-auto-send=true`, `data-provider-called=false`, `data-money-movement-enabled=false`, and `data-call-provider-enabled=false`.
+    - Kept the existing customer letter messages, contact passport, work boundary and compose flow intact.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted active-thread render check passed for `riley_biz` opening `zuri`: reply rail present in first viewport, 3 buttons, all controls at least 44px, no clipped proof labels, owner-approved/draft-only/no-auto-send flags present, and provider/money/call-provider flags stayed false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\active-letter-reply-proof-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `DCCCE6E5C90B85548FC26EB8BC29E16FD7B7FDC28C4FC46EC106878E5875F6F7`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot/UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-active-letter-reply-proof-pass.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-active-letter-reply-proof-ui.xml`; visible review confirmed the active chat detail shows the new Reply Proof rail above the message stream.
+  - Recent crash log query returned no `AndroidRuntime` crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected active Customer Letter UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the premium Figma-reference pass on Profile / Account trust so identity, provenance, work records and contact/payment boundaries are clearer before pilot users inspect seller or provider profiles.
