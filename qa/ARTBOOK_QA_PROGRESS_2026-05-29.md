@@ -16594,3 +16594,53 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port Events/Tickets from an accessible real event frame if the user selects/duplicates one; otherwise continue frame-based polish on Inbox, AI guidance or analytics using connector-readable Figma frames.
+
+### 2026-06-05 16:36 +09:30 - Figma frame-based Inbox / customer letters shell
+- Scope:
+  - Continued the Figma-led UI pass after Calendar.
+  - Targeted Inbox/customer letters because the Chat App UI Kit exposed real mobile frames through the connector.
+  - Preserved Artbook's live customer-letter engine, business rooms, Kenya marketplace context, provider-led payment language and proof-before-release boundaries.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Reworked the reference-mode Inbox shell to follow Chat App UI Kit frame `1:404`: 375px dark rounded phone shell, profile header, search rail, Chatrooms/Letters title, gradient room tiles, dot rail and six-message thread list.
+    - Added exact Figma markers for the shell and major nodes: `1:404`, `1:499`, `1:420`, `1:1349`, `1:1355`, `1:1351`, `1:421`, `1:422`, `1:424`, `1:425`, `1:429`, `1:450` through `1:455`.
+    - Limited first-viewport room tiles to three visible 95x140 cards so the frame no longer leaks horizontally on mobile QA.
+    - Shortened and wrapped thread previews to keep customer-letter rows readable without clipping.
+    - Raised Inbox search controls to 48px touch targets, clearing the final accessibility warnings.
+- Figma evidence:
+  - Figma connector `get_metadata` and `get_design_context` for Chat App UI Kit file `Pp7jlWC8VzMRAEmxyeVkRV`.
+  - Implemented exposed frame `1:404` (`000` chatrooms list) while keeping Artbook-specific customer letters and business rooms alive below the frame shell.
+- Visible UI review:
+  - Targeted Playwright probe opened `riley_biz` in reference mode on Inbox and confirmed `.figma-ai-inbox[data-node-id="1:404"]`, no console/page errors, 0 horizontal overflow, three room cards at `95x140`, search controls at `48px`, and dark mode preserving `rgb(41, 47, 63)`.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\inbox-chat-ui-kit-frame-1-404-light.png`.
+  - Dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\inbox-chat-ui-kit-frame-1-404-dark.png`.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed after final patch, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed after final patch, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems after the room tile fit and preview wrap.
+  - `tools\accessibility-audit-artbook.mjs`: initially warned on 43-44px Inbox search controls; after the 48px fix, passed 102 checked with 0 failures and 0 warnings.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `A4368A6B953BF525AE4C2ACB6837142E8BDBA82E5EADADEDADC4D875D5B17F5A`.
+  - Version: `1.181` / versionCode `181`; size `31,729,034` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 16:35:57`, installed APK SHA-256 `A4368A6B953BF525AE4C2ACB6837142E8BDBA82E5EADADEDADC4D875D5B17F5A`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `31986`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord{... com.steward.artbook/.MainActivity ...}`; `mCurrentFocus` remained `NotificationShade`, so a manual visible-foreground check may require unlocking/dismissing the shade.
+  - Recent logcat sample found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact frame-by-frame implementation depends on Figma exposing concrete node IDs; for this pass, the Chat App UI Kit did expose the needed frame.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port AI guidance/mindmaps or Events/Tickets from another connector-readable Figma frame, then begin backend-provider wiring for wallet/payment review once the core UI surfaces are coherent.
