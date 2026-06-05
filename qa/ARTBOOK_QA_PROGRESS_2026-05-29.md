@@ -18065,3 +18065,40 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on Calendar/booking appointment flow so booking cards, reschedule/cancel status and Today planning match the cleaner tile/proof language now used in Inbox.
+
+### 2026-06-06 03:33 +09:30 - Appointment proof strip for booking detail
+- Scope:
+  - Continued the Figma-reference polish pass on Calendar / booking appointment detail.
+  - Added a compact appointment proof strip to the Figma booking detail frame so status, reschedule moves, payment rule, client risk and next actions are visible before protocol changes.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `bookingAppointmentProofStripHTML()` with proof steps for Status, Moves, Pay rule and Risk.
+    - Added Protocol, Message, Day plan and Artguide action tiles, each tied to the exact booking.
+    - Added audit flags for party-scoped changes, AI drafts only, visible-context-only help, no auto-send, private place protection, provider-led payment review, no-show provider-only, both-calendar updates and blocked protected actions.
+    - Styled the strip for the live appointment command surface plus the Figma reference booking frame, including dark mode and compact one-row action tiles so the fixed mobile dock does not cover commands.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - Targeted appointment proof-strip render check passed on booking `bk_sim_artist_today`: one strip rendered in `.figma-ai-booking-detail`, no duplicate strip rendered in the live engine beneath it, 4 proof steps rendered, 4 action tiles rendered, action targets were 48px tall / 66px wide, labels fit, and centered strip actions did not overlap the fixed dock.
+  - Targeted Artguide action check passed: tapping the strip Artguide tile opened live chat with the scoped booking prompt, while provider/money/wallet/custody flags stayed false.
+  - Targeted proof screenshots captured at `incoming\Artbook-transfer-v181\build\artbook-apk\appointment-proof-strip-card-reference-dark.png`, `incoming\Artbook-transfer-v181\build\artbook-apk\appointment-proof-strip-card-reference-dark-mode.png`, and `incoming\Artbook-transfer-v181\build\artbook-apk\appointment-proof-strip-reference-dark.png`.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `23F20BBC41FF0FD488F535FF5568F643B1CFFAEAE8DC2984EBE7638CB9E8866B`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: Motorola `ZY22JSRL8G` connected, app installed, version `1.181` / code `181`, installed APK hash matched the fresh build hash, and signature stayed compatible for in-place updates.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola launch screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-appointment-proof-final-launch-unlocked.png`; exact proof-strip visual evidence is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Calendar / booking UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on Marketplace service booking request sheets so selecting a service, slot, staff member and policy feels as clean as the booking detail proof strip.
