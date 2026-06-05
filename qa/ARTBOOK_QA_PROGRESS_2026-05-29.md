@@ -17680,3 +17680,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the first-viewport simplification pass on Marketplace discovery and seller proof cards so the shopping/bookable flow gets the same premium frame quality as Home, Calendar, Events and Wallet.
+
+### 2026-06-06 00:47 +09:30 - Marketplace clean first-viewport proof rail
+- Scope:
+  - Continued the Figma-reference frame-quality pass on Marketplace after Home.
+  - Focused on first-viewport discovery and seller confidence: search, category chips, featured seller offer, proof-before-release, route readiness and provider-led payment review now appear before the heavier journey section.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, wallet credit, spendable balance, payout, custody or local settlement action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Tightened the Marketplace header, hero copy, featured offer card, stats and proof row spacing for Motorola-class screens.
+    - Moved the Marketplace proof rail directly under the featured offer so Owner review, Package route and Provider-led pay are visible in the first viewport.
+    - Added first-viewport/provider-boundary audit flags: `data-figma-ai-market-clean-first-viewport`, `data-provider-called=false`, `data-money-movement-enabled=false`, `data-wallet-credit-enabled=false`, and `data-custody-claim=false`.
+    - Preserved all category chips as visible wrapped controls after the visual audit rejected horizontal offscreen chips.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings after restoring Marketplace tap targets to full touch-safe dimensions.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems after making category chips content-width and visible/wrapped.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Marketplace render check passed for `riley_biz`: clean-first-viewport flag present, 3 proof rail items, proof rail inside first viewport, no clipped category labels, no small touch targets, `data-provider-called=false`, `data-money-movement-enabled=false`, `data-wallet-credit-enabled=false`, and `data-custody-claim=false`.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\market-clean-first-viewport-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `A8AF2466B698DC91FBEB061FA4B57018CA3FBFDE6C905EEF26859974FBBC8829`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot/UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-market-clean-frame-pass.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-market-clean-frame-ui.xml`; visible review confirmed the Marketplace first viewport shows search, categories, featured offer and proof rail before the fold.
+  - Recent crash log query returned no `AndroidRuntime` crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Marketplace UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference shell pass on Inbox / Customer Letters so buyer, seller and provider messages feel as premium and operationally clear as Home, Marketplace, Calendar, Events and Wallet.
