@@ -18287,3 +18287,41 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue open-door conversion polish by pre-filling guest booking/checkout forms from lead context while preserving owner review and no-auto-send boundaries.
+
+### 2026-06-06 05:02 +09:30 - Open-door lead prefilled guest forms
+- Scope:
+  - Continued open-door conversion polish from the lead review sheet.
+  - Made Guest booking and Guest checkout routes inherit visible lead context instead of opening blank/default forms.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added lead-context helpers for customer name, contact, review note, booking source, payment-review defaults and review-only guard attributes.
+    - Updated lead review route buttons to pass the lead id into Guest booking / Guest checkout.
+    - Prefilled guest booking name, note, source and payment partner review from outside-channel booking leads.
+    - Prefilled guest checkout name, note and payment path from outside-channel sale leads.
+    - Added a visible `Lead context prefilled` guard card with no-auto-send, no-provider-call, no-money-movement, no-wallet-credit and no-custody flags.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - Targeted browser proof passed through real UI buttons: created an `SMS` outside booking lead, opened the lead review sheet, tapped `Guest booking`, and confirmed `Outside booker`, `SMS booking lead review`, `Phone/SMS`, `M-Pesa deposit pending`, proof strip `data-channel="Phone/SMS"` and protected flags false.
+  - Targeted sale proof passed on seeded WhatsApp lead `lead_open_whatsapp_1`: tapped `Guest checkout` and confirmed `Outside buyer`, `WhatsApp sale lead review`, `M-Pesa till`, `reference-only`, `receipt-proof` and protected flags false.
+  - Targeted screenshots captured at `incoming\Artbook-transfer-v181\build\artbook-apk\open-door-lead-prefill-booking.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\open-door-lead-prefill-checkout.png`.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `41ADE96061997C7D279F6A8797FE76E3FE26502A188AC0C5B1BB2BF75CED6FD1`.
+  - `tools\phone-install-readiness.mjs`: Motorola `ZY22JSRL8G` connected, app installed, version `1.181` / code `181`, installed APK hash matched the fresh build hash, and signature stayed compatible for in-place updates. The separate local-debug comparison artifact remained `18A70B8FD722C0C95C0BEB942A6EAB1098480AE13638DBCE578EF05B62706CD2`.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola foreground screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-open-door-lead-prefill-launch.png`; exact lead-prefill UI evidence is in the targeted browser screenshots above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected open-door conversion UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue open-door conversion polish by carrying the originating lead id into saved guest orders/bookings so the ledger can show conversion evidence without claiming payment or booking approval.
