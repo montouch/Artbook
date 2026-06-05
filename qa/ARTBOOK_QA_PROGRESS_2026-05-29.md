@@ -16644,3 +16644,54 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port AI guidance/mindmaps or Events/Tickets from another connector-readable Figma frame, then begin backend-provider wiring for wallet/payment review once the core UI surfaces are coherent.
+
+### 2026-06-05 16:55 +09:30 - Figma frame-based Artguide AI mindmap shell
+- Scope:
+  - Continued the Figma-led UI pass after Inbox.
+  - Targeted Artguide because the user explicitly wanted Omnichart-style AI mindmaps for easier understanding and a chatbot-quality assistant surface.
+  - Preserved Artbook's existing Artguide routing, live AI backend boundary, safe workflow map, protected-action stops and local fallback behavior.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added an Omnichart-inspired dark workflow map inside the Artguide shell with gradient title, color-coded nodes, route wires and separated mobile tap targets.
+    - Added a chatbot-mobile-inspired sources/answer section so Artguide explains which visible context, guardrails and route suggestions it is using.
+    - Updated Artguide's Figma metadata to reference real exposed frames: Omnichart `36:0` and AI Chatbot mobile answer frame `10301:23390`.
+    - Added node markers for Omnichart title/stage/nodes/wires (`36:0`, `36:5`, `36:6`, `36:8`, `36:10`, `36:11`, `36:12`, `36:16`, `36:17`, `36:18`, `36:20`, `36:23`, `36:34`, `36:39`) and chatbot mobile answer/input sections (`10301:23390`, `10301:23404`, `10301:23405`, `10301:23409`, `10301:23410`, `10301:23415`, `10301:23420`, `10301:23425`, `10301:23428`, `10301:23429`, `10301:23430`, `10301:23434`, `10301:23436`, `10301:23438`).
+    - Adjusted the map geometry after Playwright overlap probing so the Omnichart nodes no longer collide on a 390px mobile viewport.
+- Figma evidence:
+  - Figma connector `get_design_context` for Omnichart file `Am3DN0kTOX4vwh5c3pd1z6`, initially confirming the user-linked `35:1558` was only the cover title, then metadata found real frame `36:0`.
+  - Figma connector `get_design_context` for AI Chatbot file `hy5ecLRIyW4CAm3iHTXD6C`, mobile frame `10301:23390`.
+- Visible UI review:
+  - Targeted Playwright probe opened `riley_biz` in reference mode, launched `App.artguide("How should I handle a provider-led payment review?")`, and confirmed `.figma-ai-artguide[data-node-id="10301:23390 36:0"]`.
+  - Confirmed no page/console errors, 0 horizontal overflow in light/dark mode, map background `rgb(9, 14, 24)`, answer shell present, no map-node overlaps and all sampled controls at 44px+.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\artguide-omnichart-chatbot-light.png`.
+  - Dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\artguide-omnichart-chatbot-dark.png`.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `ECCF03A57007F3E800A69FE64A3D6762123B62352C8EF3FE926B00490BCAF9BB`.
+  - Version: `1.181` / versionCode `181`; size `31,733,130` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 16:55:12`, installed APK SHA-256 `ECCF03A57007F3E800A69FE64A3D6762123B62352C8EF3FE926B00490BCAF9BB`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `1453`.
+  - `dumpsys window` reported both `mCurrentFocus=Window{... com.steward.artbook/com.steward.artbook.MainActivity}` and `mFocusedApp=ActivityRecord{... com.steward.artbook/.MainActivity ...}`.
+  - Recent logcat sample found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact frame-by-frame implementation depends on Figma exposing concrete node IDs; this pass used exposed Omnichart and AI Chatbot mobile frames.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port Events/Tickets from a connector-readable event frame or start backend-provider wiring for wallet/payment review now that Home, Wallet, Calendar, Inbox and Artguide have stronger Figma-based shells.
