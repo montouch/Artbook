@@ -17233,3 +17233,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - continue backend/provider readiness for customer support: message/email delivery, support SLA, provider callback status, and server-owned care-note audit trails.
+
+### 2026-06-05 21:59 +09:30 - Support backend readiness board and Motorola proof
+- Scope:
+  - Continued the customer support backend/provider readiness pass after the Customer Letters reply cockpit.
+  - Focused on launch truth for support: message/email delivery, SLA ownership, provider callback status and immutable care-note audit trails.
+  - Preserved Play Store-safe wording: server/provider-owned systems, owner-approved replies, provider callbacks, no local settlement and no Android creator monetization.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a `Support backend readiness` section inside Backend Sync v6.
+    - Added four evidence-tied readiness gates: `Message/email delivery`, `Support SLA owner`, `Provider callback status` and `Care-note audit trail`.
+    - The board now counts visible local support incidents, local emails, support messages, follow-ups, provider callback dry-runs and backend care audit rows.
+    - Added boundary chips for `Server-owned messages`, `Email delivery receipt`, `SLA owner`, `Provider callback`, `Immutable care audit`, `No local settlement` and `Owner approved replies`.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - Source markers confirm `data-support-backend-readiness`, `Support backend readiness`, `Message/email delivery`, `Provider callback status` and `Care-note audit trail` are present.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,745,418 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; after waking the device, foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Recent logcat after launch showed no Artbook `AndroidRuntime` fatal exception.
+  - Used the live WebView devtools target for the installed app to run `App.setAccount('artbook_ops',{silent:true}); App.backendSyncDesk('support backend readiness')`; DOM confirmed the support readiness panel, all four gates and `No local settlement` inside `file:///android_asset/index.html#home`.
+  - Captured on-device screenshots at `phone-artbook-support-backend-readiness.png` and `phone-artbook-support-backend-readiness-panel.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend/provider readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live support/message/email backend, SLA owner queue, provider callback processor, immutable care-note audit table or settlement provider is connected from the APK; this remains a front-end readiness/evidence surface.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - turn the support readiness surface into a concrete backend/API contract for customer care, including message delivery receipts, SLA owners, provider callback mapping and immutable care-note audit rows.
