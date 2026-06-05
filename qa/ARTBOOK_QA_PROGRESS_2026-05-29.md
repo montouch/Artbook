@@ -17923,3 +17923,39 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on the floating Artguide chat/dot and voice states so minimized AI, live voice and protected stops share the same premium rail quality without cluttering Home.
+
+### 2026-06-06 02:28 +09:30 - Floating Artguide protected guard
+- Scope:
+  - Continued the Figma-reference polish pass on the minimized/floating Artguide states.
+  - Fixed the reference-frame shell boundary so Home / Today / Circles stay clean, while working screens such as Wallet can still show the user-activated floating Artguide chat/dot.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added floating Artguide guard chips: `Protected`, `Visible context`, and `Money blocked`.
+    - Added protected-action audit flags to both the expanded floating chat and collapsed AI dot.
+    - Changed the collapsed protected dot label to `AI blocked` when the last live plan is blocked.
+    - Narrowed the reference-frame shell suppression so live AI overlays remain hidden on Home / Today / Circles, but render on non-Home work screens when the user deliberately floats Artguide.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted floating Artguide check passed for `riley_biz`: no floating AI on Home by default or after returning Home, protected floating chat rendered on Wallet, 3 unclipped guard chips, collapsed dot stayed touch-safe and visible, and all protected-action/payment/provider/custody/publish flags stayed blocked/false.
+  - Targeted screenshots captured at `incoming\Artbook-transfer-v181\build\artbook-apk\live-ai-floating-guard-frame.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\live-ai-floating-dot-guard-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `B269489C1C0AC3738A80632FBC15939350115EC621FBF7E220FED240E1BBA5DD`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola launch screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-floating-ai-guard-launch-pass.png`; exact floating guard visual proof is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Artguide floating UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on Artguide voice/listening states so voice capture, speech reply and protected-action stops remain obvious, calm and non-invasive across work screens.
