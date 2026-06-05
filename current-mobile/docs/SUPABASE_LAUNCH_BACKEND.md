@@ -7,10 +7,11 @@ This folder turns the existing backend handoff into concrete Supabase-ready arti
 - `supabase/migrations/20260605014500_artbook_launch_core.sql`
   - Core account, profile, post, listing, booking, order, message, support, AI task, trust evidence, outbox and audit tables.
   - Provider event replay table for M-Pesa/card/payout/call/delivery style callbacks.
+  - Wallet replay packet table for client ledger/request evidence, with hard `false` checks for provider calls, wallet credit, escrow release, payouts, spendable balances and money movement.
   - RLS enabled and forced on every public table.
   - Private helper functions in `artbook_private`, not in the exposed public schema.
   - Account-scoped policies using `auth.uid()` and membership checks.
-  - Server-only provider event, outbox and audit writes.
+  - Server-only provider event, wallet replay packet, outbox and audit writes; authenticated users can only read their own wallet replay packet summaries.
   - Android creator monetization blocked with `android_creator_monetization = false`.
 
 - `supabase/functions/provider-webhook/index.ts`
@@ -45,8 +46,16 @@ https://<project-ref>.functions.supabase.co/provider-webhook/payout_rail
 
 - Artbook Android can show booking, wallet, proof, provider review and owner approval status.
 - Artbook Android must not claim Artbook directly holds escrow, settles money or pays out providers.
+- Wallet replay packets are evidence packets only: they record counts, digests and fail-closed provider flags so Review Ops can compare client ledger state against backend/provider proof.
 - Real settlement needs licensed/provider-owned payment rails, signed callbacks, provider fetch proof, support/fraud review and owner approval.
 - Explicit creator monetization stays out of the Play Store Android app or behind a separate compliant web product.
+
+## Supabase API/RLS notes
+
+- Public-schema tables are treated as potentially Data API reachable, so every Artbook public table has RLS enabled and forced.
+- Grants are deliberately narrow: app-owned marketplace tables get authenticated access subject to RLS; provider events, wallet replay packet writes, outbox writes and audit writes stay server-owned.
+- The April/May 2026 Supabase Data API change means new projects may not expose public tables automatically; after project creation, check Data API settings and grant only the exact table privileges needed.
+- Policies use `auth.uid()` plus `artbook_account_memberships`; do not use user-editable `user_metadata` for authorization.
 
 ## Connector status from this pass
 

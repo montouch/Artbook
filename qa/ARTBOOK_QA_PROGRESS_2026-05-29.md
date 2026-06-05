@@ -16802,3 +16802,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Exact frame-by-frame Figma parity still depends on connector-readable screen nodes or duplicated files exposing real mobile frames.
 - Next focus:
   - continue backend-provider readiness by wiring hosted provider callback proof capture and Supabase/Convex/Base44 data ownership, or resume Figma frame-by-frame work on a connector-readable Events/Tickets or Shopping screen node.
+
+### 2026-06-05 17:41 +09:30 - Supabase wallet replay packet table
+- Scope:
+  - Continued backend/provider launch readiness immediately after the wallet replay proof pass.
+  - Chose Supabase data ownership because the Android and Node backend now expose a wallet replay proof contract, but the Supabase launch migration did not yet have a server-owned place for those review packets.
+  - Preserved provider-led payment language, Play Store-safe Android boundaries and no Artbook-held escrow/custody claim.
+- Supabase reference check:
+  - Reviewed current Supabase RLS/API guidance before changing schema.
+  - Relevant current guidance: public/exposed schema tables should have RLS enabled; grants decide object reachability and RLS decides row access; newly created public tables may not automatically be exposed to Data/GraphQL APIs in newer Supabase projects, so grants must stay explicit and narrow.
+- Changed:
+  - `incoming\Artbook-transfer-v181\supabase\migrations\20260605014500_artbook_launch_core.sql`
+    - Added `public.artbook_wallet_replay_packets` for wallet ledger/request evidence packets.
+    - Stored counts, KES currency, payload digest, provider boundary and metadata only.
+    - Added hard schema checks that keep `provider_called`, `provider_activation_enabled`, `wallet_credit_enabled`, `escrow_release_enabled`, `payout_enabled`, `founder_revenue_recognized`, `money_movement_enabled` and `spendable` permanently false.
+    - Added account index, updated-at trigger, RLS enable/force statements, owner-readable select policy, no-client insert/update policies, authenticated select grant and explicit insert/update/delete revoke.
+  - `incoming\Artbook-transfer-v181\tools\supabase-launch-backend-audit.mjs`
+    - Added `artbook_wallet_replay_packets` to required RLS/force-RLS coverage.
+    - Added checks for no-client write policies and fail-closed wallet credit/money/spendable schema constraints.
+  - `incoming\Artbook-transfer-v181\docs\SUPABASE_LAUNCH_BACKEND.md`
+    - Documented the wallet replay packet table, server-owned writes, owner-readable summaries, Data API/RLS notes and the Supabase public-table exposure caveat.
+- Verification:
+  - `tools\supabase-launch-backend-audit.mjs`: passed with 16 tables, 45 RLS policies and fail-closed boundaries for raw provider payload storage, money movement, wallet credit, spendable balances, Android creator monetization and client provider-event writes.
+  - `node --check tools\supabase-launch-backend-audit.mjs`: passed.
+  - Targeted `rg` confirmed the new table, RLS, policies, grants, revokes and docs references.
+- Rebuild / device:
+  - APK rebuild not run because this pass changed Supabase migration/docs/audit tooling only; Android runtime source was unchanged from the already installed `8718D69E9822330DDD54D0CCC008E209155E35031A085ED9C6DF26600CD043D6` build.
+  - ADB install/launch not repeated for the same reason.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend/Supabase readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live Supabase project is visible/configured in this workspace, so the migration was verified locally with static launch audit rather than applied to a real project.
+  - Production still needs hosted provider callback replay, real provider sandbox credentials, Supabase project provisioning, release signing and payment/legal review.
+- Next focus:
+  - wire Node backend wallet replay to a Supabase repository layer when a project/env exists, or add provider callback proof-capture tables and docs for hosted replay evidence.

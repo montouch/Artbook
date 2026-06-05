@@ -30,6 +30,7 @@ const requiredTables = [
   "artbook_orders",
   "artbook_messages",
   "artbook_provider_events",
+  "artbook_wallet_replay_packets",
   "artbook_trust_evidence",
   "artbook_support_cases",
   "artbook_ai_tasks",
@@ -49,6 +50,11 @@ assert(migration.includes("auth.uid() is not null"), "RLS should explicitly requ
 assert(migration.includes("android_creator_monetization boolean not null default false check (android_creator_monetization = false)"), "Android creator monetization must be blocked at schema level");
 assert(migration.includes("artbook_provider_events_no_client_insert"), "provider events need a no-client-insert policy");
 assert(migration.includes("artbook_provider_events_no_client_update"), "provider events need a no-client-update policy");
+assert(migration.includes("artbook_wallet_replay_packets_no_client_insert"), "wallet replay packets need a no-client-insert policy");
+assert(migration.includes("artbook_wallet_replay_packets_no_client_update"), "wallet replay packets need a no-client-update policy");
+assert(migration.includes("wallet_credit_enabled boolean not null default false check (wallet_credit_enabled = false)"), "wallet replay packets must block wallet credit at schema level");
+assert(migration.includes("money_movement_enabled boolean not null default false check (money_movement_enabled = false)"), "wallet replay packets must block money movement at schema level");
+assert(migration.includes("spendable boolean not null default false check (spendable = false)"), "wallet replay packets must block spendable balances at schema level");
 assert(!/service_role/i.test(migration), "migration should not refer to service_role grants");
 assert(!/raw_payload|raw_body|payload_body/i.test(migration), "migration should not add raw provider payload storage");
 
@@ -80,6 +86,8 @@ console.log(JSON.stringify({
   boundaries: {
     rawProviderPayloadStored: false,
     moneyMovementEnabled: false,
+    walletCreditEnabled: false,
+    spendableBalanceEnabled: false,
     androidCreatorMonetizationEnabled: false,
     clientProviderEventWritesEnabled: false
   }

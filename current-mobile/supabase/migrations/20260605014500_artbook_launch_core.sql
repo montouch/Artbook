@@ -205,6 +205,30 @@ create table if not exists public.artbook_provider_events (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.artbook_wallet_replay_packets (
+  id uuid primary key default gen_random_uuid(),
+  account_id uuid not null references public.artbook_accounts(id) on delete cascade,
+  source text not null default 'client_wallet_replay',
+  payload_digest text not null,
+  ledger_ready_count integer not null default 0 check (ledger_ready_count >= 0),
+  request_ready_count integer not null default 0 check (request_ready_count >= 0),
+  provider_candidate_count integer not null default 0 check (provider_candidate_count >= 0),
+  currency text not null default 'KES',
+  settlement_status text not null default 'client_replay_review_only_no_settlement',
+  provider_boundary text not null default 'licensed_provider_required',
+  provider_called boolean not null default false check (provider_called = false),
+  provider_activation_enabled boolean not null default false check (provider_activation_enabled = false),
+  wallet_credit_enabled boolean not null default false check (wallet_credit_enabled = false),
+  escrow_release_enabled boolean not null default false check (escrow_release_enabled = false),
+  payout_enabled boolean not null default false check (payout_enabled = false),
+  founder_revenue_recognized boolean not null default false check (founder_revenue_recognized = false),
+  money_movement_enabled boolean not null default false check (money_movement_enabled = false),
+  spendable boolean not null default false check (spendable = false),
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.artbook_trust_evidence (
   id uuid primary key default gen_random_uuid(),
   account_id uuid not null references public.artbook_accounts(id) on delete cascade,
@@ -283,6 +307,7 @@ create index if not exists artbook_messages_thread_idx on public.artbook_message
 create index if not exists artbook_messages_sender_idx on public.artbook_messages(sender_account_id, created_at desc);
 create index if not exists artbook_provider_events_provider_idx on public.artbook_provider_events(provider, created_at desc);
 create unique index if not exists artbook_provider_events_idempotency_uidx on public.artbook_provider_events(provider, idempotency_key) where idempotency_key is not null;
+create index if not exists artbook_wallet_replay_packets_account_idx on public.artbook_wallet_replay_packets(account_id, created_at desc);
 create index if not exists artbook_trust_evidence_accounts_idx on public.artbook_trust_evidence(account_id, target_account_id, status);
 create index if not exists artbook_support_cases_account_idx on public.artbook_support_cases(account_id, status, priority);
 create index if not exists artbook_ai_tasks_account_idx on public.artbook_ai_tasks(account_id, status, created_at desc);
@@ -297,6 +322,7 @@ create trigger artbook_listings_touch_updated_at before update on public.artbook
 create trigger artbook_bookings_touch_updated_at before update on public.artbook_bookings for each row execute function artbook_private.set_updated_at();
 create trigger artbook_orders_touch_updated_at before update on public.artbook_orders for each row execute function artbook_private.set_updated_at();
 create trigger artbook_provider_events_touch_updated_at before update on public.artbook_provider_events for each row execute function artbook_private.set_updated_at();
+create trigger artbook_wallet_replay_packets_touch_updated_at before update on public.artbook_wallet_replay_packets for each row execute function artbook_private.set_updated_at();
 create trigger artbook_trust_evidence_touch_updated_at before update on public.artbook_trust_evidence for each row execute function artbook_private.set_updated_at();
 create trigger artbook_support_cases_touch_updated_at before update on public.artbook_support_cases for each row execute function artbook_private.set_updated_at();
 create trigger artbook_ai_tasks_touch_updated_at before update on public.artbook_ai_tasks for each row execute function artbook_private.set_updated_at();
@@ -312,6 +338,7 @@ alter table public.artbook_booking_events enable row level security;
 alter table public.artbook_orders enable row level security;
 alter table public.artbook_messages enable row level security;
 alter table public.artbook_provider_events enable row level security;
+alter table public.artbook_wallet_replay_packets enable row level security;
 alter table public.artbook_trust_evidence enable row level security;
 alter table public.artbook_support_cases enable row level security;
 alter table public.artbook_ai_tasks enable row level security;
@@ -328,6 +355,7 @@ alter table public.artbook_booking_events force row level security;
 alter table public.artbook_orders force row level security;
 alter table public.artbook_messages force row level security;
 alter table public.artbook_provider_events force row level security;
+alter table public.artbook_wallet_replay_packets force row level security;
 alter table public.artbook_trust_evidence force row level security;
 alter table public.artbook_support_cases force row level security;
 alter table public.artbook_ai_tasks force row level security;
@@ -440,6 +468,12 @@ create policy artbook_provider_events_no_client_select on public.artbook_provide
 create policy artbook_provider_events_no_client_insert on public.artbook_provider_events for insert to authenticated with check (false);
 create policy artbook_provider_events_no_client_update on public.artbook_provider_events for update to authenticated using (false) with check (false);
 
+create policy artbook_wallet_replay_packets_select_account on public.artbook_wallet_replay_packets for select to authenticated using (
+  auth.uid() is not null and artbook_private.is_account_member(account_id)
+);
+create policy artbook_wallet_replay_packets_no_client_insert on public.artbook_wallet_replay_packets for insert to authenticated with check (false);
+create policy artbook_wallet_replay_packets_no_client_update on public.artbook_wallet_replay_packets for update to authenticated using (false) with check (false);
+
 create policy artbook_trust_evidence_select_participant on public.artbook_trust_evidence for select to authenticated using (
   auth.uid() is not null and (artbook_private.is_account_member(account_id) or artbook_private.is_account_member(target_account_id))
 );
@@ -503,12 +537,14 @@ grant select, insert, update on
 to authenticated;
 
 grant select on
+  public.artbook_wallet_replay_packets,
   public.artbook_outbox,
   public.artbook_audit_events
 to authenticated;
 
 revoke insert, update, delete on
   public.artbook_provider_events,
+  public.artbook_wallet_replay_packets,
   public.artbook_outbox,
   public.artbook_audit_events
 from authenticated;
