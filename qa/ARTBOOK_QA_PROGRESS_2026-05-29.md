@@ -17064,3 +17064,35 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - apply the same reference-frame polish to Marketplace detail or Events/Tickets, especially seller proof, capacity/status, and provider-led payment handoff.
+
+### 2026-06-05 20:51 +09:30 - Marketplace proof journey rail and Motorola proof
+- Scope:
+  - Continued the Figma-reference UI shell work on Marketplace after Wallet gained the payment partner review rail.
+  - Focused on the marketplace/event-booking/journey-map reference need: seller proof, stock/capacity, route readiness, payment partner review and release status visible before checkout.
+  - Preserved Play Store-safe wording: provider-led checkout, payment partner review, proof before release, owner approval and no custody claim.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a new `Market proof journey` rail inside the reference-mode Marketplace frame.
+    - Added staged cards for Seller proof, Route/stock, Partner review and Release.
+    - Added visible launch-safety chips: Seller proof, Route checked, Partner-led pay, Owner approval and No custody claim.
+    - Added dark-mode styling and responsive grid rules for the new Marketplace journey surface.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,741,322 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Navigated to Marketplace on-device using UI-tree bounds; UI tree confirmed `Market proof journey`, `Seller proof`, `Route/stock`, `Partner review`, `Proof before release`, `Partner-led pay`, `Owner approval` and `No custody claim` are present.
+  - Captured on-device Marketplace screenshots at `phone-artbook-market-proof-check.png` and `phone-artbook-market-proof-visible.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Marketplace UI-flow pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live provider, settlement, KYC/KYB, webhook or wallet-credit system is connected from the APK; this remains a front-end evidence/status surface.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - apply the same reference-frame polish to Events/Tickets or Marketplace item detail checkout, especially capacity, transfer/support states and proof-before-release handoff.
