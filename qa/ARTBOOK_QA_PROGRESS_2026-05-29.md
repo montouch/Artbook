@@ -18102,3 +18102,39 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on Marketplace service booking request sheets so selecting a service, slot, staff member and policy feels as clean as the booking detail proof strip.
+
+### 2026-06-06 03:47 +09:30 - Marketplace service booking request proof strip
+- Scope:
+  - Continued the Figma-reference polish pass on Marketplace service booking request sheets.
+  - Added a compact review/proof strip before the final booking request action so slot, worker, place, intake, payment partner state and trust/policy are visible in one place.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `bookingRequestProofStripHTML()` and inserted it into `bookingRequestV5HTML()`.
+    - Added Provider, Message, Partner and Artguide action tiles tied to the selected service request.
+    - Added audit flags for party-scoped changes, AI drafts only, visible-context-only help, no auto-send, proof before release, provider-led payment review and blocked protected actions.
+    - Updated booking request policy copy from held-payment wording to payment-partner-review wording.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - Targeted booking request render check passed on service `sv1`, slot `Mon 11:00`, worker `wk_jay`: one proof strip rendered, selected slot/staff/place/payment/trust steps rendered, four command tiles rendered, all tile targets were 50px tall, and protected-action/payment/provider/custody/publish flags stayed blocked/false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\booking-request-proof-strip.png`.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `9C734C51B985B1C0C1BA98A9AEFE59F3F11B52638059E8DA6E384401AF098B51`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: Motorola `ZY22JSRL8G` connected, app installed, version `1.181` / code `181`, installed APK hash matched the fresh build hash, and signature stayed compatible for in-place updates.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; after waking/unlocking the phone, foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola foreground screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-booking-proof-final-attempt.png`; exact proof-strip visual evidence is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Marketplace booking UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on guest/public booking request and confirmation receipt flows so external WhatsApp/QR bookings share the same proof-before-release language as in-app service requests.
