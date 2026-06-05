@@ -17427,3 +17427,47 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Motorola device UI proof is currently limited by the lockscreen/shade state, though the Artbook activity receives launch intents.
 - Next focus:
   - either add the hosted Edge Function/service-role worker implementation for support worker runs, or move to the next high-risk visible flow with a Figma-reference frame-quality pass once the backend worker lane is documented in GitHub.
+
+### 2026-06-05 22:56 +09:30 - Hosted support worker Edge Function scaffold
+- Scope:
+  - Continued from the support worker dry-run proof by adding a deployable Supabase Edge Function scaffold for hosted/service-role support worker proof.
+  - Focused on production-shaped support operations: delivery retry, SLA clock, provider callback review, care-audit gap checks and failure-alert ownership.
+  - Preserved Play Store-safe/provider-led boundaries: the hosted worker proof is still dry-run Review Ops evidence only and cannot be called from Android, call providers, send alerts, close cases, release refunds, credit wallets, pay out providers, settle escrow or recognize founder revenue.
+- Changed:
+  - `incoming\Artbook-transfer-v181\supabase\functions\support-worker\index.ts`
+    - Added a Supabase Edge Function scaffold with `GET` dry-run plan and `POST` dry-run audit recording.
+    - Reads open support cases plus delivery receipt, SLA action, provider callback and care-note proof rows using service-to-service credentials.
+    - Records per-account dry-run proof into `artbook_audit_events` on `POST`.
+    - Supports current Supabase `SUPABASE_SECRET_KEYS.default` plus legacy `SUPABASE_SERVICE_ROLE_KEY`/`SUPABASE_SECRET_KEY` fallback.
+    - Requires trusted scheduler/backend secret headers (`apikey`, bearer secret or `x-artbook-worker-secret`) and remains blocked without them.
+  - `incoming\Artbook-transfer-v181\supabase\config.toml`
+    - Added `[functions.support-worker] verify_jwt = false`, with function-level secret checks still required.
+  - `incoming\Artbook-transfer-v181\tools\supabase-launch-backend-audit.mjs`
+    - Extended audit coverage to read the support-worker Edge Function and assert service-secret support, support table scans, audit-event persistence and fail-closed provider/alert/money flags.
+  - `incoming\Artbook-transfer-v181\docs\SUPABASE_LAUNCH_BACKEND.md`, `incoming\Artbook-transfer-v181\docs\API_CONTRACT.md` and `incoming\Artbook-transfer-v181\server\README.md`
+    - Documented the hosted support worker function, deploy command, scheduler URL, service-to-service header boundary and dry-run limits.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - Checked current Supabase Edge Function docs/changelog direction before implementation:
+    - Edge Functions are Deno/TypeScript handlers and should be short-lived/idempotent.
+    - Function secrets are available through environment variables, including current `SUPABASE_SECRET_KEYS` and legacy service-role fallback.
+    - Service-to-service worker calls should use secret-key auth rather than Android/user JWTs.
+    - Scheduled invocation is via `pg_cron`/`pg_net` or trusted scheduler using Vault-held secrets.
+  - `tools\supabase-launch-backend-audit.mjs`: passed and now reports `supabase\functions\support-worker\index.ts`.
+  - `node server/src/server.mjs --check`: passed, confirming the local support worker API schema still exposes `GET /api/support/worker-plan` and `POST /api/support/worker-runs`.
+  - Source markers confirm `support_worker_edge_dry_run_review_only`, `SUPABASE_SECRET_KEYS`, `artbook_audit_events`, `deliveryProviderCalled:false`, `alertProviderCalled:false`, `moneyMovementEnabled:false` and `[functions.support-worker]` are present.
+- Rebuild / device:
+  - APK was not rebuilt because this pass changed Supabase/backend/docs/audit artifacts, not Android packaged HTML.
+  - Motorola `ZY22JSRL8G` was available over ADB.
+  - Launch intent was delivered to `com.steward.artbook/.MainActivity`, and `mFocusedApp` showed Artbook `MainActivity`.
+  - Full foreground window proof remains blocked by device state: `mCurrentFocus=NotificationShade` and `mDreamingLockscreen=true` after wake/unlock attempts, though display state reached ON.
+  - Recent fatal logcat query returned no Artbook `AndroidRuntime` fatal output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend/provider readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Deno and Supabase CLI are not installed locally, so the Edge Function could not be served/deployed from this laptop.
+  - No live Supabase project exists yet, so the function is GitHub-ready scaffold only.
+  - No real message/email provider, SLA runtime, alerting provider, provider callback secret verification or production audit pipeline is live.
+- Next focus:
+  - once a real Supabase project and CLI/MCP apply path exist, deploy `support-worker`, schedule it with Vault-held service secrets, and run hosted function logs/advisor checks; otherwise return to a visible UI frame-quality pass on a high-risk booking/wallet/support surface.

@@ -6,6 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const migrationPath = path.join(root, "supabase", "migrations", "20260605014500_artbook_launch_core.sql");
 const supportMigrationPath = path.join(root, "supabase", "migrations", "20260605125200_artbook_support_backend_scaffold.sql");
 const functionPath = path.join(root, "supabase", "functions", "provider-webhook", "index.ts");
+const supportWorkerFunctionPath = path.join(root, "supabase", "functions", "support-worker", "index.ts");
 const configPath = path.join(root, "supabase", "config.toml");
 const docsPath = path.join(root, "docs", "SUPABASE_LAUNCH_BACKEND.md");
 const serverPath = path.join(root, "server", "src", "server.mjs");
@@ -14,10 +15,11 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-const [migration, supportMigration, edgeFunction, config, docs, server] = await Promise.all([
+const [migration, supportMigration, edgeFunction, supportWorkerFunction, config, docs, server] = await Promise.all([
   readFile(migrationPath, "utf8"),
   readFile(supportMigrationPath, "utf8"),
   readFile(functionPath, "utf8"),
+  readFile(supportWorkerFunctionPath, "utf8"),
   readFile(configPath, "utf8"),
   readFile(docsPath, "utf8"),
   readFile(serverPath, "utf8")
@@ -78,6 +80,7 @@ assert(supportMigration.includes("money_movement_enabled boolean not null defaul
 
 assert(config.includes("[functions.provider-webhook]"), "provider-webhook function config missing");
 assert(config.includes("verify_jwt = false"), "provider webhook must document disabled JWT verification for provider callbacks");
+assert(config.includes("[functions.support-worker]"), "support-worker function config missing");
 
 assert(edgeFunction.includes("await req.text()"), "edge function must read raw body for signature verification");
 assert(edgeFunction.includes("ARTBOOK_PROVIDER_WEBHOOK_SECRET"), "edge function missing webhook secret");
@@ -87,11 +90,24 @@ assert(edgeFunction.includes("rawPayloadStored: false"), "edge function must rep
 assert(edgeFunction.includes("moneyMovementEnabled: false"), "edge function must block money movement");
 assert(!/raw_payload|raw_body|payload_body/i.test(edgeFunction), "edge function must not persist raw payload fields");
 
+assert(supportWorkerFunction.includes("support_worker_edge_dry_run_review_only"), "support worker must be dry-run review-only");
+assert(supportWorkerFunction.includes("SUPABASE_SECRET_KEYS"), "support worker should support current Supabase secret key env");
+assert(supportWorkerFunction.includes("SUPABASE_SERVICE_ROLE_KEY"), "support worker should support legacy service role fallback");
+assert(supportWorkerFunction.includes("artbook_support_cases"), "support worker must scan support cases");
+assert(supportWorkerFunction.includes("artbook_message_delivery_receipts"), "support worker must scan delivery receipts");
+assert(supportWorkerFunction.includes("artbook_support_provider_callbacks"), "support worker must scan provider callback proof");
+assert(supportWorkerFunction.includes("artbook_care_notes"), "support worker must scan care-note proof");
+assert(supportWorkerFunction.includes("artbook_audit_events"), "support worker must record audit evidence");
+assert(supportWorkerFunction.includes("deliveryProviderCalled: false"), "support worker must not call delivery providers");
+assert(supportWorkerFunction.includes("alertProviderCalled: false"), "support worker must not call alert providers");
+assert(supportWorkerFunction.includes("moneyMovementEnabled: false"), "support worker must block money movement");
+
 assert(docs.includes("Supabase: connected"), "docs should capture connector status");
 assert(docs.includes("Convex: used for scaling guidance"), "docs should capture Convex guidance usage");
 assert(docs.includes("Base44: connected"), "docs should capture Base44 status");
 assert(docs.includes("must not claim Artbook directly holds escrow"), "docs must preserve provider-led money boundary");
 assert(docs.includes("POST /api/support/worker-runs"), "docs should capture support worker proof route");
+assert(docs.includes("supabase/functions/support-worker/index.ts"), "docs should capture hosted support worker Edge Function");
 
 assert(server.includes("GET /api/support/worker-plan"), "server schema missing support worker plan route");
 assert(server.includes("POST /api/support/worker-runs"), "server schema missing support worker run route");
@@ -107,6 +123,7 @@ console.log(JSON.stringify({
   ok: true,
   migrations: [path.relative(root, migrationPath), path.relative(root, supportMigrationPath)],
   edgeFunction: path.relative(root, functionPath),
+  supportWorkerFunction: path.relative(root, supportWorkerFunctionPath),
   server: path.relative(root, serverPath),
   tables: requiredTables.length,
   rlsPolicies: policyCount,

@@ -27,9 +27,18 @@ This folder turns the existing backend handoff into concrete Supabase-ready arti
   - Stores only payload digest, idempotency/event ids and safe payload shape metadata.
   - Never stores raw provider payloads and never moves money, releases payouts, grants entitlements or marks settlement success.
 
+- `supabase/functions/support-worker/index.ts`
+  - Supabase Edge Function scaffold for hosted support worker proof.
+  - Requires a service-to-service secret key through `apikey`, `Authorization: Bearer <secret>` or `x-artbook-worker-secret`.
+  - Uses `SUPABASE_SECRET_KEYS.default` when available, with legacy `SUPABASE_SERVICE_ROLE_KEY` fallback for local/older setups.
+  - Reads open support cases plus delivery receipt, SLA action, provider callback and care-note proof tables, then classifies delivery retry, SLA clock, provider callback review, care-audit gap and failure-alert owner lanes.
+  - `GET` returns a dry-run plan; `POST` records per-account dry-run proof into `artbook_audit_events`.
+  - It never calls delivery/message/payment/alert providers, stores raw provider payloads, approves closeout, releases refunds, credits wallets, pays out providers or recognizes founder revenue.
+
 - `supabase/config.toml`
-  - Disables Supabase JWT verification only for `provider-webhook`, because external payment/delivery providers cannot send a user JWT.
-  - The function still fails closed unless the Artbook webhook secret validates the raw body.
+  - Disables Supabase JWT verification for `provider-webhook` and `support-worker`.
+  - `provider-webhook` still fails closed unless the Artbook webhook secret validates the raw body.
+  - `support-worker` still requires a service-to-service secret key header before querying support tables or writing audit rows.
 
 ## Apply when a Supabase project exists
 
@@ -38,6 +47,7 @@ supabase link --project-ref <project-ref>
 supabase db push
 supabase secrets set ARTBOOK_PROVIDER_WEBHOOK_SECRET=<strong-random-secret>
 supabase functions deploy provider-webhook --no-verify-jwt
+supabase functions deploy support-worker --no-verify-jwt
 ```
 
 Then register provider sandbox callback URLs such as:
@@ -47,6 +57,14 @@ https://<project-ref>.functions.supabase.co/provider-webhook/mpesa
 https://<project-ref>.functions.supabase.co/provider-webhook/card_checkout
 https://<project-ref>.functions.supabase.co/provider-webhook/payout_rail
 ```
+
+For scheduled support proof, invoke:
+
+```text
+https://<project-ref>.functions.supabase.co/support-worker
+```
+
+Use Supabase Vault plus `pg_cron`/`pg_net` or a trusted external scheduler. Pass the service-to-service secret through `apikey` or `Authorization: Bearer <secret>`, not from the Android client.
 
 ## Launch boundaries
 
@@ -79,6 +97,8 @@ The local Node API now includes the support endpoints the Android Backend Sync d
 - `POST /api/audit/care-notes`
 
 All support endpoints are review-only. They store support cases, sandbox delivery receipts, SLA actions, provider callback replay metadata, append-only care notes and dry-run worker proof rows, but keep `providerCalled:false`, `deliveryProviderCalled:false`, `alertProviderCalled:false`, `moneyMovementEnabled:false`, wallet credit, refund release, payout and founder revenue recognition disabled. The worker plan/run endpoints prove delivery-retry, SLA-clock, provider-callback, care-audit and failure-alert lanes for Review Ops; production still needs a service-role worker or Edge Function before any real delivery provider, alerting provider or callback verifier is used.
+
+The Supabase `support-worker` Edge Function is that hosted worker proof scaffold. It can be deployed once a real Supabase project exists, then called by a scheduler as service-to-service infrastructure. It still only records dry-run audit evidence until delivery, alerting and provider callback verification providers are configured.
 
 ## Connector status from this pass
 
