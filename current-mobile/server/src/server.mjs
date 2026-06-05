@@ -8162,6 +8162,15 @@ function replayWalletRows(store, profile, body) {
       status: cleanWalletText(raw.status, "client_replayed"),
       settlementStatus: "client_replayed_not_settled",
       providerStatus,
+      providerCalled: false,
+      providerActivationEnabled: false,
+      walletCreditEnabled: false,
+      escrowReleaseEnabled: false,
+      payoutEnabled: false,
+      founderRevenueRecognized: false,
+      moneyMovementEnabled: false,
+      spendable: false,
+      nonSettling: true,
       fee: cleanWalletAmount(raw.fee),
       feeSaved: cleanWalletAmount(raw.feeSaved),
       request: raw.request || null,
@@ -8193,6 +8202,15 @@ function replayWalletRows(store, profile, body) {
       amount: cleanWalletAmount(raw.amount),
       currency: body.currency || raw.currency || "KES",
       status: cleanWalletText(raw.status, "pending"),
+      providerCalled: false,
+      providerActivationEnabled: false,
+      walletCreditEnabled: false,
+      escrowReleaseEnabled: false,
+      payoutEnabled: false,
+      founderRevenueRecognized: false,
+      moneyMovementEnabled: false,
+      spendable: false,
+      nonSettling: true,
       note: cleanWalletText(raw.note, "Artbook Cash request"),
       clientTime: raw.time || body.clientTime || "",
       replayedAt: nowISO()
@@ -8207,6 +8225,11 @@ function replayWalletRows(store, profile, body) {
       currency: body.currency || "KES",
       source: "client_replay",
       settlementStatus: "client_reported_not_provider_settled",
+      providerCalled: false,
+      walletCreditEnabled: false,
+      moneyMovementEnabled: false,
+      spendable: false,
+      nonSettling: true,
       updatedAt: nowISO()
     };
   }
@@ -9629,7 +9652,18 @@ async function handle(req, res) {
           requestsRejected: replay.rejectedRequests,
           ledgerIds: Object.fromEntries(replay.acceptedLedger.map(row => [row.sourceId, row.id])),
           requestIds: Object.fromEntries(replay.acceptedRequests.map(row => [row.sourceId, row.id])),
-          settlementStatus: "client_replayed_not_settled"
+          settlementStatus: "client_replayed_not_settled",
+          reviewPacketAccepted: body?.reviewPacket?.nonSettling === true,
+          providerBoundary: cleanWalletText(body?.reviewPacket?.providerBoundary || body?.providerBoundary, "licensed_provider_required"),
+          providerCalled: false,
+          providerActivationEnabled: false,
+          walletCreditEnabled: false,
+          escrowReleaseEnabled: false,
+          payoutEnabled: false,
+          founderRevenueRecognized: false,
+          moneyMovementEnabled: false,
+          spendable: false,
+          nonSettling: true
         }
       });
     }

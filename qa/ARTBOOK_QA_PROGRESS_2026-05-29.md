@@ -16746,3 +16746,59 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - get or select a real Event Booking screen node for frame-by-frame ticket page work, or move to backend-provider wiring for wallet/payment review now that the major visible UI shells are cleaner.
+
+### 2026-06-05 17:38 +09:30 - Wallet provider-review replay packet and backend fail-closed flags
+- Scope:
+  - Continued the launch-readiness loop from a founder/product-owner stance.
+  - Chose wallet/backend provider readiness as the highest-value move after the recent Figma UI shell passes, because payment trust needs precise proof that Artbook prepares evidence without custody, settlement or spendable balances.
+  - Preserved Play Store-safe language: provider-led payment review, proof before release, no Android creator monetization, no Artbook-held escrow claim.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `walletProviderReviewPacket(...)` so wallet replay payloads include KES counts, provider-boundary state, blocked actions and explicit fail-closed flags.
+    - Added a Wallet “backend review packet” card with `data-wallet-backend-replay-proof`, `data-provider-called="false"`, `data-money-enabled="false"`, `data-wallet-credit-enabled="false"`, `data-escrow-release-enabled="false"` and `data-spendable="false"`.
+    - Added `App.copyWalletProviderReviewPacket()` so Review Ops can copy the replay packet and leave a non-settling backend audit trail.
+    - Updated the wallet sync event to log `providerCalled=false`, `walletCreditEnabled=false` and `moneyMovementEnabled=false`.
+  - `incoming\Artbook-transfer-v181\server\src\server.mjs`
+    - Persisted replayed wallet ledger/request/balance rows with explicit `providerCalled:false`, `walletCreditEnabled:false`, `moneyMovementEnabled:false`, `spendable:false` and `nonSettling:true`.
+    - Extended `POST /api/wallet/ledger/replay` to echo fail-closed response flags and whether the client review packet was accepted.
+  - `incoming\Artbook-transfer-v181\tools\backend-smoke-test.mjs`
+    - Added wallet replay assertions for provider-review-only response flags and persisted non-spendable ledger/balance state.
+  - `incoming\Artbook-transfer-v181\tools\smoke-test-artbook.mjs`
+    - Added a Wallet proof-card assertion for the new data attributes.
+- Visible UI review:
+  - Reviewed the Wallet screenshot from `build\artbook-apk\smoke-mobile.png`.
+  - First viewport remains clean and premium: provider-review locked card, compact transaction cards, bottom dock, no floating Pay Lens or AI overlay.
+  - The review packet card is present in the Wallet DOM and lower stack, keeping compliance proof available without cluttering the first viewport.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `node --check server\src\server.mjs`: passed.
+  - `node --check tools\backend-smoke-test.mjs`: passed.
+  - `node --check tools\smoke-test-artbook.mjs`: passed.
+  - `tools\backend-smoke-test.mjs`: passed 344 checks.
+  - `tools\smoke-test-artbook.mjs`: passed; Wallet proof card present with money/provider/wallet-credit flags all `false`.
+  - `tools\tap-audit-artbook.mjs`: passed 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\state-flow-audit-artbook.mjs`: first run timed out under parallel load; rerun alone passed all 39 checks with 0 failures.
+  - `tools\backend-sync-ui-test.mjs`: passed 348 checks, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `8718D69E9822330DDD54D0CCC008E209155E35031A085ED9C6DF26600CD043D6`.
+  - Version: `1.181` / versionCode `181`; size `31,733,130` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `adb devices` showed `ZY22JSRL8G` as connected and `emulator-5562` as offline.
+  - `adb -s ZY22JSRL8G install -r artbook-phone-install.apk` succeeded.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - Activity state reported `ResumedActivity=ActivityRecord{... com.steward.artbook/.MainActivity ...}` and `mFocusedApp=ActivityRecord{... com.steward.artbook/.MainActivity ...}`.
+  - `mCurrentFocus` remained `NotificationShade`, but activity focus is Artbook and no immediate crash lines appeared in the recent logcat sample.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected wallet/backend readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Live provider sandbox credentials, hosted callback replay, Supabase/Convex/Base44 provisioning, release signing and production payment/legal review remain external blockers.
+  - Exact frame-by-frame Figma parity still depends on connector-readable screen nodes or duplicated files exposing real mobile frames.
+- Next focus:
+  - continue backend-provider readiness by wiring hosted provider callback proof capture and Supabase/Convex/Base44 data ownership, or resume Figma frame-by-frame work on a connector-readable Events/Tickets or Shopping screen node.

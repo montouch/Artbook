@@ -38,10 +38,23 @@ const state = await page.evaluate(() => ({
   bootErrorVisible: document.getElementById("boot-error") ? getComputedStyle(document.getElementById("boot-error")).display !== "none" : false,
 }));
 
+const walletProof = await page.evaluate(() => {
+  App.setAccount?.("riley_artist");
+  App.go?.("wallet");
+  const card = document.querySelector("[data-wallet-backend-replay-proof]");
+  return {
+    present: Boolean(card),
+    moneyEnabled: card?.getAttribute("data-money-enabled") || "",
+    providerCalled: card?.getAttribute("data-provider-called") || "",
+    walletCreditEnabled: card?.getAttribute("data-wallet-credit-enabled") || "",
+    text: card?.textContent?.replace(/\s+/g, " ").trim().slice(0, 240) || "",
+  };
+});
+
 await page.screenshot({ path: path.join(root, "build", "artbook-apk", "smoke-mobile.png"), fullPage: true });
 await browser.close();
 
-console.log(JSON.stringify({ state, pageErrors, consoleErrors }, null, 2));
-if (!state.hasTopNav || !state.hasDock || !state.hasMain || state.bootErrorVisible || pageErrors.length || consoleErrors.length) {
+console.log(JSON.stringify({ state, walletProof, pageErrors, consoleErrors }, null, 2));
+if (!state.hasTopNav || !state.hasDock || !state.hasMain || state.bootErrorVisible || !walletProof.present || walletProof.moneyEnabled !== "false" || walletProof.providerCalled !== "false" || walletProof.walletCreditEnabled !== "false" || pageErrors.length || consoleErrors.length) {
   process.exitCode = 1;
 }

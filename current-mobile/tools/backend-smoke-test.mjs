@@ -755,14 +755,24 @@ try {
     body: JSON.stringify({
       balance: 24100,
       currency: "KES",
+      reviewPacket: {
+        providerBoundary: "licensed_provider_required",
+        providerCalled: false,
+        walletCreditEnabled: false,
+        moneyMovementEnabled: false,
+        spendable: false,
+        nonSettling: true
+      },
       ledger: [{ id: "smoke_wallet_send", kind: "internal send", label: "Smoke internal send", from: registered.json.user.profileId, to: "zuri", parties: [registered.json.user.profileId, "zuri"], amount: 700, status: "sent", feeSaved: 11 }],
       requests: [{ id: "smoke_wallet_request", from: registered.json.user.profileId, to: "zuri", parties: [registered.json.user.profileId, "zuri"], amount: 450, status: "pending", note: "Smoke request" }]
     })
   });
   assert(walletReplay.status === 202 && walletReplay.json.wallet?.ledgerAccepted === 1 && walletReplay.json.wallet?.requestsAccepted === 1, "wallet replay did not accept ledger and request rows");
+  assert(walletReplay.json.wallet?.providerCalled === false && walletReplay.json.wallet?.walletCreditEnabled === false && walletReplay.json.wallet?.moneyMovementEnabled === false && walletReplay.json.wallet?.spendable === false && walletReplay.json.wallet?.reviewPacketAccepted === true, "wallet replay should remain provider-review only with no money movement");
 
   const wallet = await request(base, "/api/wallet/ledger", { headers: auth });
   assert(wallet.status === 200 && wallet.json.balance?.amount === 24100 && wallet.json.ledger?.some(row => row.sourceId === "smoke_wallet_send" && row.settlementStatus === "client_replayed_not_settled"), "wallet ledger replay was not readable");
+  assert(wallet.json.balance?.walletCreditEnabled === false && wallet.json.balance?.moneyMovementEnabled === false && wallet.json.balance?.spendable === false && wallet.json.ledger?.some(row => row.sourceId === "smoke_wallet_send" && row.walletCreditEnabled === false && row.moneyMovementEnabled === false && row.spendable === false), "wallet replay persisted rows should not become spendable or credited");
 
   const rejectedWalletReplay = await request(base, "/api/wallet/ledger/replay", {
     method: "POST",
