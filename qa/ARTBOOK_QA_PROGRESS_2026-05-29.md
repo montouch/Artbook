@@ -18138,3 +18138,40 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on guest/public booking request and confirmation receipt flows so external WhatsApp/QR bookings share the same proof-before-release language as in-app service requests.
+
+### 2026-06-06 04:03 +09:30 - Guest/public booking proof parity
+- Scope:
+  - Continued the Figma-reference polish pass on external booking flows.
+  - Added a shared guest booking proof strip for public service share packs, guest booking creation and guest booking receipt views.
+  - Tightened the reference-theme modal card opacity after visual review so background text no longer bleeds through the proof strip.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `guestBookingProofStripHTML()` with Source, Slot, Pay review and Release steps.
+    - Added Share, Guest desk, Calendar and Artguide actions with touch-safe tiles.
+    - Updated public booking share copy, guest booking creation copy and guest booking event/email/thread wording from payment-path language to provider-led payment partner review and proof-before-release language.
+    - Saved guest booking sequences now include `payment partner review pending` and `proof before release`.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - Targeted guest booking request + receipt render check passed on service `sv1`: request and receipt proof strips rendered, each had four proof steps and four 50px action tiles, `data-proof-before-release="true"`, and protected-action/payment/provider/custody flags stayed blocked/false.
+  - Targeted screenshots captured at `incoming\Artbook-transfer-v181\build\artbook-apk\guest-booking-request-proof-strip.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\guest-booking-receipt-proof-strip.png`.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `5996738EF598505B199BDB780A5ED2680FE3EF393ECD8286CC7C2DD6B6E35D90`.
+  - `tools\phone-install-readiness.mjs`: Motorola `ZY22JSRL8G` connected, app installed, version `1.181` / code `181`, installed APK hash matched the fresh build hash, and signature stayed compatible for in-place updates.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola foreground screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-guest-booking-proof-launch.png`; exact guest booking proof-strip evidence is in the targeted browser screenshots above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected guest/public booking UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on the public share / external channel handoff sheet so WhatsApp, SMS, email and QR handoffs show the same proof timeline, partner-review boundary and clean premium visual hierarchy before a guest record is created.
