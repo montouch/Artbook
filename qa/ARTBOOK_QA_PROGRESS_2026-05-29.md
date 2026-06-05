@@ -17471,3 +17471,41 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - No real message/email provider, SLA runtime, alerting provider, provider callback secret verification or production audit pipeline is live.
 - Next focus:
   - once a real Supabase project and CLI/MCP apply path exist, deploy `support-worker`, schedule it with Vault-held service secrets, and run hosted function logs/advisor checks; otherwise return to a visible UI frame-quality pass on a high-risk booking/wallet/support surface.
+
+### 2026-06-05 23:14 +09:30 - Wallet partner cockpit and Android-safe atelier guard
+- Scope:
+  - Returned to visible launch readiness after the backend support-worker scaffold.
+  - Focused first on the Wallet/payment-partner surface using the Figma reference direction for compact fintech cards, status tiles, journey stages and proof-before-release actions.
+  - During Motorola proof, found the installed app opening an Ateliers state with explicit paid creator/member subscription language; fixed that as a Play Store readiness blocker in the same pass.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `walletPaymentPartnerCockpitHTML` and rendered it in locked and unlocked Wallet states before detailed ledger panels.
+    - Added `wallet-partner-*` CSS with light/dark and reference-shell styling.
+    - Wallet cockpit now exposes KES review, M-Pesa-style provider labels, request status, backend truth, journey stages, receipts and Pay Lens actions with `providerCalled:false`, `moneyEnabled:false`, `walletCreditEnabled:false`, `custodyClaim:false` and proof-before-release markers.
+    - Added `androidSafeVault` plus web-only guard labels so paid creator/member vaults are preserved as Android-safe web-only archives, not Android purchase/renewal/unlock flows.
+    - Updated Ateliers hero/list copy from paid/subscription-first wording to member/archive wording and removed visible `KES/month`, `Paid photos/videos/demos` and `Subscribe demo` strings from the Android Ateliers route.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet remained `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Playwright Ateliers check passed: `Member ateliers` and `Web-only member archive` present; no `KES/month`, `Paid photos`, `Paid videos`, `Paid demos` or `Subscribe demo`.
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `8A40A809BFAB4512C4D628C2A90A10AE11259752C547FA55207C890AAF9248A8`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: installed APK hash matched target hash, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded, launch foreground proof passed after manual-unlock path with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola UI dump confirmed Ateliers now shows `MEMBER ATELIERS`, `Web-only member archive`, `no purchase, renewal or media unlock happens in-app`, and no visible paid/month creator wording in the inspected viewport/list.
+- Rebuild / device:
+  - Native APK rebuilt because Android packaged HTML changed.
+  - Desktop copy updated at `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - Screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-final-foreground.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Wallet/Play Store compliance pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Older `tools\build-artbook-apk.mjs` still expects missing `vendor\babel.min.js`; use `tools\build-native-artbook-apk.mjs` for this transfer.
+  - The APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails are still review-only: no provider calls, wallet credit, spendable balance, custody, payout or money movement is enabled.
+- Next focus:
+  - run a deeper Play Store copy sweep for remaining creator monetization language in profile/world/podcast surfaces, then continue a Figma-reference pass on Wallet/Bookings/Events once the Android-safe copy baseline is clean.
