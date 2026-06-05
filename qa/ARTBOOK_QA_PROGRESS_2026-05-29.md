@@ -17032,3 +17032,35 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Literal 100% copying from third-party/community Figma kits remains dependent on the editable file license allowing production reuse; the implemented UI is Artbook-original while matching the requested look/layout/flow patterns.
 - Next focus:
   - apply the same reference-frame treatment to Wallet/payment partner status or Marketplace detail, then capture a fresh on-device screenshot of the touched route if the phone stays awake.
+
+### 2026-06-05 20:42 +09:30 - Wallet payment partner review rail and Motorola proof
+- Scope:
+  - Continued the Figma-reference UI shell work on Wallet/payment partner status after Calendar/Booking gained its day command frame.
+  - Focused on the e-wallet/money-management reference need: premium KES card, clear provider-led status, review stages, receipts and proof-before-release without custody claims.
+  - Preserved Play Store-safe money language: payment partner status, provider-led evidence lane, Review Ops, receipts before release, money blocked and no custody claim.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a new Wallet payment partner review rail inside the reference-mode Wallet frame.
+    - Added stage cards for Intent, Packet, Review Ops and Proof.
+    - Added visible safety chips: Money blocked, Provider not called, Account scoped, KES ready and No custody claim.
+    - Added dark-mode styling and responsive layout rules for the new rail.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,737,226 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Navigated to Wallet on-device using UI-tree bounds for the Wallet tile; UI tree confirmed `Payment partner status`, `Intent`, `Packet`, `Review Ops`, `Proof`, `Money blocked` and `Provider not called` are present.
+  - Captured on-device Wallet screenshot at `phone-artbook-wallet-partner-check.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Wallet/payment UI-flow pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live provider, settlement, KYC/KYB, webhook or wallet-credit system is connected from the APK; this remains a front-end evidence/status surface.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - apply the same reference-frame polish to Marketplace detail or Events/Tickets, especially seller proof, capacity/status, and provider-led payment handoff.
