@@ -17715,3 +17715,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference shell pass on Inbox / Customer Letters so buyer, seller and provider messages feel as premium and operationally clear as Home, Marketplace, Calendar, Events and Wallet.
+
+### 2026-06-06 00:59 +09:30 - Inbox customer letter command rail
+- Scope:
+  - Continued the Figma-reference shell pass on Inbox / Customer Letters after Marketplace.
+  - Focused on the first visible message surface: owner-approved replies, customer work records and care tasks now sit in one premium command card before the thread list.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, wallet credit, spendable balance, payout, custody or local settlement action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a compact Customer Letter Command card inside the Figma AI Inbox frame.
+    - Added three touch-safe proof buttons: Owner, Records and Care, with concise labels that fit the Motorola viewport.
+    - Added audit flags to the Inbox shell and command card: `data-owner-approved-replies=true`, `data-ai-drafts-only=true`, `data-no-auto-send=true`, `data-provider-called=false`, and `data-money-movement-enabled=false`.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems after shortening proof-rail labels to avoid clipping.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Inbox render check passed for `riley_biz`: command card present, 3 proof buttons, all controls at least 44px, no clipped proof labels, owner-approved/draft-only/no-auto-send flags present, and provider/money-movement flags stayed false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\inbox-letter-command-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `7726F31565E1BA5B0D2F0461DAAABA94DF25503EFF53D914817831E7881644AB`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-inbox-letter-command-pass.png`; visible review confirmed the Inbox first viewport shows the new Customer Letter Command card with Owner, Records and Care proof buttons.
+  - Motorola UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-inbox-letter-command-ui.xml`; the final dump exposed only the WebView root, so readable structured content proof is the targeted browser DOM check above.
+  - Recent crash log query returned no `AndroidRuntime` crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Inbox / Customer Letters UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - improve the active Customer Letter / chat detail frame so the conversation itself shows the same work-record, proof-before-release and owner-approval clarity as the Inbox landing card.
