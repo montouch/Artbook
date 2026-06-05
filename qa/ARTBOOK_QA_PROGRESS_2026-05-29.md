@@ -16284,3 +16284,52 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase project/migration apply, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port Menu / Settings or Business Owner Desk into the same Figma-boss shell next, then use Supabase/Convex/Base44 backend connectors when the UI shell has the next stable operational surface.
+
+### 2026-06-05 14:02 +09:30 - Figma AI boss Menu / Settings launch shell
+- Scope:
+  - Founder-selected UI launch-readiness pass after Profile.
+  - Ported Menu / Settings into a new Figma-boss launch command shell for identity, Country Passport, backend readiness, support, privacy, AI guardrails, Moto World and dark/light mode control.
+  - Kept the existing live menu engine, pinned workflows, search, backend handoff, reference credits, appearance settings, activity and reset tools underneath the new first viewport.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `.figma-ai-menu*` premium Menu shell styles with light and dark-mode support.
+    - Added `figmaAiBossMenuHTML(...)` using the same live `App.*` routes as the existing menu.
+    - Reference-mode Menu now starts with a clean account header, hero frame, booking/order/trust KPIs, eight launch command tiles, five journey/status stages, role-specific command card and Play Store-safe boundary note.
+    - Removed the older legacy Menu hero from the reference-mode first viewport while preserving all live deeper Menu workflows below a `Live menu engine` divider.
+    - Preserved provider-led/payment partner language and avoided Android creator monetization shortcuts.
+- Figma evidence / limitation:
+  - Figma connector call for DesignCode node `AeqniKnhiv2DmVn0SrcQnf / 198:29982` exposed usable component tokens: Inter 13/20, 8px corner radius, glass gradient, background blur and layered shadows.
+  - Figma connector call for SaaS Website UI Kit node `24XGHkBZDBt2szuI6DjsHX / 2012:608` still returned `You currently have nothing selected`, so that reference was used as product/layout direction rather than a direct layer import.
+- Visible UI review:
+  - Targeted Playwright Menu probe confirmed `.figma-ai-menu` exists, hero text is white, eight launch actions render, five status stages render, the live engine divider exists, and the old Menu hero is not shown immediately under the new reference shell.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\menu-figma-boss-clean.png`.
+  - Dark-mode probe confirmed `data-theme-mode="dark"`, light title text and white hero text; dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\menu-figma-boss-dark-clean.png`.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `60812C65E721BEC20FDEBB1946AFE22C0FFBD19C71DE1E77931B1F42C500048E`.
+  - Version: `1.181` / versionCode `181`; size `31,716,746` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 14:01:26`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `11426`; `dumpsys activity` reported `com.steward.artbook/.MainActivity` resumed and focused.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact pixel copy from the Figma Community files remains limited when the connector exposes only partial or currently selected layers.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port Business Owner Desk or Jobs/Work Detail into the same Figma-boss launch shell next, then use the backend connectors once a stable operational surface is ready for real provider/data wiring.
