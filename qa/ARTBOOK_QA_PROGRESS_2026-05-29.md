@@ -17819,3 +17819,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the premium Figma-reference pass on Menu / Settings so account safety, provider readiness, theme mode and launch tasks feel as polished and operationally clear as Home, Marketplace, Inbox and Profile.
+
+### 2026-06-06 01:34 +09:30 - Menu launch command rail
+- Scope:
+  - Continued the premium Figma-reference pass on Menu / Settings.
+  - Focused on first-viewport launch clarity: account safety, provider readiness, theme mode and Android release proof now appear as a compact command rail before the deeper menu map.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, local settlement action or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a Figma-style Menu Launch Command rail inside the Figma AI menu shell.
+    - Added four touch-safe command tiles: Safety, Providers, Theme and Release.
+    - Added audit flags to the menu shell and command rail: `data-menu-launch-rail=true`, `data-ai-drafts-only=true`, `data-provider-called=false`, `data-money-movement-enabled=false`, `data-wallet-credit-enabled=false`, `data-custody-claim=false`, and `data-android-publish-enabled=false`.
+    - Tuned light/dark styling so the Menu rail matches the DesignCode/SaaS-inspired reference shell and sits above the deeper Launch commands section.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Menu render check passed for `riley_biz`: launch rail present, 4 buttons, all controls at least 44px, no clipped labels, rail inside the first viewport and clear of the fixed dock, and provider/payment/custody/publish flags stayed false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\menu-launch-command-rail-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `E85E4A7441D4F126F892B4B81072ED5D2A5492C9E973AD86AC2C3A4B161C9E26`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshots/UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-menu-launch-command-pass.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-menu-launch-command-ui.xml`; the device resumed an active chat route, so exact Menu rail visual proof is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Menu / Settings UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on Artguide AI Assistant so chat, mind-map guidance, source/action cards and protected-action stops feel as premium and clear as the updated Menu, Profile and Inbox surfaces.
