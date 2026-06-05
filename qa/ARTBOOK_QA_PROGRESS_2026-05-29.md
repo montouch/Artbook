@@ -16089,3 +16089,49 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - production provider activation still needs server-side secrets, signed raw-body callback proof, provider fetch clients, legal/payment partner review, compliance/tax review and Play release signing.
 - Next focus:
   - create or connect the real Supabase project, apply this migration on a development branch, set `ARTBOOK_PROVIDER_WEBHOOK_SECRET`, deploy `provider-webhook`, then run sandbox M-Pesa/card/payout callback replay against the Edge Function.
+
+### 2026-06-05 12:30 +09:30 - Figma AI boss Inbox / Customer Letters frame port
+- Scope:
+  - Founder-selected UI launch-readiness pass after the Figma AI boss reference-board and Figma Make V7 work.
+  - Ported Inbox / Customer Letters to a new reference-mode Figma frame inspired by the supplied chat app UI kit and the Figma Make V7 Artbook redesign output.
+  - Kept the existing live message engine intact: chats, rooms, calls, follow-ups, notifications, customer records, active chat pages, business rooms and customer care actions still use the same app state and handlers.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `.figma-ai-inbox*` premium mobile styles with light and dark-mode support.
+    - Added `figmaAiBossInboxHTML(...)` for the Customer Letters shell.
+    - Reference-mode Inbox now hides the old search/tabs chrome, replaces the old compact compass with a full first-viewport frame, and adds a live-list handoff header above the existing thread/task engines.
+    - Added provider-safe boundary copy: payment partners process funds; Artbook shows review status and owner approval only.
+    - Preserved Play Store-safe language and did not add Android creator monetization.
+- Visible UI review:
+  - Fresh visual audit covered Inbox across artist, business, streamer, creator and courier roles.
+  - Initial audit caught clipped `Customer letters` badge text; fixed the score badge wrapping/size.
+  - Accessibility audit initially warned on the new search input tap target; fixed with a hard 48px input height.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` returned Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures, including customer letters isolation and business care desk trails.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems after the badge fix.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors after the tap-target fix.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `FCF83776E7DF625C2077DB6148A960CA0AD85A251A0D0DDD979283561892ED35`.
+  - Version: `1.181` / versionCode `181`; size `31,700,362` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 12:28:42`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `26100`; `dumpsys activity` reported `com.steward.artbook/.MainActivity` resumed.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Live Supabase project/migration apply, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+  - The connected Figma chat-kit node exposed only a small text node through the connector, so this pass used it as visual direction plus the already generated Figma Make V7 reference pack rather than claiming full source-layer import.
+- Next focus:
+  - port Events / Tickets or Artguide AI Assistant next, using the same Figma-boss method and keeping Android money/creator boundaries safe.
