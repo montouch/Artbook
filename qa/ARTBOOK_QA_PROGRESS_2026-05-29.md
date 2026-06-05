@@ -18175,3 +18175,39 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on the public share / external channel handoff sheet so WhatsApp, SMS, email and QR handoffs show the same proof timeline, partner-review boundary and clean premium visual hierarchy before a guest record is created.
+
+### 2026-06-06 04:16 +09:30 - Public link handoff proof timeline
+- Scope:
+  - Continued the Figma-reference polish pass on public share and external-channel handoff sheets.
+  - Added a shared proof timeline before QR/public-link and outside-channel handoffs create a guest record.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `openDoorHandoffProofHTML()` with Public token, Channel, Partner/Reference review and Proof release/Receipt proof steps.
+    - Inserted the proof timeline into `publicShareSheet()` and `externalChannel()`.
+    - Updated external lead, thread and email copy to `Proof review ready` with token, partner/reference review and proof-boundary language before any paid/booked/released state.
+    - Solidified handoff proof card styling for premium no-bleed modal views.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - Targeted browser proof passed for `sv1` QR booking share, `sv1` SMS booking handoff and `p1` QR sale share: four steps, four action tiles at 50px, server-owned public token, protected-action/payment/provider/custody flags blocked/false, `Proof review ready` external lead status and no page/console errors.
+  - Targeted screenshots captured at `incoming\Artbook-transfer-v181\build\artbook-apk\open-door-public-share-handoff-proof.png`, `incoming\Artbook-transfer-v181\build\artbook-apk\open-door-sms-handoff-proof.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\open-door-sale-public-handoff-proof.png`.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `3F47755CE6FC103614AB2D896AC50B4075DE9C369F0B4C93ED6979DA71736C20`.
+  - `tools\phone-install-readiness.mjs`: Motorola `ZY22JSRL8G` connected, app installed, version `1.181` / code `181`, and signature stayed compatible for in-place updates. The installed base APK and packaged install APK matched hash `3F47755CE6FC103614AB2D896AC50B4075DE9C369F0B4C93ED6979DA71736C20`; the separate local-debug comparison artifact remained `18A70B8FD722C0C95C0BEB942A6EAB1098480AE13638DBCE578EF05B62706CD2`.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola foreground screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-open-door-handoff-launch.png`; exact handoff proof-strip evidence is in the targeted browser screenshots above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected public handoff UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue open-door desk and guest ledger polish so leads created from outside channels show the same proof timeline and owner next action without opening each record.
