@@ -16180,3 +16180,53 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Exact pixel copy from Figma Community files remains limited by connector node access; the app now carries the requested frame-by-frame intent through live Artbook-specific screens rather than static copies.
 - Next focus:
   - port Artguide AI Assistant next, then Profile / identity trust, using the same Figma-boss method and preserving Android compliance boundaries.
+
+### 2026-06-05 13:10 +09:30 - Figma AI boss Artguide command-room port
+- Scope:
+  - Founder-selected UI launch-readiness pass after Events / Tickets.
+  - Ported Artguide AI Assistant into a new Figma-boss first viewport inspired by the supplied AI chatbot kit, Omnichart flow-chart kit, iOS/liquid-glass direction and Figma Make V7 Artbook redesign intent.
+  - Preserved the existing Artguide engine: live backend fallback, server-side AI status, voice fallback, operate mode, workflow routing, prompt log, AI controls and protected-action guardrails still use the current app handlers.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `.figma-ai-artguide*` premium shell styles with light and dark-mode support.
+    - Added `figmaAiBossArtguideHTML(...)` using live account, page context, trust score, backend/live-AI state, mapped workflow routes and prompt suggestions.
+    - Replaced the old compact Artguide top card with a first-viewport command room: header, hero, top composer, status chips, Full chat / AI map / Controls actions, Ask-Map-Review-Act flow tiles, prompt tiles, route cards and hard safety boundary.
+    - Added final reference-mode contrast overrides after older Artguide theme rules so the header, hero paragraph, flow labels and boundary copy remain readable.
+    - Preserved Play Store-safe boundaries: Artguide can explain, route and draft, but cannot move money, approve identity, grant Seals, publish restricted media, expose private content or settle provider-led funds.
+- Visible UI review:
+  - Fresh visual audit included `artguide.png`.
+  - Human screenshot review caught low-contrast Artguide header/hero copy caused by older reference-mode sheet rules; fixed with scoped final selectors and verified computed colors (`#17212f` header/title, `#475569` hero paragraph in light mode).
+  - Final screenshot shows a readable premium AI command room with clear hierarchy, touch-friendly actions and the existing deeper Artguide chat/guardrails still below the first viewport.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` returned Windows `Access is denied`.
+  - Figma connector checks:
+    - `hy5ecLRIyW4CAm3iHTXD6C` node `10301:22799` exposed only the `slothGPT` text layer.
+    - `Am3DN0kTOX4vwh5c3pd1z6` node `35:1558` exposed only the `Omnichart` title layer.
+    - This pass used those references as visual/product direction plus the existing Figma Make V7 Artbook intent, not as a literal source-layer import.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems after the contrast fix.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `0041FC3E3470D80E82368BE3D07AB63E1CAE37EF62CD80BF46A5AA37E2DDDC29`.
+  - Version: `1.181` / versionCode `181`; size `31,708,554` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded using the Android SDK adb path.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 13:09:26`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `31306`; `dumpsys activity` reported `com.steward.artbook/.MainActivity` resumed and focused.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Figma Community exact pixel import remains blocked by connector node access exposing only partial/logo layers for the supplied AI/flow references.
+  - Live Supabase project/migration apply, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port Profile / identity trust next, with original document/liveness/residence/source-of-funds style verification language, role-scoped trust boundaries and the same Figma-boss premium shell discipline.
