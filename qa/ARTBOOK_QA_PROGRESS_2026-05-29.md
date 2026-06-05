@@ -17784,3 +17784,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the premium Figma-reference pass on Profile / Account trust so identity, provenance, work records and contact/payment boundaries are clearer before pilot users inspect seller or provider profiles.
+
+### 2026-06-06 01:25 +09:30 - Profile trust command rail
+- Scope:
+  - Continued the premium Figma-reference pass on Profile / Account trust.
+  - Focused on the first visible seller/provider profile surface: identity, scoped work lanes, provenance trust and payment-partner boundaries now appear as a compact command rail before deeper profile sections.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, wallet credit, spendable balance, payout, custody, local settlement action or provider call.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a Figma-style Profile Trust Command rail inside the Figma AI profile shell.
+    - Added four touch-safe command tiles: Identity, Lanes/Works, Trust and Payment.
+    - Added audit flags to the profile shell and command rail: `data-profile-trust-command=true`, `data-ai-drafts-only=true`, `data-android-identity-approval-enabled=false`, `data-provider-called=false`, `data-money-movement-enabled=false`, `data-wallet-credit-enabled=false`, and `data-custody-claim=false`.
+    - Tuned the mobile layout so all four trust tiles remain above the fixed dock while the next Identity scopes section peeks into view.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Profile render check passed for `riley_biz` viewing `maasai_makers`: command rail present, 4 buttons, all controls at least 44px, no clipped labels, rail inside the first viewport and clear of the fixed dock, and all provider/payment/custody flags stayed false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\profile-trust-command-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `64289FA6609096BFA6F7348863DB05ED732983A43E37ED63F381AF77A2694E15`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-profile-trust-command-launch-pass.png`; the device resumed the Inbox shell, so profile-specific visual proof is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Profile / Account Trust UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the premium Figma-reference pass on Menu / Settings so account safety, provider readiness, theme mode and launch tasks feel as polished and operationally clear as Home, Marketplace, Inbox and Profile.
