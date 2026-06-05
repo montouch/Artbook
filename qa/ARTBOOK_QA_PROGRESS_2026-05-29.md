@@ -15959,3 +15959,43 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - APK remains local-debug signed; Play release signing remains separate.
 - Next focus:
   - continue frame-by-frame Figma ports for Marketplace, Calendar/Bookings, Inbox/Chat, Events/Tickets, Artguide AI and Profile, using the supplied Figma links as screen-specific bosses.
+
+### 2026-06-05 10:35 +09:30 - Figma AI boss Marketplace frame port
+- Scope:
+  - Ported the next Figma AI/mobile-kit frame into the Android reference shell: Marketplace now has its own clean mobile header, big shopping title, search field, wrapped category pills, featured KES offer card, proof/payment status cards, compact recommendation grid and provider-led money boundary.
+  - Used `origin/figma/premium-artbook-ui-v1` Marketplace structure, the Furniture Shopping minimal reference direction, Event Booking/Scheddo booking intent and Artbook's live market data instead of a static mock.
+  - Removed the old Figma reference frame bar from Market so Home, Wallet and Marketplace now behave as standalone Figma-boss frames.
+  - Hid the old Market tab/search chrome in reference mode because the new frame owns those controls; preserved the existing product, service, ticket, digital, class, subscription, cart, booking, package and proof flows underneath.
+  - Kept Android policy boundaries: KES, Nairobi/Kilimani/Westlands identity, provider-led checkout, payment partner review, proof before release and owner approval language; no Artbook custody/settlement claim and no explicit creator monetization was added.
+- Visible UI review:
+  - Captured fresh Marketplace screenshot at `incoming\Artbook-transfer-v181\build\artbook-apk\figma-ai-market.png`.
+  - Confirmed `.figma-ai-market` renders, old `.figma-frame-bar` is absent on Market, category chips wrap inside the viewport at 48px height, and proof cards show `Owner review`, `Ready` and `Partner` without clipping.
+- Verification:
+  - Inline script syntax extraction passed: 1 script, `3,559,142` bytes.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems, no page errors and no console errors after the category/proof label cleanup.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures, no page errors and no console errors.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures, no page errors and no console errors. Remaining warnings are known older frame-bar pages that have not yet been ported; Market no longer reports the new touch/clipping warnings.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `D2F91E8EE80CE235EB5961990086B56217ADF3B09F1C70EC0F2A89904DBFC67E`.
+  - Version: `1.181` / versionCode `181`; size `31,692,170` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - Direct SDK ADB found `ZY22JSRL8G` online.
+  - `adb -s ZY22JSRL8G install -r` of the fresh APK succeeded.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app; `pidof com.steward.artbook` returned `7598`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord ... com.steward.artbook/.MainActivity`; notification shade remained `mCurrentFocus`, so foreground app proof is present but top-window focus is shade-obscured.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash line for Artbook. A Play Store info 404 appeared because this debug package is not published on Play; it is not an app crash.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Other pages still use the older reference frame bar and should continue being ported frame by frame.
+  - Provider callback replay, hosted public HTTPS backend proof, production provider activation proof, Play release signing and Play Store evidence remain external launch blockers.
+  - APK remains local-debug signed; Play release signing remains separate.
+- Next focus:
+  - port Calendar/Bookings next using the Calendar Mobile App and Scheddo references, because booking confidence is the next highest-value trust surface after Home, Wallet and Marketplace.
