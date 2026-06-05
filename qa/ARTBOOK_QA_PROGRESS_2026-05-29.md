@@ -16044,3 +16044,48 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - APK remains local-debug signed; Play release signing remains separate.
 - Next focus:
   - port Inbox / Customer Letters / booking messages next using the supplied chat app UI kit, because Calendar now exposes message actions and customer trust depends on clean work conversations.
+
+### 2026-06-05 11:16 +09:30 - Backend launch pack: Supabase, Convex, Base44 connector pass
+- Scope:
+  - Used the connected backend tools from the founder request: Supabase, Convex and Base44.
+  - Supabase connector showed organization `montouch's Org` but `projects: []`, so no live Supabase database was available for migration apply.
+  - Base44 connector showed no existing Artbook app, so no Base44 builder data model was edited or forked.
+  - Convex scaling guidance was used as architecture input: tenant/account IDs on tenant-owned tables, server-side authorization, indexed/paginated hot paths and no client-side filtering for protected data.
+  - Added a concrete Supabase launch backend pack under `incoming\Artbook-transfer-v181\supabase\`.
+- Changed:
+  - `supabase\migrations\20260605014500_artbook_launch_core.sql`
+    - 15 launch tables: accounts, memberships, profiles, posts, listings, bookings, booking events, orders, messages, provider events, trust evidence, support cases, AI tasks, outbox and audit events.
+    - Forced RLS on every public table and 42 policies using `auth.uid()` plus account memberships.
+    - Private helper functions live in `artbook_private`, not the exposed public schema.
+    - Provider event writes, outbox writes and audit writes are blocked for authenticated clients.
+    - Android creator monetization is blocked at the listing schema level.
+  - `supabase\functions\provider-webhook\index.ts`
+    - fail-closed Supabase Edge Function for provider callback replay.
+    - reads raw body, verifies `ARTBOOK_PROVIDER_WEBHOOK_SECRET`, stores only payload digest/safe shape metadata and never stores raw provider payloads.
+    - returns non-settling statuses with `moneyMovementEnabled:false`, provider fetch required, owner approval required and proof before release required.
+  - `supabase\config.toml`
+    - disables JWT verification only for provider webhooks because external providers do not send user JWTs; the Artbook webhook secret remains required.
+  - `tools\supabase-launch-backend-audit.mjs`
+    - verifies the Supabase pack safety boundaries: RLS, table count, policy count, no raw payload storage, no client provider-event writes, no money movement and no Android creator monetization.
+  - `server\src\server.mjs`
+    - fixed the release evidence packet progress reader so it searches known workspace/GitHub QA paths and prefers the newest backend-grade audit section (`backend-smoke-test` or `quality-loop-artbook`) instead of losing backend evidence when the newest QA note is UI-only.
+    - added a GitHub-safe APK evidence fallback: local APK file, desktop APK copy, then latest QA-log APK SHA/version/signing evidence, so backend smoke tests do not require forbidden APK binaries in the repo.
+  - `server\README.md`, `docs\API_CONTRACT.md`, `docs\BACKEND_HANDOFF.md`, `docs\SUPABASE_LAUNCH_BACKEND.md`
+    - documented the launch pack, connector status, apply steps and live blockers.
+- Verification:
+  - Used bundled Codex Node runtime because the system `node` shim returned Windows `Access is denied`.
+  - `tools\supabase-launch-backend-audit.mjs`: passed, 15 tables, 42 RLS policies, raw provider payload storage false, money movement false, Android creator monetization false and client provider-event writes false.
+  - `server\src\server.mjs --check`: passed and listed the current endpoint schema.
+  - `tools\backend-smoke-test.mjs`: passed 344 checks after the release evidence packet progress-reader fix.
+  - GitHub checkout verification under `C:\Users\brown\Documents\GitHub\Artbook\current-mobile`: `tools\supabase-launch-backend-audit.mjs` passed and `tools\backend-smoke-test.mjs` passed 344 checks after the QA-log APK evidence fallback.
+- Rebuild / APK:
+  - no APK rebuild was needed because this pass changed backend/docs/test artifacts only and did not change the Android HTML source.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend connector pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - live Supabase migration apply is blocked until a Supabase project exists in the connected account or a project ref is linked through CI/CLI.
+  - local Supabase CLI is not installed.
+  - production provider activation still needs server-side secrets, signed raw-body callback proof, provider fetch clients, legal/payment partner review, compliance/tax review and Play release signing.
+- Next focus:
+  - create or connect the real Supabase project, apply this migration on a development branch, set `ARTBOOK_PROVIDER_WEBHOOK_SECRET`, deploy `provider-webhook`, then run sandbox M-Pesa/card/payout callback replay against the Edge Function.

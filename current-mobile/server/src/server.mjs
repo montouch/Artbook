@@ -6343,7 +6343,14 @@ function fileBytesIfPresent(filePath) {
 }
 
 function latestProgressEvidence() {
-  const progressPath = path.resolve(process.cwd(), "..", "..", "ARTBOOK_QA_PROGRESS_2026-05-29.md");
+  const progressCandidates = [
+    path.resolve(process.cwd(), "..", "..", "ARTBOOK_QA_PROGRESS_2026-05-29.md"),
+    path.resolve(process.cwd(), "ARTBOOK_QA_PROGRESS_2026-05-29.md"),
+    path.resolve(process.cwd(), "qa", "ARTBOOK_QA_PROGRESS_2026-05-29.md"),
+    path.resolve(process.cwd(), "..", "qa", "ARTBOOK_QA_PROGRESS_2026-05-29.md"),
+    path.resolve(process.cwd(), "docs", "ARTBOOK_QA_PROGRESS_2026-05-29.md")
+  ];
+  const progressPath = progressCandidates.find(candidate => existsSync(candidate)) || progressCandidates[0];
   try {
     if (!existsSync(progressPath)) {
       return {
@@ -6355,11 +6362,14 @@ function latestProgressEvidence() {
       };
     }
     const text = readFileSync(progressPath, "utf8");
-    const starts = [...text.matchAll(/^##\s+(.+)$/gm)];
-    const latest = starts.at(-1);
-    const section = latest ? text.slice(latest.index) : text;
-    const latestSectionTitle = latest?.[1]?.trim() || "Progress log";
-    const auditResults = section
+    const starts = [...text.matchAll(/^#{2,3}\s+(.+)$/gm)];
+    const sections = starts.length
+      ? starts.map((start, index) => ({
+        title: start[1]?.trim() || "Progress log",
+        body: text.slice(start.index, starts[index + 1]?.index || text.length)
+      }))
+      : [{ title: "Progress log", body: text }];
+    const auditLinesFor = section => section
       .split(/\r?\n/)
       .map(line => line.trim())
       .filter(line => {
@@ -6367,13 +6377,31 @@ function latestProgressEvidence() {
         return /(backend-smoke-test|backend-sync-ui-test|smoke-test-artbook|quality-loop-artbook|state-flow-audit-artbook|accessibility-audit-artbook|visual-audit-artbook|tap-audit-artbook|head-to-toe-audit-artbook|server[\\/]src[\\/]server\.mjs|syntax check)/i.test(body);
       })
       .slice(0, 12);
+    const sectionsNewestFirst = [...sections].reverse();
+    const latestWithBackendAudit = sectionsNewestFirst.find(section =>
+      auditLinesFor(section.body).some(line => /backend-smoke-test|quality-loop-artbook/i.test(line))
+    );
+    const latestWithAudit = sectionsNewestFirst.find(section => auditLinesFor(section.body).length);
+    const latest = latestWithBackendAudit || latestWithAudit || sections.at(-1);
+    const section = latest?.body || text;
+    const latestSectionTitle = latest?.title || "Progress log";
+    const auditResults = auditLinesFor(section);
     const phoneInstallStatus = section.split(/\r?\n/).find(line => line.startsWith("- Phone install status")) || "";
+    const apkShaMatch = [...text.matchAll(/APK SHA-256:\s+`?([A-F0-9]{64})`?/gi)].at(-1);
+    const versionMatch = [...text.matchAll(/Version:\s+`?([0-9.]+)`?\s*\/\s*versionCode\s+`?([0-9]+)`?/gi)].at(-1);
+    const signatureMatch = [...text.matchAll(/Signature schemes verified:\s*([^\r\n]+)/gi)].at(-1);
     return {
       path: progressPath,
       available: true,
       latestSectionTitle,
       auditResults,
-      phoneInstallStatus: phoneInstallStatus.replace(/^-\s*/, "") || "not logged in latest section"
+      phoneInstallStatus: phoneInstallStatus.replace(/^-\s*/, "") || "not logged in latest section",
+      apkEvidence: {
+        sha256: apkShaMatch?.[1]?.toUpperCase() || "",
+        versionName: versionMatch?.[1] || "",
+        versionCode: versionMatch?.[2] || "",
+        signingSummary: signatureMatch?.[1]?.replace(/\.$/, "").trim() || ""
+      }
     };
   } catch (error) {
     return {
@@ -6381,7 +6409,8 @@ function latestProgressEvidence() {
       available: false,
       latestSectionTitle: "",
       auditResults: [],
-      phoneInstallStatus: error.message || "progress log unreadable"
+      phoneInstallStatus: error.message || "progress log unreadable",
+      apkEvidence: { sha256: "", versionName: "", versionCode: "", signingSummary: "" }
     };
   }
 }
@@ -6392,6 +6421,13 @@ function providerReleaseEvidencePacket(readiness = {}) {
   const apkSha256 = sha256FileIfPresent(apkPath);
   const desktopSha256 = sha256FileIfPresent(desktopPath);
   const progress = latestProgressEvidence();
+  const progressApk = progress.apkEvidence || {};
+  const effectiveApkSha256 = apkSha256 || desktopSha256 || progressApk.sha256 || "";
+  const apkEvidenceSource = apkSha256 ? "local_apk_file" : (desktopSha256 ? "desktop_apk_copy" : (progressApk.sha256 ? "qa_progress_log" : "missing"));
+  const versionName = progressApk.versionName || "1.181";
+  const versionCode = progressApk.versionCode || "181";
+  let signingSummary = progressApk.signingSummary || "local debug/build signing; latest build script verifies v1, v2 and v3 when rebuilt";
+  signingSummary = signingSummary.replace(/\bv1,\s*v2,\s*v3\b/i, "v1, v2 and v3");
   const releaseChecklist = readiness.releaseChecklist || {};
   const runtimeDeployment = readiness.runtimeDeploymentReadiness || {};
   const runtimeCounts = runtimeDeployment.counts || {};
@@ -6408,11 +6444,12 @@ function providerReleaseEvidencePacket(readiness = {}) {
     "APK Build Evidence",
     `- APK path: ${apkPath}`,
     `- APK present: ${apkSha256 ? "true" : "false"}`,
-    `- APK SHA-256: ${apkSha256 || "not built yet"}`,
+    `- APK SHA-256: ${effectiveApkSha256 || "not built yet"}`,
+    `- APK evidence source: ${apkEvidenceSource}`,
     `- APK bytes: ${fileBytesIfPresent(apkPath)}`,
     `- Desktop copy SHA-256: ${desktopSha256 || "not available"}`,
-    "- Version: 1.181 (versionCode 181)",
-    "- Signing summary: local debug/build signing; latest build script verifies v1, v2 and v3 when rebuilt.",
+    `- Version: ${versionName} (versionCode ${versionCode})`,
+    `- Signing summary: ${signingSummary}.`,
     "",
     "Latest Logged Audit Evidence",
     `- Progress section: ${progress.latestSectionTitle || "not available"}`,
@@ -6464,12 +6501,13 @@ function providerReleaseEvidencePacket(readiness = {}) {
       path: apkPath,
       exists: Boolean(apkSha256),
       bytes: fileBytesIfPresent(apkPath),
-      sha256: apkSha256,
+      sha256: effectiveApkSha256,
+      evidenceSource: apkEvidenceSource,
       desktopPath,
       desktopSha256,
-      versionName: "1.181",
-      versionCode: "181",
-      signingSummary: "local debug/build signing; latest build script verifies v1, v2 and v3 when rebuilt",
+      versionName,
+      versionCode,
+      signingSummary,
       releaseSigningConfigured: envPresent("ARTBOOK_RELEASE_KEYSTORE_PATH")
     },
     latestProgress: progress,

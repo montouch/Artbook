@@ -8,6 +8,17 @@ Local scaffold: `server/src/server.mjs` implements the first backend slice with 
 
 The mobile prototype now includes a `Backend sync` desk in Menu and Backend handoff. It can store a local API base URL, test `/api/health` and `/api/schema`, log in or register the active demo account, sync profile/privacy/status, post the latest unsynced Stroke, create a follow-up job, submit one seller listing into review, replay wallet ledger/request rows as client-reported audit data, sync Fundi escrow/refund states as provider-unverified non-spendable settlement audit rows, fetch settlement reconciliation exceptions that keep payout/refund holds visible, fetch a Review Ops KYC/money-limit runbook, sync buyer/booker-confirmed completed orders and bookings as server-owned evidence records, use the mapped backend evidence for Provenance Seals and active trust reports, and verify that payment providers still fail closed.
 
+## Supabase Launch Pack
+
+Concrete Supabase-ready backend artifacts now live under `supabase/`:
+
+- `supabase/migrations/20260605014500_artbook_launch_core.sql` creates the launch core tables with forced RLS: accounts, memberships, profiles, posts, listings, bookings, booking events, orders, messages, provider event replay, trust evidence, support cases, AI tasks, outbox and audit events.
+- `supabase/functions/provider-webhook/index.ts` is a fail-closed Edge Function for payment/delivery/provider callback replay. It verifies the raw body with `ARTBOOK_PROVIDER_WEBHOOK_SECRET`, stores only payload digest and safe shape metadata, and never stores raw provider payloads.
+- `supabase/config.toml` disables Supabase JWT verification only for `provider-webhook`, because external providers cannot send a user JWT; the function still requires its Artbook webhook secret.
+- `tools/supabase-launch-backend-audit.mjs` verifies 15 launch tables, forced RLS, 42 RLS policies, no client provider-event writes, no raw provider payload storage, no money movement and no Android creator monetization.
+
+The migration is not live-applied yet because the connected Supabase account currently has no project visible and the Supabase CLI is not installed locally. When a Supabase project exists, apply with `supabase link --project-ref <project-ref>`, `supabase db push`, set `ARTBOOK_PROVIDER_WEBHOOK_SECRET`, then deploy `provider-webhook`.
+
 Phone note: `127.0.0.1` points at the phone when running inside the APK. Use the laptop/server LAN IP for a physical-device test over Wi-Fi.
 
 ## Auth And Profile

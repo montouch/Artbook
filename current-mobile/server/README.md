@@ -29,6 +29,14 @@ Provider-backed flows intentionally fail closed until credentials and webhooks e
 - external delivery webhooks
 - music distribution, copyright/CMO filing and release identifiers
 
+Supabase launch backend pack:
+
+- `../supabase/migrations/20260605014500_artbook_launch_core.sql` is a concrete Supabase/Postgres migration for the launch core: accounts, memberships, profiles, posts, listings, bookings, booking events, orders, messages, provider event replay, trust evidence, support cases, AI tasks, outbox and audit events.
+- Every public table in that migration has RLS enabled and forced. Policies are account/tenant scoped through `auth.uid()` and `artbook_account_memberships`, with private helper functions kept in `artbook_private`.
+- `../supabase/functions/provider-webhook/index.ts` is a fail-closed Edge Function for provider callback replay. It reads the raw body, verifies `ARTBOOK_PROVIDER_WEBHOOK_SECRET`, stores only a payload digest/safe shape metadata through the service role, and never stores raw provider payloads or moves money.
+- `../tools/supabase-launch-backend-audit.mjs` verifies the migration/function boundaries: 15 tables, RLS on all tables, 42 policies, no client provider-event writes, no raw payload storage, no money movement and no Android creator monetization.
+- The connected Supabase account has an organization but no project visible during this pass, so these artifacts are GitHub-ready and not live-applied.
+
 `POST /api/calls` is a masked-relay contract, not a direct dialer. It now requires an active server-owned work context, proves the caller and peer are parties to that record, blocks missing/foreign/inactive contexts before provider handoff, includes expiry and rate-limit policy, and still returns `provider_not_configured` without echoing caller/callee phone numbers or calling a telephony provider.
 
 AI endpoints are backend-owned. `POST /api/ai/context-preview` and `POST /api/ai/business-brief` build redacted visible-record previews and keep protected actions blocked. `POST /api/ai/live-assist` can call OpenAI only when `OPENAI_API_KEY` is present in `.env.local`/the server environment and `ARTBOOK_AI_LIVE=1`; the Android APK never receives the key. Provider errors or quota/billing failures fail closed to a local guarded brief, and money movement, identity approval, Provenance Seals, restricted media publishing, moderation decisions and settlement transitions remain blocked.

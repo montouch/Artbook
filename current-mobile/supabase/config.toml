@@ -1,0 +1,4 @@
+project_id = "artbook-local-launch-pack"
+
+[functions.provider-webhook]
+verify_jwt = false

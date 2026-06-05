@@ -20,6 +20,11 @@ The latest Kenya-first Artbook mobile prototype is tracked in `current-mobile/`.
 It includes the single-file mobile UI, bundled app assets, backend handoff server,
 review documents, and audit/build tools from the active Codex workspace.
 
+The production backend launch pack is tracked in `current-mobile/supabase/`.
+It includes the Supabase migration, fail-closed provider webhook Edge Function,
+and backend audit script needed to start the real provider-led backend without
+turning Android into a wallet or settlement system.
+
 Generated APKs, signing sidecars, local `.env` files, and workspace backups are
 intentionally excluded from GitHub. Use `current-mobile/tools/build-native-artbook-apk.mjs`
 from the active workspace when a fresh Android install package is needed.
@@ -42,9 +47,17 @@ npm run lint
 npm run build
 ```
 
+Backend launch pack checks:
+
+```bash
+cd current-mobile
+node tools/supabase-launch-backend-audit.mjs
+node tools/backend-smoke-test.mjs
+```
+
 ## Next implementation layers
 
-- Replace sample data with PostgreSQL or MongoDB models.
+- Apply the Supabase launch migration in a real Supabase project.
 - Add S3-backed media uploads and transcoding.
 - Integrate LiveKit or another WebRTC provider for live rooms.
 - Add Stripe or PayPal checkout adapters for subscriptions, gifts, and marketplace orders.

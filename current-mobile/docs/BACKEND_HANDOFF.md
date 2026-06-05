@@ -44,6 +44,15 @@ The backend engineer should treat the prototype as the product behavior referenc
 
 ## Production Boundary
 
+Supabase launch backend pack:
+
+- `supabase/migrations/20260605014500_artbook_launch_core.sql` creates 15 core launch tables for accounts, memberships, profiles, posts, listings, bookings, booking events, orders, messages, provider events, trust evidence, support cases, AI tasks, outbox and audit events.
+- RLS is enabled and forced on every public table. Policies are account-scoped with `auth.uid()` and `artbook_account_memberships`; helper functions live in the private `artbook_private` schema, not the exposed public schema.
+- Provider/payment event writes are blocked for authenticated clients. Service/backend code must write replay rows, and those rows are digest/metadata only.
+- `supabase/functions/provider-webhook/index.ts` reads the raw provider callback body, verifies `ARTBOOK_PROVIDER_WEBHOOK_SECRET`, stores safe replay metadata only, and returns non-settling statuses.
+- `tools/supabase-launch-backend-audit.mjs` verifies the launch pack before shipping: 15 tables, 42 policies, forced RLS, no raw payload persistence, no client provider-event writes, no money movement and no Android creator monetization.
+- Live application is still blocked until a Supabase project exists, the Supabase CLI or CI can apply migrations, provider secrets are stored server-side and sandbox callbacks prove signed raw-body verification.
+
 Do not trust app-side state for:
 
 - identity/KYC
