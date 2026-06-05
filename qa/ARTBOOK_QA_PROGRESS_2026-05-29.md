@@ -17509,3 +17509,36 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails are still review-only: no provider calls, wallet credit, spendable balance, custody, payout or money movement is enabled.
 - Next focus:
   - run a deeper Play Store copy sweep for remaining creator monetization language in profile/world/podcast surfaces, then continue a Figma-reference pass on Wallet/Bookings/Events once the Android-safe copy baseline is clean.
+
+### 2026-06-05 23:48 +09:30 - Play Store copy sweep and Motorola reinstall
+- Scope:
+  - Continued the Play Store-safe Android copy baseline after the Wallet/Ateliers guard.
+  - Focused on visible profile, Circle, streamer, podcast, world, role, music, member-access, founder/admin and backend-handoff surfaces where older seed/local state could still expose paid creator/subscriber wording.
+  - Preserved Moto World and archived synthetic records; this pass sanitizes rendered Android copy rather than deleting seed archives.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added and expanded render-time Android-safe copy guards for creator/member archive wording.
+    - Sanitized Circle feed cards, Stroke detail, featured Circle rows, saved Stroke rows, profile/status/story frames, live room cards and Flicker world cards.
+    - Updated streamer launch-plan, compose-room, role guide, verification, backend handoff, founder revenue, subscription/member access and podcast hero copy from subscriber/paid creator language to member archive, web-only paid archive, provider-led and proof-before-release language.
+    - Member access now uses "Member access", "Member archive", "Member updates" and "Web-only member archive" language while keeping receipts, cancellation trails and owner records intact.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet remained `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Playwright copy sweep passed on Circle, streamer Profile, Worlds, Podcasts, Subscriptions, Live, Register, More, compose room, role guide, streamer verification, backend handoff, founder revenue and member access for the risky phrases: paid photos/videos/demos, Subscribe demo, paid bonus/subscriber/content/subscription, creator monetization, live-room gifts, subscriber feed/media/vault/series/policy/terms/drops/Q, Open subscribed content and KES/month.
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `61E8A8D3940B2410F33007ABE1A9919219A2EABEEBF66CE376BF30183425E4D7`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded, launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity`, `mDreamingLockscreen=false`, `mWakefulness=Awake`.
+  - Motorola UI tree/screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-copy-sweep-ui.xml` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-copy-sweep-foreground.png`; inspected Ateliers viewport showed `MEMBER ATELIERS`, `Web-only member archive` and `no purchase, renewal or media unlock happens in-app`.
+  - Recent crash log query returned no `AndroidRuntime` crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Play Store copy-safety pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference frame-quality redesign pass on Booking/Calendar, Events/Tickets and Wallet/Partner status now that the Android visible copy baseline is cleaner.
