@@ -17542,3 +17542,36 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference frame-quality redesign pass on Booking/Calendar, Events/Tickets and Wallet/Partner status now that the Android visible copy baseline is cleaner.
+
+### 2026-06-06 00:00 +09:30 - Calendar booking frame-quality pass
+- Scope:
+  - Continued the Figma-reference redesign loop on the Calendar/Booking surface after the Android-safe copy sweep.
+  - Focused on functional booking and appointments, not just visual polish: dates, active appointments, staff load, capacity, public/guest booking leads, care notes, provider-led payment review and owner closeout.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, custody, payout or settlement claim.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Extended `figmaAiBossCalendarHTML` with a functional appointments/capacity board and an Omnichart-style booking flow map.
+    - Added visible rows for appointment handoff, worker load, intake, public booking links, payment partner review, after-care and owner proof close.
+    - Added `figma-ai-calendar-*` light/dark responsive CSS so the new Calendar frame fits 390px Motorola-class screens without clipped text.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems after tightening the 390px Calendar layout.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Calendar render check passed for `riley_biz`: `data-figma-ai-functional-bookings=true`, `data-figma-ai-omnichart-booking-flow=true`, 3 appointment rows, 5 review steps, 2 staff rows, provider-led payment boundary present and no bad Android money-copy in the frame.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\calendar-functional-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `E0507D4BE0A782DC87419A334065B2E4B49E377D421F314B159F96D25FFDFA16`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot/UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-calendar-frame-pass.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-calendar-frame-ui.xml`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Calendar/Booking UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference frame-quality pass on Events/Tickets and Wallet/Payment Partner status, then run another visible Android sweep on the flows most likely to appear in first-week launch QA.
