@@ -17994,3 +17994,39 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on the Artguide conversation composer and suggested prompt row so voice, typing and safe navigation feel like one premium assistant surface across chat, Wallet and work screens.
+
+### 2026-06-06 02:58 +09:30 - Artguide composer prompt strip
+- Scope:
+  - Continued the Figma-reference polish pass on the Artguide conversation composer and suggested prompt row.
+  - Moved suggested prompts into a compact strip directly under the live chat composer, with contextual Wallet / bookings / jobs / inbox / market prompts and no duplicate bottom prompt row.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `liveAiPromptRows()` and `liveAiPromptStripHTML()` for contextual, touch-safe prompt controls.
+    - Inserted the prompt strip into compact Artguide chat and full live chat immediately after the composer.
+    - Removed the old full-chat bottom `live-ai-quick` row from `liveAiRoomHTML()`.
+    - Added solid light/dark/reference-mode styling so prompt tiles read clearly over Wallet and work surfaces.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted prompt-strip check passed on Wallet: 4 contextual prompts rendered (`Money states`, `Review packet`, `Screen brief`, `Find route`), old `live-ai-quick` row absent, prompt tap sent the expected provider-led money question, compact Artguide strip rendered, all buttons stayed 56px tall, and protected-action/payment/provider/custody/publish flags stayed blocked/false.
+  - Targeted screenshots captured at `incoming\Artbook-transfer-v181\build\artbook-apk\artguide-composer-prompt-strip.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\artguide-composer-prompt-strip-locator.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `3E2C727E497AE6DD7B1706DCDF47322F7AAC827CF1AE5B94AA08ED1F1B99965B`.
+  - `tools\phone-install-readiness.mjs`: Motorola `ZY22JSRL8G` connected, app installed, version `1.181` / code `181`, installed APK hash matched the fresh installed APK hash above, and signature stayed compatible for in-place updates.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola launch screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-composer-prompt-strip-launch.png`; exact prompt-strip visual proof is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Artguide composer UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on Inbox/customer-letter AI assistance so protected letters, view-once previews and Artguide draft actions feel cleaner and less crowded on the Motorola viewport.
