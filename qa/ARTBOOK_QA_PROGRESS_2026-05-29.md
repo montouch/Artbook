@@ -17888,3 +17888,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on Artguide live chat detail so the conversation window, action plan and protected-action blocked states match the new command rail quality.
+
+### 2026-06-06 02:11 +09:30 - Live AI protected plan rail
+- Scope:
+  - Continued the Figma-reference polish pass on Artguide live chat detail.
+  - Focused on command-heavy protected actions: the live chat now keeps Talk, Plan, Blocked and Backend visible as a premium sticky safety rail while the conversation/composer is active.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added the live AI protected safety rail inside `liveAiRoomHTML()`, before the chat stream.
+    - Added compact Figma-reference styling for the four-tile rail, including sticky placement, dark-mode backdrop polish, icons and touch-safe tile sizing.
+    - Strengthened `liveAiPlanHTML()` protected-action markup with `data-live-ai-plan-card=true` and audit flags for drafts-only, visible-context-only, human/provider review, blocked protected actions and false provider/payment/custody/publish states.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `tools\live-ai-provider-error-test.mjs`: passed with `ai_live_assist_provider_error_fail_closed`.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted live AI protected-money command check passed for `riley_biz` in reference/dark mode: modal open, rail inside first viewport, rail DOM before chat, plan inside chat, 4 SVG-backed tiles, all tiles at least 44px, no clipped labels, and all protected-action/payment/provider/custody/publish flags stayed blocked/false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\live-ai-protected-plan-rail-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `DD005941D965897F8EB18D40F81C9C3E4B184E2CA27AFC74BA3E2E2B16071120`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; foreground launch proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola launch screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-live-ai-rail-launch-pass.png`; device launch proof is app foreground while exact live AI rail visual proof is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Artguide live AI UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on the floating Artguide chat/dot and voice states so minimized AI, live voice and protected stops share the same premium rail quality without cluttering Home.
