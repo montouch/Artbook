@@ -15914,3 +15914,48 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - APK remains local-debug signed; Play release signing remains separate.
 - Next focus:
   - do the focused Podcast/Live/Sound Circle visual screenshot review now that automated accessibility is fully quiet, then continue toward hosted/backend provider callback replay proof.
+
+### 2026-06-05 10:16 +09:30 - Figma AI boss frame port: Home, Wallet, bottom nav and basket attention
+- Scope:
+  - Treated `origin/figma/premium-artbook-ui-v1` and live Figma references as the UI authority for this pass.
+  - Ported the Figma AI `ArtbookEnhanced.HomeScreen` structure into the Android reference shell: premium header, verified/premium/provider-led badges, Today balance card, mini stats, Quick Access tiles and Quick Actions.
+  - Ported a Figma Money Management / Figma AI wallet frame into `renderWallet()`: 40px-style header, welcome block, gradient partner review card, operation tiles, provider-led payments notice, pending review card and transaction rows.
+  - Replaced the old reference bottom dock styling with the Figma AI branch nav language: 390px max width, 56px height, border-top, ordinary tabs and round create icon.
+  - Kept Home clean: no floating Pay Lens, no floating AI overlay, no old visible Artbook chrome.
+  - Added a small DesignCode-style glass `.top-cart.active` basket chip only when purchase attention exists, preserving state-flow evidence without returning the old crowded top bar.
+  - Preserved Android Play Store boundaries: provider-led/payment partner/proof-before-release wording, no Artbook custody/settlement claim, and no explicit Android creator monetization.
+- Figma evidence:
+  - Read DesignCode UI Kit node `AeqniKnhiv2DmVn0SrcQnf / 198:29982`; used the 8px glass button recipe with white border, blur and layered shadows for the basket chip.
+  - Read Money Management Mobile App node `4nV0kOCYJeA8GqqQ5YsoRR / 6101:379`; used its 414x896 wallet frame proportions, 14px gutter, gradient card, operation tiles and transaction row hierarchy.
+  - Used `origin/figma/premium-artbook-ui-v1` files as implementation source for `ArtbookEnhanced.HomeScreen`, `WalletScreen` and `artbook-premium.css` tokens.
+  - Did not blindly merge the branch because it deletes/replaces the current Android prototype layout; ported the relevant frame language into `current-mobile` instead.
+- Verification:
+  - Inline script syntax extraction passed: 1 script, `3,550,362` bytes.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - Fresh Playwright screenshots captured `build\artbook-apk\figma-ai-home.png` and `build\artbook-apk\figma-ai-wallet.png`; wallet has no duplicate frame bar, dock renders at `390x56`, and hidden legacy top chrome is collapsed offscreen.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures after the Figma basket chip restored purchase attention evidence.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures, no page errors and no console errors; 52 non-failing touch heuristic warnings remain on not-yet-ported reference frame controls around 43-44px.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `3169050E34C75DDF65B060D7690FCEB7C49389185BE195B0942461B48847D1E3`.
+  - Version: `1.181` / versionCode `181`; size `31,688,074` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - Direct SDK ADB found `ZY22JSRL8G` online and `emulator-5562` offline.
+  - `adb -s ZY22JSRL8G install -r` of the fresh APK succeeded.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app; `pidof com.steward.artbook` returned `1658`.
+  - `dumpsys window` reported `mFocusedApp=ActivityRecord ... com.steward.artbook/.MainActivity`; notification shade remained `mCurrentFocus`, so foreground app proof is present but top-window focus is shade-obscured.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash line for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - This is the first frame-by-frame Figma boss port, focused on Home, Wallet, bottom nav and purchase attention. Other pages still use the older reference shell with Figma frame bars and should be ported one by one.
+  - Provider callback replay, hosted public HTTPS backend proof, production provider activation proof, Play release signing and Play Store evidence remain external launch blockers.
+  - APK remains local-debug signed; Play release signing remains separate.
+- Next focus:
+  - continue frame-by-frame Figma ports for Marketplace, Calendar/Bookings, Inbox/Chat, Events/Tickets, Artguide AI and Profile, using the supplied Figma links as screen-specific bosses.
