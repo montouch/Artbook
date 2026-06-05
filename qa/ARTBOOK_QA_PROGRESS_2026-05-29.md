@@ -16230,3 +16230,57 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase project/migration apply, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port Profile / identity trust next, with original document/liveness/residence/source-of-funds style verification language, role-scoped trust boundaries and the same Figma-boss premium shell discipline.
+
+### 2026-06-05 13:38 +09:30 - Figma AI boss Profile / identity trust port
+- Scope:
+  - Founder-selected UI launch-readiness pass after Artguide.
+  - Ported Profile into a new Figma-boss first viewport focused on identity, role trust, Country Passport and provider-led verification.
+  - Used the supplied Figma direction from the Social Network UI kit, DesignCode UI kit button tokens and iOS Liquid Glass command reference while keeping the final UI uniquely Artbook and Kenya-first.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `.figma-ai-profile*` premium profile shell styles with dark-mode support.
+    - Added `figmaAiBossProfileHTML(...)` plus account-scoped identity helper rows so profile verification status does not rely on legacy global identity flags.
+    - Reference-mode Profile now uses a full-width profile trust frame instead of the older nested card shell.
+    - The first viewport now shows role title, live profile media, trust score, works/lanes, followers, identity scopes, proof checklist, provider route and protected-action boundary.
+    - Kept old `profileTrustPassportHTML(...)` available outside reference mode and preserved all existing profile tabs, actions, status, media, chat/follow/share, trust desk, verification center and Country Passport flows.
+    - Header action was changed to open Trust Desk instead of duplicating the global back arrow.
+    - Preserved Play Store-safe language: provider/human approval decides identity, Country Passport, Seals and payment-partner release status; Artbook stores proof/status only and does not add Android creator monetization shortcuts.
+- Figma evidence / limitation:
+  - Figma connector calls:
+    - Social Network node `LtEoMsTW1ycL7FAfzE0mIK / 6438:99519` exposed only the `@Mai_ Senpai` text layer.
+    - DesignCode node `AeqniKnhiv2DmVn0SrcQnf / 198:29982` exposed usable button tokens: Inter 13/20, 8px corner radius, glass/blur surface and layered shadow.
+    - iOS Liquid Glass node `eHM23Cu8ZeJXeK4lvCNhkq / 1:19` exposed only a command label.
+  - This pass used the visible/reference design intent and exposed tokens rather than claiming a full pixel-layer import.
+- Visible UI review:
+  - Targeted Playwright profile probe opened `riley_biz`, confirmed `.figma-ai-profile` exists, full-width rect `x=0 width=390`, `profile-stage figma-profile-stage`, white hero copy, and no page/console errors.
+  - Screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\profile-identity-figma-boss.png`.
+  - Human screenshot review caught and fixed the old nested profile card shell, low-contrast hero copy and overlong hero status chip.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures, including account-scoped identity verification route.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `5188F31326432602970B31BA0CBC7084649A8421F42CB069667091CB6271859E`.
+  - Version: `1.181` / versionCode `181`; size `31,712,650` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 13:38:12`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `7762`; `dumpsys activity` reported `com.steward.artbook/.MainActivity` resumed and focused.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact pixel copy from the Figma Community files remains limited by connector node access exposing only partial/text layers for supplied references.
+  - Live Supabase project/migration apply, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port Menu / Settings or Business Owner Desk into the same Figma-boss shell next, then use Supabase/Convex/Base44 backend connectors when the UI shell has the next stable operational surface.
