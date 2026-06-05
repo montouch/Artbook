@@ -16437,3 +16437,57 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port Booking Detail into the same Figma-boss proof/status shell, then move to backend-provider wiring once the main operational surfaces share one coherent UI system.
+
+### 2026-06-05 15:18 +09:30 - Figma frame-based Booking Detail shell
+- Scope:
+  - Founder-selected UI launch-readiness pass after Jobs / Work Detail.
+  - Ported Booking Detail into the same Figma-boss first viewport while keeping the existing live appointment command engine, readiness checks, protocol sheet, messages, refunds/no-show review, AI copilot and trail underneath a `Live booking engine` divider.
+  - Responded to the frame-by-frame Figma direction by using actual exposed Figma node/frame evidence where the connector could read it.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `.figma-ai-booking-*` premium Booking Detail styles with light and dark-mode support.
+    - Added `figmaAiBossBookingDetailHTML(...)` and prepended it from `bookingCommandHTML(...)`.
+    - First viewport now shows a clean Booking Detail header, image hero, KES/slot/readiness stats, Scheddo-style booking card, seven-step status journey, six booking command tiles, party/identity cards and provider-led payment partner boundary.
+    - Preserved Play Store-safe wording: Android shows KES price, deposit policy, partner review status, proof before release, owner/provider approval, no-show evidence and refund trails; it does not settle deposits, mark payout success, expose private addresses, bypass party-scoped approvals or add restricted-content commerce.
+- Figma evidence:
+  - DesignCode node `AeqniKnhiv2DmVn0SrcQnf / 198:29982` exposed Inter 13/20, 8px radius, white glass gradient, blur and layered shadows.
+  - Scheddo page `AuetlZoxdbeNNJ8wyKgaRo / 307:64` exposed the real Dashboard page.
+  - Scheddo Bookings frame `310:1705` exposed six booking cards with 290x208 white cards, Inter/Lato labels, Service/Date/Time fields, divider, Accept Booking and Decline actions.
+  - Scheddo booking card `310:1706` and Quick Stats `310:1790` are now marked in the Artbook DOM via `data-node-id`.
+  - Event Booking node `Gju56AmIeuui8uj37ZuEY7 / 3:5810` exposed only the cover/title layer, so it remains product direction until the user opens/duplicates a real event screen frame.
+- Visible UI review:
+  - Targeted Playwright Booking Detail probe opened `bk_mock_1` as `riley_biz` in reference mode.
+  - Confirmed `.figma-ai-booking-detail`, Scheddo card marker `310:1706`, Scheddo stats marker `310:1790`, six command tiles, seven status steps, two party cards, `Live booking engine`, underlying `.appointment-command-shell`, white hero text, dark-mode title text and no forbidden Android money/creator wording.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\booking-detail-figma-boss-light-settled.png`.
+  - Dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\booking-detail-figma-boss-dark-settled.png`.
+  - Human eye pass caught stat truncation (`KES 5,...` / `Today ...`); stat values now wrap cleanly in fixed tiles.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `46BFCF1C457EBD7D73F10DAF0481BF14323FEB2AC43439279CC85567A34954D9`.
+  - Version: `1.181` / versionCode `181`; size `31,729,034` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 15:15:46`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `17910`; `dumpsys activity` reported `com.steward.artbook/.MainActivity` resumed and focused.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact frame-by-frame implementation is now possible for Figma frames that the connector can read, as proven with Scheddo frames `310:1705`, `310:1706` and `310:1790`.
+  - Some links still expose only cover/title/current-selection layers; those need node-specific screen URLs, duplication into the user's Figma workspace, or the user selecting the desired frame in Figma before I can port them pixel by pixel.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - build a Figma reference frame audit map for all supplied links, then port the next screen from an accessible real frame rather than generic inspiration; Calendar bookings, Wallet/payment partner status and Events/Tickets are the best next frame-based surfaces.
