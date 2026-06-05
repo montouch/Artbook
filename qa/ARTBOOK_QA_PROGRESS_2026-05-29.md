@@ -17854,3 +17854,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference polish pass on Artguide AI Assistant so chat, mind-map guidance, source/action cards and protected-action stops feel as premium and clear as the updated Menu, Profile and Inbox surfaces.
+
+### 2026-06-06 01:47 +09:30 - Artguide protected action command rail
+- Scope:
+  - Continued the Figma-reference polish pass on Artguide AI Assistant.
+  - Focused on the first visible assistant shell: Talk, Route, Sources and Stop now appear as a premium protected-action rail before the Omnichart-style map.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android provider call, money movement, wallet credit, spendable balance, payout, custody, identity approval, Seal grant or publishing action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added the Artguide protected-action rail with four touch-safe command tiles: Talk, Route, Sources and Stop.
+    - Added audit flags to the Artguide shell and rail: `data-ai-drafts-only=true`, `data-visible-context-only=true`, `data-protected-actions-blocked=true`, `data-provider-called=false`, `data-money-movement-enabled=false`, `data-wallet-credit-enabled=false`, `data-custody-claim=false`, `data-identity-approval-enabled=false`, `data-seal-grant-enabled=false`, and `data-android-publish-enabled=false`.
+    - Folded the new rail into light, dark and reference-mode contrast rules so the Artguide shell keeps the DesignCode/SaaS/Figma-reference polish.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Artguide render check passed for `riley_biz` in reference/light mode: rail present inside first viewport, positioned after composer and before map, 4 SVG-backed tiles, lower Sources heading has a supported icon, all controls at least 44px, no clipped labels, and all protected-action/payment/provider/publish flags stayed blocked/false.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\artguide-protected-action-rail-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `288466D73919E97E21492DEC5C318C6558EF47DA3DD705F434F4A754C00E5CE0`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola launch screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-artguide-rail-launch-pass.png`; the phone resumed the Inbox route, so exact Artguide rail visual proof is the targeted browser frame above.
+  - Recent crash log query returned no `AndroidRuntime` / fatal crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Artguide UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference polish pass on Artguide live chat detail so the conversation window, action plan and protected-action blocked states match the new command rail quality.
