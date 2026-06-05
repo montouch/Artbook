@@ -17646,3 +17646,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - revisit Home/Marketplace first-viewport density and continue visual simplification now that Calendar, Events and Wallet have functional Figma-reference frames with provider-boundary proof.
+
+### 2026-06-06 00:35 +09:30 - Home clean first-viewport rail
+- Scope:
+  - Continued the Figma-reference frame-quality pass on Home after Calendar, Events and Wallet.
+  - Focused on first-viewport clarity: Home should feel premium, clean and founder-ready without a floating Pay Lens or floating AI overlay.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, wallet credit, spendable balance, payout, custody or local settlement action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Tightened the Home hero scale, copy, balance card and spacing for Motorola-class screens.
+    - Replaced the separate hero stats and status strip with one compact readiness rail for Bookings, Review and Proof lanes.
+    - Added first-viewport audit flags: `data-figma-ai-home-clean-first-viewport`, `data-no-floating-ai=true`, `data-no-floating-paylens=true`, and `data-provider-called=false`.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems after shortening the readiness label from `Partner review` to `Review` to prevent clipping.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Home render check passed for `riley_biz`: clean-first-viewport flag present, 3 readiness items, `data-no-floating-ai=true`, `data-no-floating-paylens=true`, `data-provider-called=false`, no floating matches and no old status-strip text.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\home-clean-first-viewport-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `7C6B5886A307D76EEEE2F2FEFD80E6181BCCEF3FE0AE2CDB30EFDB96509084D6`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot/UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-home-clean-frame-pass.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-home-clean-frame-ui.xml`; visible review confirmed the Home hero/readiness rail is first-viewport clean with no floating AI or Pay Lens overlay.
+  - Recent crash log query returned no `AndroidRuntime` crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Home UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the first-viewport simplification pass on Marketplace discovery and seller proof cards so the shopping/bookable flow gets the same premium frame quality as Home, Calendar, Events and Wallet.
