@@ -17165,3 +17165,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - continue the frame-quality pass on Marketplace item detail checkout or Inbox/customer letters, then keep pushing backend/provider readiness for ticket closeout and payment partner review.
+
+### 2026-06-05 21:35 +09:30 - Marketplace detail checkout readiness cockpit
+- Scope:
+  - Continued the frame-quality pass on Marketplace item detail checkout after the Events/Tickets proof pass.
+  - Focused on the buyer decision moment before a paid action: seller/organizer proof, stock/capacity/availability, payment partner review and proof-before-release.
+  - Preserved Play Store-safe wording: provider-led pay, payment partner review, owner approval, receipt proof and no custody claim.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a `Checkout readiness cockpit` to Marketplace item details, placed under the hero/action command panel.
+    - Added adaptive readiness rows for products, services, events, digital items and series.
+    - Added chips for `Provider-led pay`, context-specific readiness, `Owner approval`, `Receipt proof` and `No custody claim`.
+    - Added reference-mode, dark-mode and compact-screen styling so the cockpit matches the premium tile/card language from the Figma references.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - Source markers confirm `Checkout readiness cockpit`, `data-market-detail-checkout-cockpit`, `Provider-led pay` and `No custody claim` are present.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,745,418 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Recent logcat after launch showed no Artbook `AndroidRuntime` fatal exception.
+  - Used the live WebView devtools target for the installed app to open `App.itemDetails('ev12')`; DOM confirmed `Checkout readiness cockpit`, `Provider-led pay` and `No custody claim` inside `file:///android_asset/index.html#home`.
+  - Captured on-device screenshot at `phone-artbook-market-detail-checkout-cockpit.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Marketplace UI-flow pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live provider, settlement, KYC/KYB, payment partner webhook or custody/settlement provider is connected from the APK; this remains a front-end evidence/status surface.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - polish Inbox/customer letters or Backend/provider readiness next so paid actions have clear customer support, proof evidence and partner-status follow-through.
