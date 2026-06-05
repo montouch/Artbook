@@ -16695,3 +16695,54 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port Events/Tickets from a connector-readable event frame or start backend-provider wiring for wallet/payment review now that Home, Wallet, Calendar, Inbox and Artguide have stronger Figma-based shells.
+
+### 2026-06-05 17:18 +09:30 - DesignCode Figma button pass for Events/Tickets
+- Scope:
+  - Continued the Figma-led UI pass after Artguide.
+  - Targeted Events/Tickets because it is a highly visible launch surface and the prior shell still referenced the Event Booking kit's title layer rather than a real usable component.
+  - Preserved Artbook's event engine, ticket ownership, resale/support/check-in role rules, provider-led payment language and Play Store-safe money boundaries.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a DesignCode-style glass primary button treatment for the Events/Tickets featured-event CTAs: 8px radius, Inter 13px/20px medium text, white glass gradient, 10px blur, layered shadows and chevron cue.
+    - Updated the Events/Tickets Figma metadata to include the real DesignCode button component node `198:29982` alongside the Event Booking kit title node `3:5810`.
+    - Embedded node markers on the CTA buttons and text span: `198:29982` and `I198:29982;103:5943`.
+    - Fixed a recurring Calendar accessibility warning by widening Scheddo-style booking card text actions from 44px to 52px minimum width.
+- Figma evidence:
+  - Figma connector `get_metadata` for Event Booking App UI Kit file `Gju56AmIeuui8uj37ZuEY7` confirmed the user-linked node `3:5810` is only the title text, not a screen frame.
+  - Figma connector `get_design_context` for DesignCode UI file `AeqniKnhiv2DmVn0SrcQnf`, node `198:29982`, provided the primary button geometry and styling used in this pass.
+  - Data Visualization and Money Management links were also checked, but their user-linked nodes exposed promotional/title text; no production UI was copied from those layers.
+- Visible UI review:
+  - Targeted Playwright probe opened `riley_biz` in reference mode on Events/Tickets and confirmed `.figma-ai-events[data-node-id="3:5810 198:29982"]`.
+  - Confirmed no page/console errors, 0 horizontal overflow in light/dark mode, both DesignCode CTAs at 48px height, 8px radius, 13px font size, 20px line height, 500 weight and `data-node-id="198:29982"`.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\events-designcode-cta-light.png`.
+  - Dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\events-designcode-cta-dark.png`.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: initially warned on Calendar Policy buttons at exact 44px width; after widening to 52px, passed 102 checked with 0 failures and 0 warnings.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `F09D2F915E1541211306BDB3585677D877D250665CB65D0DFD1B025C6E1661CF`.
+  - Version: `1.181` / versionCode `181`; size `31,733,130` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 17:13:49`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app and `pidof com.steward.artbook` returned `4108`.
+  - Activity state reported `ResumedActivity=ActivityRecord{... com.steward.artbook/.MainActivity ...}` and `mFocusedApp=ActivityRecord{... com.steward.artbook/.MainActivity ...}`.
+  - `mCurrentFocus` remained `NotificationShade`, so the phone UI may need the shade dismissed for a manual visual foreground check.
+  - Recent logcat sample found no `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact frame-by-frame Event Booking implementation still needs a connector-readable screen node or a duplicated Figma file/page that exposes the real event screens; the current event-kit node provided by the chat is only title text.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - get or select a real Event Booking screen node for frame-by-frame ticket page work, or move to backend-provider wiring for wallet/payment review now that the major visible UI shells are cleaner.
