@@ -17575,3 +17575,39 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
 - Next focus:
   - continue the Figma-reference frame-quality pass on Events/Tickets and Wallet/Payment Partner status, then run another visible Android sweep on the flows most likely to appear in first-week launch QA.
+
+### 2026-06-06 00:12 +09:30 - Events ticket ops frame-quality pass
+- Scope:
+  - Continued the Figma-reference frame-quality redesign pass on Events/Tickets after Calendar/Booking.
+  - Focused on functional event operations in the first Events frame: door queue, ticket support, resale review, readiness stages and provider-led closeout visibility.
+  - Kept Android Play Store boundaries intact: no explicit creator monetization and no Android money movement, wallet credit, payout, custody or local settlement action.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added an Events run-sheet band inside `figmaAiBossEventsHTML`.
+    - Surfaced 4 functional lanes: Door queue, Ticket support, Resale review and Closeout packet.
+    - Added a 6-step proof/readiness timeline from the existing event readiness checks.
+    - Added a provider-led closeout preview with explicit non-money-moving data flags.
+    - Added light/dark responsive CSS for the new Events run sheet so the 390px phone frame does not clip the lanes or closeout CTA.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no page errors or console errors; wallet backend packet stayed `moneyEnabled:false`, `providerCalled:false`, `walletCreditEnabled:false`.
+  - `tools\accessibility-audit-artbook.mjs`: passed, 102 checked, 0 failures/warnings.
+  - `tools\visual-audit-artbook.mjs`: passed, 90 checked, 0 problems.
+  - `node server/src/server.mjs --check`: passed.
+  - Targeted Events render check passed for `riley_biz`: `data-figma-ai-events-run-sheet` present, 4 run lanes, 6 proof timeline steps, closeout preview present, `data-provider-called=false`, `data-live-money-enabled=false`, `data-money-movement-enabled=false`, and no bad Android money-copy in the Events frame.
+  - Targeted screenshot captured at `incoming\Artbook-transfer-v181\build\artbook-apk\events-run-sheet-frame.png`.
+- Rebuild / device:
+  - `tools\build-native-artbook-apk.mjs`: rebuilt and copied `artbook-phone-install.apk` to Desktop.
+  - APK SHA-256: `4EE2D8E75B9E6C17CB8572C6117633398A174AC7D679D801D89D241EDE67E1B4`.
+  - `tools\phone-install-readiness.mjs artbook-phone-install.apk`: target APK verified, installed APK hash matched target hash after reinstall, version `1.181` / code `181`, signature matches in-place update.
+  - Motorola `ZY22JSRL8G`: `adb install -r -d` succeeded; launch foreground proof passed with `mCurrentFocus=com.steward.artbook/com.steward.artbook.MainActivity` and `mDreamingLockscreen=false`.
+  - Motorola screenshot/UI tree captured at `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-events-frame-pass.png` and `incoming\Artbook-transfer-v181\build\artbook-apk\motorola-events-frame-ui.xml`; the phone opened to the persisted Ateliers surface, while Events-specific frame proof is captured by the targeted Playwright screenshot/check above.
+  - Recent crash log query returned no `AndroidRuntime` crash output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Events/Tickets UI pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - APK is still debug-signed; release signing/Play Console proof remains pending.
+  - Backend/provider money rails remain review-only: no provider calls, wallet credit, spendable balance, custody, payout or settlement is enabled.
+- Next focus:
+  - continue the Figma-reference frame-quality pass on Wallet/Payment Partner status, then revisit Marketplace/Home first-viewport density after the Events and Calendar functional frames are stable.
