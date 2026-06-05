@@ -16978,3 +16978,25 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - None for install/launch. Device was online and accepted the update without uninstalling or wiping app data.
 - Next focus:
   - continue applying the same Figma-reference look/layout/flow pass to Booking detail, Wallet/payment partner status, Marketplace detail, Events/Tickets and Inbox.
+
+### 2026-06-05 20:20 +09:30 - Home hero readability polish after Motorola proof
+- Scope:
+  - Continued the Figma-reference UI pass from the real Motorola Home screenshot.
+  - Tightened the Home hero support copy so the first viewport reads more cleanly against the teal/blue gradient.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Strengthened `.figma-ai-home-hero-copy-v3` color, weight, line-height and text shadow; added an explicit contrast rule so later paragraph styles cannot mute it.
+- Verification:
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+- Rebuild / device:
+  - Rebuilt `artbook-phone-install.apk`; v1/v2/v3 signing verified.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; after unlocking/collapsing NotificationShade, foreground proof showed both `mCurrentFocus` and `mFocusedApp` on Artbook MainActivity.
+  - Captured updated Home screenshot at `phone-artbook-current-check.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected visible UI polish pass.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Next focus:
+  - continue the same frame-quality treatment on Calendar/Booking detail or Wallet/payment partner status, since Home is now installed and visually verified on Motorola.
