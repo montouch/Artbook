@@ -14,6 +14,12 @@ This folder turns the existing backend handoff into concrete Supabase-ready arti
   - Server-only provider event, wallet replay packet, outbox and audit writes; authenticated users can only read their own wallet replay packet summaries.
   - Android creator monetization blocked with `android_creator_monetization = false`.
 
+- `supabase/migrations/20260605125200_artbook_support_backend_scaffold.sql`
+  - Support delivery receipt, SLA action, provider callback link and append-only care-note tables.
+  - RLS enabled and forced on every support proof table.
+  - Authenticated users can read account-visible proof rows, but direct insert/update/delete is blocked for delivery receipts, SLA actions, provider callback links and care notes.
+  - Stores digests, redacted previews and safe provider metadata only; no raw provider material, wallet credit, refund release, payout, escrow settlement or founder revenue recognition.
+
 - `supabase/functions/provider-webhook/index.ts`
   - Supabase Edge Function for provider webhook replay.
   - Reads the raw request body with `req.text()` for signature verification.
@@ -54,8 +60,23 @@ https://<project-ref>.functions.supabase.co/provider-webhook/payout_rail
 
 - Public-schema tables are treated as potentially Data API reachable, so every Artbook public table has RLS enabled and forced.
 - Grants are deliberately narrow: app-owned marketplace tables get authenticated access subject to RLS; provider events, wallet replay packet writes, outbox writes and audit writes stay server-owned.
+- The support proof tables follow the same rule: delivery receipts, SLA actions, provider callback links and care notes are visible by account membership, but writes are backend/Edge Function owned and direct client writes are revoked.
 - The April/May 2026 Supabase Data API change means new projects may not expose public tables automatically; after project creation, check Data API settings and grant only the exact table privileges needed.
 - Policies use `auth.uid()` plus `artbook_account_memberships`; do not use user-editable `user_metadata` for authorization.
+
+## Support backend scaffold
+
+The local Node API now includes the support endpoints the Android Backend Sync desk asks for:
+
+- `GET /api/support/cases`
+- `POST /api/support/cases`
+- `POST /api/messages/deliveries`
+- `POST /api/support/cases/:id/sla-actions`
+- `POST /api/providers/callbacks/:rail`
+- `GET /api/audit/care-notes`
+- `POST /api/audit/care-notes`
+
+All support endpoints are review-only. They store support cases, sandbox delivery receipts, SLA actions, provider callback replay metadata and append-only care notes, but keep `providerCalled:false`, `moneyMovementEnabled:false`, wallet credit, refund release, payout and founder revenue recognition disabled.
 
 ## Connector status from this pass
 

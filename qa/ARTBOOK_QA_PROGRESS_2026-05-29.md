@@ -17335,3 +17335,52 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - begin actual backend scaffolding for support cases, care-note audit rows, delivery receipts and SLA/callback routes, or continue UI/product polish on the next high-risk paid/support flow.
+
+### 2026-06-05 22:34 +09:30 - Support backend scaffold routes and Supabase tables
+- Scope:
+  - Continued the hosted support backend proof pass by adding implementation-ready backend scaffolding for the proof lanes the Android UI now asks for.
+  - Focused on support cases, sandbox delivery receipts, SLA actions, provider callback replay metadata and append-only care-note audits.
+  - Preserved Play Store-safe/provider-led boundaries: every sensitive response remains review-only, no provider is called, no raw provider material is stored, and wallet credit, refund release, payout, escrow settlement, dispatch payout and founder revenue remain blocked.
+- Changed:
+  - `incoming\Artbook-transfer-v181\server\src\server.mjs`
+    - Added `GET /api/support/cases`, `POST /api/support/cases`, `POST /api/messages/deliveries`, `POST /api/support/cases/:id/sla-actions`, `POST /api/providers/callbacks/:rail`, `GET /api/audit/care-notes` and `POST /api/audit/care-notes`.
+    - Added support store helpers, support-case visibility, digest-only delivery receipts, fail-closed provider callback replay rows and care-note hash chaining.
+    - Linked server-owned support cases into existing support call-context and trust-evidence lookup.
+  - `incoming\Artbook-transfer-v181\server\src\storage.mjs`
+    - Seeded local JSON store arrays for `supportCases`, `messageDeliveryReceipts`, `supportSlaActions`, `careNotes` and `supportProviderCallbacks`.
+  - `incoming\Artbook-transfer-v181\supabase\migrations\20260605125200_artbook_support_backend_scaffold.sql`
+    - Added Supabase/Postgres tables for support delivery receipts, SLA actions, support provider callbacks and append-only care notes.
+    - Enabled and forced RLS on all new tables, granted authenticated `select` only, and revoked direct authenticated insert/update/delete.
+  - `incoming\Artbook-transfer-v181\tools\supabase-launch-backend-audit.mjs`
+    - Extended the launch backend audit to include the new migration, 20 tables, support RLS policies and fail-closed support proof flags.
+  - `incoming\Artbook-transfer-v181\docs\SUPABASE_LAUNCH_BACKEND.md`, `incoming\Artbook-transfer-v181\docs\API_CONTRACT.md` and `incoming\Artbook-transfer-v181\server\README.md`
+    - Documented the new support routes, support migration and review-only boundaries.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - Checked current Supabase changelog/docs. The April/May 2026 Data API exposure change is accounted for with explicit authenticated grants plus forced RLS on the new tables.
+  - `node server/src/server.mjs --check`: passed and listed all 7 support endpoints under `/api/schema`.
+  - `tools\supabase-launch-backend-audit.mjs`: passed with 20 tables, 61 RLS policies, no raw provider payload storage, no client provider-event writes, no wallet credit/spendable balance and no Android creator monetization.
+  - Local temporary-store API probe passed:
+    - login as demo business account
+    - create support case
+    - record message delivery receipt
+    - record SLA action
+    - replay M-Pesa provider callback and receive expected `503 provider_not_configured`
+    - append care note and read it back
+    - confirmed `providerCalled:false`, `moneyMovementEnabled:false`, `rawPayloadStored:false`, care note append-only true and one care note returned.
+  - Source/docs markers confirm `support_case_created_review_only`, `artbook_message_delivery_receipts`, `artbook_care_notes`, `POST /api/messages/deliveries`, `raw_provider_material_stored` and fail-closed `money_movement_enabled` checks are present.
+- Rebuild / device:
+  - APK was not rebuilt because this pass changed backend scaffold/docs/Supabase artifacts, not the Android HTML asset packaged into the APK.
+  - Motorola `ZY22JSRL8G` remained available over ADB.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, device awake and lockscreen not showing.
+  - Recent logcat after launch showed no Artbook fatal exception.
+  - Re-reviewed the visible Backend Sync hosted support proof screenshot; the surface remains readable and professional, and the new backend scaffold directly addresses its delivery/SLA/callback/audit proof lanes.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend/provider readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Supabase CLI is not installed on this laptop, so the new migration was created manually instead of through `supabase migration new`.
+  - No live Supabase project was available/applied; the migration and routes are GitHub-ready scaffolds only.
+  - No real message/email provider, SLA worker runtime, provider callback secret verification, immutable production audit table application or alerting stack is live.
+- Next focus:
+  - add a hosted Edge Function or server worker proof for support SLA/delivery retry processing, or apply these migrations once a real Supabase project exists and run RLS/advisor checks there.

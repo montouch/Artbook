@@ -66,6 +66,18 @@ Phone note: `127.0.0.1` points at the phone when running inside the APK. Use the
 | `POST` | `/api/media/upload-url` | Request signed upload URL. |
 | `POST` | `/api/calls` | Create a context-bound masked call relay or fail closed. The backend validates that the caller and peer are parties on an active booking/order/ride/delivery/freelancer/sale/invoice/pickup/support context, rejects missing/foreign/inactive contexts before provider handoff, rate-limits repeated relay attempts, never echoes raw caller/callee phone numbers, and returns `provider_not_configured` until a masking provider, expiry jobs, abuse limits and consent/recording policy are configured. |
 
+## Support And Customer Care
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/support/cases` | Return support cases visible to the authenticated account or moderator/support role. Rows are server-owned review data and never settle money. |
+| `POST` | `/api/support/cases` | Create a server-owned support case with account parties, optional booking/order/delivery/provider record link, priority, owner queue and SLA placeholders. It returns `support_case_created_review_only` with delivery receipt, SLA worker and care-audit proof still required. |
+| `POST` | `/api/messages/deliveries` | Record a sandbox delivery receipt for an in-app/email/push/SMS/WhatsApp/call-note support message. The scaffold stores digests, consent scope, provider label and retry count only; it never calls a messaging provider or promises delivery. |
+| `POST` | `/api/support/cases/:id/sla-actions` | Append SLA action metadata such as assign, escalate, overdue, customer update required, provider update required or closeout hold. It updates the support case clock/queue as review-only and keeps closeout, refunds, payouts and settlement blocked. |
+| `POST` | `/api/providers/callbacks/:rail` | Authenticated local replay endpoint for provider callback metadata related to support. It stores payload digest, safe shape, event/idempotency digests and target mapping, then returns `provider_not_configured`; no raw provider material, provider success, refund release, wallet credit, payout or founder revenue changes. |
+| `GET` | `/api/audit/care-notes` | Return append-only care notes visible to the account/support case. Care-note bodies are represented by digests plus redacted previews. |
+| `POST` | `/api/audit/care-notes` | Append a care note to a support case with previous-note hash and note hash, creating an immutable audit chain. It stores no raw provider material and cannot close money-sensitive records. |
+
 ## AI Assistant Boundary
 
 | Method | Path | Purpose |

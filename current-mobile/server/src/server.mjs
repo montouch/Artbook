@@ -364,9 +364,9 @@ function callContextRecord(store, context) {
     return { row, canonicalType: "booking", parties: [row.booker, row.provider].filter(Boolean), label: row.title || row.id };
   }
   if (context.type === "support") {
-    const row = (store.supportIncidents || []).find(item => item.id === context.id);
+    const row = supportCaseById(store, context.id);
     if (!row) return null;
-    return { row, canonicalType: "support", parties: (row.parties || [row.reporter, row.target]).filter(Boolean), label: row.title || row.reason || row.id };
+    return { row, canonicalType: "support", parties: supportCaseParties(row), label: row.title || row.subject || row.reason || row.id };
   }
   return null;
 }
@@ -6950,6 +6950,209 @@ function cleanWalletText(value, fallback = "") {
   return String(value || fallback).trim().slice(0, 220);
 }
 
+function ensureSupportBackendStore(store) {
+  ensureCommerceStore(store);
+  store.supportCases = Array.isArray(store.supportCases) ? store.supportCases : [];
+  store.messageDeliveryReceipts = Array.isArray(store.messageDeliveryReceipts) ? store.messageDeliveryReceipts : [];
+  store.supportSlaActions = Array.isArray(store.supportSlaActions) ? store.supportSlaActions : [];
+  store.careNotes = Array.isArray(store.careNotes) ? store.careNotes : [];
+  store.supportProviderCallbacks = Array.isArray(store.supportProviderCallbacks) ? store.supportProviderCallbacks : [];
+}
+
+function supportRecordFromBody(body = {}) {
+  const record = body.record && typeof body.record === "object" ? body.record : {};
+  const type = cleanWalletText(record.type || body.recordType || body.sourceType, "").slice(0, 60);
+  const id = cleanWalletText(record.id || body.recordId || body.sourceId, "").slice(0, 140);
+  return type && id ? { type, id } : null;
+}
+
+function supportCaseParties(row = {}) {
+  return Array.from(new Set([
+    row.accountId,
+    row.reporter,
+    row.target,
+    row.customerId,
+    row.providerId,
+    row.ownerId,
+    ...(Array.isArray(row.parties) ? row.parties : [])
+  ].filter(Boolean).map(String)));
+}
+
+function supportCaseVisible(row, profile) {
+  if (!row || !profile) return false;
+  if (canModerate(profile)) return true;
+  return supportCaseParties(row).includes(profile.id);
+}
+
+function supportCaseById(store, id) {
+  ensureSupportBackendStore(store);
+  return store.supportCases.find(row => row.id === id)
+    || (store.supportIncidents || []).find(row => row.id === id)
+    || null;
+}
+
+function supportSafeDigest(value, prefix = "sha256") {
+  return `${prefix}:${crypto.createHash("sha256").update(String(value || "")).digest("hex")}`;
+}
+
+function supportPayloadShape(value = {}) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { kind: Array.isArray(value) ? "array" : typeof value };
+  return {
+    kind: "object",
+    keys: Object.keys(value).filter(key => !/secret|token|password|credential|raw|base64|blob|file|image|video/i.test(key)).sort().slice(0, 32)
+  };
+}
+
+function buildSupportCase(store, profile, body = {}) {
+  const createdAt = nowISO();
+  const target = cleanWalletText(body.target || body.targetId || body.customerId || body.providerId, "").slice(0, 140);
+  const parties = Array.from(new Set([profile.id, target, ...(Array.isArray(body.parties) ? body.parties : [])].filter(Boolean).map(String)));
+  const subject = requiredString(body, "subject").slice(0, 160);
+  const description = cleanWalletText(body.description || body.note || body.summary, "").slice(0, 700);
+  return {
+    id: `support_case_${crypto.randomUUID()}`,
+    accountId: profile.id,
+    reporter: profile.id,
+    target,
+    parties,
+    record: supportRecordFromBody(body),
+    category: cleanWalletText(body.category, "general").slice(0, 80),
+    priority: cleanWalletText(body.priority, "normal").slice(0, 40),
+    subject,
+    description,
+    status: "open",
+    slaStatus: "server_owned_sla_pending",
+    ownerQueue: cleanWalletText(body.ownerQueue || body.queue, "review_ops").slice(0, 80),
+    dueAt: cleanWalletText(body.dueAt || body.slaDueAt, "").slice(0, 80),
+    providerCallbackStatus: "provider_callback_not_verified",
+    deliveryReceiptStatus: "delivery_receipt_required",
+    careAuditStatus: "care_note_required",
+    moneyMovementEnabled: false,
+    walletCreditEnabled: false,
+    refundReleaseEnabled: false,
+    payoutEnabled: false,
+    founderRevenueRecognized: false,
+    nonSettling: true,
+    createdAt,
+    updatedAt: createdAt
+  };
+}
+
+function buildMessageDeliveryReceipt(profile, body = {}, supportCase = null) {
+  const createdAt = nowISO();
+  const channel = cleanWalletText(body.channel || body.kind, "in_app").slice(0, 40);
+  const provider = cleanWalletText(body.provider || body.deliveryProvider, "provider_not_configured").slice(0, 80);
+  const target = cleanWalletText(body.to || body.recipient || supportCase?.target || "", "").slice(0, 140);
+  const text = cleanWalletText(body.text || body.body || body.message || "", "").slice(0, 700);
+  return {
+    id: `delivery_receipt_${crypto.randomUUID()}`,
+    accountId: profile.id,
+    supportCaseId: supportCase?.id || cleanWalletText(body.supportCaseId || body.caseId, "").slice(0, 140),
+    messageId: cleanWalletText(body.messageId || body.threadId, "").slice(0, 140),
+    channel,
+    provider,
+    target,
+    status: "sandbox_receipt_recorded_provider_not_called",
+    consentScope: cleanWalletText(body.consentScope || body.consent || "support_contact", "support_contact").slice(0, 80),
+    bodyDigest: text ? supportSafeDigest(text) : "",
+    redactedSnippet: text ? text.slice(0, 120) : "",
+    providerReceiptDigest: body.providerReceiptId ? supportSafeDigest(body.providerReceiptId) : "",
+    retryCount: Math.max(0, Math.min(20, Number(body.retryCount || 0) || 0)),
+    rawBodyStored: false,
+    providerCalled: false,
+    messageDeliveredByProvider: false,
+    moneyMovementEnabled: false,
+    nonSettling: true,
+    createdAt
+  };
+}
+
+function buildSupportSlaAction(profile, supportCase, body = {}) {
+  const createdAt = nowISO();
+  const actionType = cleanWalletText(body.actionType || body.action || body.type, "customer_update_required").slice(0, 80);
+  return {
+    id: `sla_action_${crypto.randomUUID()}`,
+    supportCaseId: supportCase.id,
+    accountId: supportCase.accountId || profile.id,
+    actorId: profile.id,
+    actionType,
+    status: "sla_action_recorded_review_only",
+    ownerQueue: cleanWalletText(body.ownerQueue || body.queue || supportCase.ownerQueue, "review_ops").slice(0, 80),
+    dueAt: cleanWalletText(body.dueAt || supportCase.dueAt, "").slice(0, 80),
+    noteDigest: body.note ? supportSafeDigest(body.note) : "",
+    redactedNote: cleanWalletText(body.note, "").slice(0, 220),
+    providerCalled: false,
+    closeoutApproved: false,
+    moneyMovementEnabled: false,
+    nonSettling: true,
+    createdAt
+  };
+}
+
+function buildSupportProviderCallback(profile, rail, body = {}, supportCase = null) {
+  const createdAt = nowISO();
+  const eventId = cleanWalletText(body.eventId || body.id || body.transactionId || body.receiptId || body.MpesaReceiptNumber, "").slice(0, 160);
+  const idempotencyKey = cleanWalletText(body.idempotencyKey || body.requestId || body.CheckoutRequestID || body.MerchantRequestID || eventId, "").slice(0, 160);
+  return {
+    id: `support_provider_callback_${crypto.randomUUID()}`,
+    accountId: supportCase?.accountId || profile.id,
+    supportCaseId: supportCase?.id || cleanWalletText(body.supportCaseId || body.caseId, "").slice(0, 140),
+    rail: cleanWalletText(rail, "provider").slice(0, 80),
+    eventType: cleanWalletText(body.eventType || body.type || body.status, "callback_replay").slice(0, 80),
+    eventIdDigest: eventId ? supportSafeDigest(eventId) : "",
+    idempotencyDigest: idempotencyKey ? supportSafeDigest(idempotencyKey) : "",
+    payloadDigest: supportSafeDigest(stableSettlementJson(body)),
+    payloadShape: supportPayloadShape(body),
+    signatureStatus: "unverified_provider_secret_not_configured",
+    status: "callback_replay_recorded_no_provider_success",
+    target: supportRecordFromBody(body) || supportCase?.record || null,
+    rawPayloadStored: false,
+    providerCalled: false,
+    providerVerified: false,
+    proofBeforeReleaseRequired: true,
+    walletCreditEnabled: false,
+    refundReleaseEnabled: false,
+    payoutEnabled: false,
+    founderRevenueRecognized: false,
+    moneyMovementEnabled: false,
+    nonSettling: true,
+    createdAt
+  };
+}
+
+function buildCareNote(store, profile, supportCase, body = {}) {
+  ensureSupportBackendStore(store);
+  const createdAt = nowISO();
+  const note = requiredString(body, "note").slice(0, 1200);
+  const previous = store.careNotes.find(row => row.supportCaseId === supportCase.id);
+  const bodyDigest = supportSafeDigest(note);
+  const previousHash = previous?.noteHash || "";
+  const noteHash = supportSafeDigest(stableSettlementJson({
+    supportCaseId: supportCase.id,
+    actorId: profile.id,
+    bodyDigest,
+    previousHash,
+    createdAt
+  }));
+  return {
+    id: `care_note_${crypto.randomUUID()}`,
+    supportCaseId: supportCase.id,
+    accountId: supportCase.accountId || profile.id,
+    actorId: profile.id,
+    visibility: cleanWalletText(body.visibility, "account").slice(0, 60),
+    bodyDigest,
+    redactedPreview: cleanWalletText(body.redactedPreview || note, "").slice(0, 220),
+    previousHash,
+    noteHash,
+    appendOnly: true,
+    rawBodyStored: false,
+    providerCalled: false,
+    moneyMovementEnabled: false,
+    nonSettling: true,
+    createdAt
+  };
+}
+
 function privacyPolicyWebHTML() {
   return `<!doctype html>
 <html lang="en">
@@ -7183,9 +7386,9 @@ function evidenceRecord(store, evidenceId) {
     return { type, id, parties: [booking.booker, booking.provider], completed, proof, label: `Booking ${booking.title || id}`, source: booking };
   }
   if (type === "support") {
-    const incident = (store.supportIncidents || []).find(row => row.id === id);
+    const incident = supportCaseById(store, id);
     if (!incident) return null;
-    return { type, id, parties: incident.parties || [incident.reporter, incident.target], completed: true, proof: true, label: `Support case ${id}`, source: incident };
+    return { type, id, parties: supportCaseParties(incident), completed: true, proof: true, label: `Support case ${id}`, source: incident };
   }
   return null;
 }
@@ -9113,6 +9316,7 @@ function schema() {
       auth: ["POST /api/auth/register", "POST /api/auth/login", "GET /api/me"],
       profiles: ["PATCH /api/profiles/me", "GET /api/discover"],
       social: ["GET /api/feed", "POST /api/posts", "POST /api/messages", "POST /api/followups"],
+      support: ["GET /api/support/cases", "POST /api/support/cases", "POST /api/messages/deliveries", "POST /api/support/cases/:id/sla-actions", "POST /api/providers/callbacks/:rail", "GET /api/audit/care-notes", "POST /api/audit/care-notes"],
       commerce: ["GET /api/listings", "POST /api/listings", "POST /api/delivery/quote", "POST /api/orders/checkout", "PATCH /api/orders/:id/status", "POST /api/payments/intent"],
       delivery: ["POST /api/delivery/jobs", "GET /api/delivery/jobs/available", "POST /api/delivery/jobs/:id/accept", "PATCH /api/delivery/jobs/:id/status", "POST /api/delivery/jobs/:id/proof", "POST /api/delivery/jobs/:id/incidents", "POST /api/delivery/webhooks/:provider", "POST /api/couriers/register", "PATCH /api/couriers/me/shift", "GET /api/couriers/me/payouts"],
       bookings: ["POST /api/bookings", "PATCH /api/bookings/:id/complete"],
@@ -9313,6 +9517,188 @@ async function handle(req, res) {
       audit(store, user.id, "message.send", "thread", to, { effect: row.effect });
       await saveStore(store, storePath);
       return send(res, 201, { message: row });
+    }
+
+    if (key === "GET /api/support/cases") {
+      ensureSupportBackendStore(store);
+      const rows = store.supportCases.filter(row => supportCaseVisible(row, profile)).slice(0, 120);
+      return send(res, 200, {
+        supportCases: rows,
+        count: rows.length,
+        status: "support_cases_review_only_server_owned",
+        moneyMovementEnabled: false
+      });
+    }
+
+    if (key === "POST /api/support/cases") {
+      ensureSupportBackendStore(store);
+      const body = await readJson(req);
+      const row = buildSupportCase(store, profile, body);
+      store.supportCases.unshift(row);
+      store.supportCases = store.supportCases.slice(0, 5000);
+      audit(store, user.id, "support.case.create", "support_case", row.id, {
+        category: row.category,
+        priority: row.priority,
+        record: row.record,
+        slaStatus: row.slaStatus,
+        deliveryReceiptRequired: true,
+        providerCallbackVerified: false,
+        moneyMovementEnabled: false
+      });
+      await saveStore(store, storePath);
+      return send(res, 201, {
+        supportCase: row,
+        status: "support_case_created_review_only",
+        deliveryReceiptRequired: true,
+        slaWorkerRequired: true,
+        careAuditRequired: true,
+        providerCalled: false,
+        moneyMovementEnabled: false
+      });
+    }
+
+    if (key === "POST /api/messages/deliveries") {
+      ensureSupportBackendStore(store);
+      const body = await readJson(req);
+      const caseId = cleanWalletText(body.supportCaseId || body.caseId, "").slice(0, 140);
+      const supportCase = caseId ? supportCaseById(store, caseId) : null;
+      if (caseId && (!supportCase || !supportCaseVisible(supportCase, profile))) return send(res, 404, { error: "support_case_not_found" });
+      const row = buildMessageDeliveryReceipt(profile, body, supportCase);
+      store.messageDeliveryReceipts.unshift(row);
+      store.messageDeliveryReceipts = store.messageDeliveryReceipts.slice(0, 5000);
+      if (supportCase) {
+        supportCase.deliveryReceiptStatus = row.status;
+        supportCase.updatedAt = nowISO();
+      }
+      audit(store, user.id, "message.delivery_receipt.record", "message_delivery_receipt", row.id, {
+        supportCaseId: row.supportCaseId,
+        channel: row.channel,
+        provider: row.provider,
+        providerCalled: false,
+        rawBodyStored: false,
+        moneyMovementEnabled: false
+      });
+      await saveStore(store, storePath);
+      return send(res, 202, {
+        deliveryReceipt: row,
+        status: row.status,
+        providerCalled: false,
+        rawBodyStored: false,
+        moneyMovementEnabled: false
+      });
+    }
+
+    const supportSlaActionMatch = req.method === "POST" ? url.pathname.match(/^\/api\/support\/cases\/([^/]+)\/sla-actions$/) : null;
+    if (supportSlaActionMatch) {
+      ensureSupportBackendStore(store);
+      const supportCase = supportCaseById(store, supportSlaActionMatch[1]);
+      if (!supportCase || !supportCaseVisible(supportCase, profile)) return send(res, 404, { error: "support_case_not_found" });
+      const body = await readJson(req);
+      const row = buildSupportSlaAction(profile, supportCase, body);
+      store.supportSlaActions.unshift(row);
+      store.supportSlaActions = store.supportSlaActions.slice(0, 5000);
+      supportCase.slaStatus = row.actionType === "overdue" ? "sla_overdue_review_required" : row.status;
+      supportCase.ownerQueue = row.ownerQueue || supportCase.ownerQueue;
+      supportCase.dueAt = row.dueAt || supportCase.dueAt;
+      supportCase.updatedAt = nowISO();
+      audit(store, user.id, "support.sla_action.record", "support_case", supportCase.id, {
+        slaActionId: row.id,
+        actionType: row.actionType,
+        closeoutApproved: false,
+        providerCalled: false,
+        moneyMovementEnabled: false
+      });
+      await saveStore(store, storePath);
+      return send(res, 202, {
+        slaAction: row,
+        supportCase,
+        closeoutApproved: false,
+        providerCalled: false,
+        moneyMovementEnabled: false
+      });
+    }
+
+    const supportProviderCallbackMatch = req.method === "POST" ? url.pathname.match(/^\/api\/providers\/callbacks\/([^/]+)$/) : null;
+    if (supportProviderCallbackMatch) {
+      ensureSupportBackendStore(store);
+      const body = await readJson(req);
+      const caseId = cleanWalletText(body.supportCaseId || body.caseId, "").slice(0, 140);
+      const supportCase = caseId ? supportCaseById(store, caseId) : null;
+      if (caseId && (!supportCase || !supportCaseVisible(supportCase, profile))) return send(res, 404, { error: "support_case_not_found" });
+      const row = buildSupportProviderCallback(profile, supportProviderCallbackMatch[1], body, supportCase);
+      store.supportProviderCallbacks.unshift(row);
+      store.supportProviderCallbacks = store.supportProviderCallbacks.slice(0, 5000);
+      if (supportCase) {
+        supportCase.providerCallbackStatus = row.status;
+        supportCase.updatedAt = nowISO();
+      }
+      audit(store, user.id, "provider.callback.replay", "support_provider_callback", row.id, {
+        rail: row.rail,
+        supportCaseId: row.supportCaseId,
+        signatureStatus: row.signatureStatus,
+        rawPayloadStored: false,
+        providerVerified: false,
+        moneyMovementEnabled: false
+      });
+      await saveStore(store, storePath);
+      return send(res, 503, {
+        ...providerNotConfigured("provider-callbacks", `replay_${row.rail}`),
+        callback: row,
+        rawPayloadStored: false,
+        providerVerified: false,
+        proofBeforeReleaseRequired: true,
+        moneyMovementEnabled: false
+      });
+    }
+
+    if (key === "GET /api/audit/care-notes") {
+      ensureSupportBackendStore(store);
+      const caseId = cleanWalletText(url.searchParams.get("supportCaseId") || url.searchParams.get("caseId"), "").slice(0, 140);
+      const rows = store.careNotes
+        .filter(row => !caseId || row.supportCaseId === caseId)
+        .filter(row => {
+          const supportCase = supportCaseById(store, row.supportCaseId);
+          return supportCaseVisible(supportCase, profile);
+        })
+        .slice(0, 120);
+      return send(res, 200, {
+        careNotes: rows,
+        count: rows.length,
+        appendOnly: true,
+        rawBodyStored: false,
+        moneyMovementEnabled: false
+      });
+    }
+
+    if (key === "POST /api/audit/care-notes") {
+      ensureSupportBackendStore(store);
+      const body = await readJson(req);
+      const caseId = requiredString(body, "supportCaseId").slice(0, 140);
+      const supportCase = supportCaseById(store, caseId);
+      if (!supportCase || !supportCaseVisible(supportCase, profile)) return send(res, 404, { error: "support_case_not_found" });
+      const row = buildCareNote(store, profile, supportCase, body);
+      store.careNotes.unshift(row);
+      store.careNotes = store.careNotes.slice(0, 5000);
+      supportCase.latestNoteDigest = row.bodyDigest;
+      supportCase.careAuditStatus = "append_only_care_note_recorded";
+      supportCase.updatedAt = nowISO();
+      audit(store, user.id, "support.care_note.append", "support_case", supportCase.id, {
+        careNoteId: row.id,
+        noteHash: row.noteHash,
+        appendOnly: true,
+        rawBodyStored: false,
+        providerCalled: false,
+        moneyMovementEnabled: false
+      });
+      await saveStore(store, storePath);
+      return send(res, 201, {
+        careNote: row,
+        supportCase,
+        appendOnly: true,
+        rawBodyStored: false,
+        providerCalled: false,
+        moneyMovementEnabled: false
+      });
     }
 
     if (key === "POST /api/followups") {
