@@ -17384,3 +17384,46 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - No real message/email provider, SLA worker runtime, provider callback secret verification, immutable production audit table application or alerting stack is live.
 - Next focus:
   - add a hosted Edge Function or server worker proof for support SLA/delivery retry processing, or apply these migrations once a real Supabase project exists and run RLS/advisor checks there.
+
+### 2026-06-05 22:46 +09:30 - Support worker dry-run proof scaffold
+- Scope:
+  - Continued the support backend readiness lane after support cases, delivery receipts, SLA actions, callback replay metadata and care-note audits were scaffolded.
+  - Focused on the missing operations proof: delivery retry, SLA clock, provider callback review, care-audit gap checks and failure-alert ownership.
+  - Preserved Play Store-safe/provider-led boundaries: the worker proof is dry-run Review Ops evidence only and cannot call providers, send alerts, close cases, release refunds, credit wallets, pay out providers, settle escrow or recognize founder revenue.
+- Changed:
+  - `incoming\Artbook-transfer-v181\server\src\server.mjs`
+    - Added `GET /api/support/worker-plan` and `POST /api/support/worker-runs`.
+    - Added support worker lane catalog, worker-plan classification, persisted dry-run worker rows and owner-alert generation.
+    - Fixed worker classification so sandbox delivery receipts and unverified provider callback replay rows still remain open worker actions until real provider proof exists.
+  - `incoming\Artbook-transfer-v181\server\src\storage.mjs`
+    - Seeded `supportWorkerRuns` in the local JSON store.
+  - `incoming\Artbook-transfer-v181\tools\supabase-launch-backend-audit.mjs`
+    - Extended the launch audit to verify the support worker routes and fail-closed provider/alert/money flags.
+  - `incoming\Artbook-transfer-v181\docs\API_CONTRACT.md`, `incoming\Artbook-transfer-v181\docs\SUPABASE_LAUNCH_BACKEND.md` and `incoming\Artbook-transfer-v181\server\README.md`
+    - Documented the worker plan/run endpoints, production service-role requirement and dry-run boundaries.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `node server/src/server.mjs --check`: passed and listed the new `GET /api/support/worker-plan` and `POST /api/support/worker-runs` schema routes.
+  - `tools\supabase-launch-backend-audit.mjs`: passed with 20 tables, 61 RLS policies, no raw provider payload storage, no money movement, no wallet credit/spendable balance and no Android creator monetization.
+  - Local temporary-store API probe passed:
+    - login as demo business account
+    - create a high-priority overdue Kilimani booking support case
+    - confirm initial worker plan includes delivery retry, SLA clock, provider callback review and care-audit gap lanes
+    - record sandbox email delivery receipt, overdue SLA action, M-Pesa callback replay and append-only care note
+    - run `POST /api/support/worker-runs`
+    - confirmed the worker kept delivery retry, SLA clock and provider callback review open, cleared the care-audit gap after the append-only note, persisted one worker run and returned `providerCalled:false`, `deliveryProviderCalled:false`, `alertProviderCalled:false`, `moneyMovementEnabled:false`, `closeoutApproved:false` and `rawProviderPayloadStored:false`.
+- Rebuild / device:
+  - APK was not rebuilt because this pass changed backend scaffold/docs/audit artifacts, not the Android HTML asset packaged into the APK.
+  - Motorola `ZY22JSRL8G` was available over ADB.
+  - Launch intent was delivered to `com.steward.artbook/.MainActivity`, and `mFocusedApp` showed Artbook `MainActivity`.
+  - Full foreground window proof was blocked because Android kept `mCurrentFocus=NotificationShade` and `mDreamingLockscreen=true`; a pulled screenshot was black even though display state reported ON.
+  - Recent fatal logcat query returned no Artbook `AndroidRuntime` fatal output.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend/provider readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - No live message/email delivery provider, SLA worker runtime, alerting provider, provider callback secret verification, public hosted worker, Supabase project application or immutable production audit table is live.
+  - The new worker proof persists dry-run rows only; production still needs a service-role worker or Edge Function before real provider delivery, callback verification or alerting.
+  - Motorola device UI proof is currently limited by the lockscreen/shade state, though the Artbook activity receives launch intents.
+- Next focus:
+  - either add the hosted Edge Function/service-role worker implementation for support worker runs, or move to the next high-risk visible flow with a Figma-reference frame-quality pass once the backend worker lane is documented in GitHub.

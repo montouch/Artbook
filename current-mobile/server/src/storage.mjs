@@ -36,6 +36,7 @@ function seedStore() {
     supportSlaActions: [],
     careNotes: [],
     supportProviderCallbacks: [],
+    supportWorkerRuns: [],
     deliveryJobs: [],
     courierProfiles: [],
     deliveryIncidents: [],

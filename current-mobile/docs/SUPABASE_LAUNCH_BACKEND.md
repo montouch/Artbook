@@ -70,13 +70,15 @@ The local Node API now includes the support endpoints the Android Backend Sync d
 
 - `GET /api/support/cases`
 - `POST /api/support/cases`
+- `GET /api/support/worker-plan`
+- `POST /api/support/worker-runs`
 - `POST /api/messages/deliveries`
 - `POST /api/support/cases/:id/sla-actions`
 - `POST /api/providers/callbacks/:rail`
 - `GET /api/audit/care-notes`
 - `POST /api/audit/care-notes`
 
-All support endpoints are review-only. They store support cases, sandbox delivery receipts, SLA actions, provider callback replay metadata and append-only care notes, but keep `providerCalled:false`, `moneyMovementEnabled:false`, wallet credit, refund release, payout and founder revenue recognition disabled.
+All support endpoints are review-only. They store support cases, sandbox delivery receipts, SLA actions, provider callback replay metadata, append-only care notes and dry-run worker proof rows, but keep `providerCalled:false`, `deliveryProviderCalled:false`, `alertProviderCalled:false`, `moneyMovementEnabled:false`, wallet credit, refund release, payout and founder revenue recognition disabled. The worker plan/run endpoints prove delivery-retry, SLA-clock, provider-callback, care-audit and failure-alert lanes for Review Ops; production still needs a service-role worker or Edge Function before any real delivery provider, alerting provider or callback verifier is used.
 
 ## Connector status from this pass
 

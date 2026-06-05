@@ -6950,6 +6950,44 @@ function cleanWalletText(value, fallback = "") {
   return String(value || fallback).trim().slice(0, 220);
 }
 
+const SUPPORT_WORKER_LANES = [
+  {
+    id: "delivery_retry",
+    label: "Message delivery retry",
+    cadence: "every_5_minutes",
+    proof: "Checks support cases against delivery receipts and queues provider-send retries only after consent/provider setup.",
+    endpoint: "POST /api/messages/deliveries"
+  },
+  {
+    id: "sla_clock",
+    label: "Support SLA clock",
+    cadence: "every_10_minutes",
+    proof: "Finds overdue or unowned support cases and routes them to Review Ops without closing money-sensitive work.",
+    endpoint: "POST /api/support/cases/:id/sla-actions"
+  },
+  {
+    id: "provider_callback_review",
+    label: "Provider callback review",
+    cadence: "on_callback_replay",
+    proof: "Confirms callback metadata exists, signature status is known and proof-before-release stays required.",
+    endpoint: "POST /api/providers/callbacks/:rail"
+  },
+  {
+    id: "care_audit_gap",
+    label: "Care-note audit gap",
+    cadence: "hourly",
+    proof: "Checks append-only care-note chains for every support case before closeout.",
+    endpoint: "POST /api/audit/care-notes"
+  },
+  {
+    id: "failure_alert_owner",
+    label: "Failure alert owner",
+    cadence: "every_15_minutes",
+    proof: "Groups overdue, high-priority and provider-blocked cases into an owner alert queue.",
+    endpoint: "POST /api/support/worker-runs"
+  }
+];
+
 function ensureSupportBackendStore(store) {
   ensureCommerceStore(store);
   store.supportCases = Array.isArray(store.supportCases) ? store.supportCases : [];
@@ -6957,6 +6995,7 @@ function ensureSupportBackendStore(store) {
   store.supportSlaActions = Array.isArray(store.supportSlaActions) ? store.supportSlaActions : [];
   store.careNotes = Array.isArray(store.careNotes) ? store.careNotes : [];
   store.supportProviderCallbacks = Array.isArray(store.supportProviderCallbacks) ? store.supportProviderCallbacks : [];
+  store.supportWorkerRuns = Array.isArray(store.supportWorkerRuns) ? store.supportWorkerRuns : [];
 }
 
 function supportRecordFromBody(body = {}) {
@@ -7150,6 +7189,231 @@ function buildCareNote(store, profile, supportCase, body = {}) {
     moneyMovementEnabled: false,
     nonSettling: true,
     createdAt
+  };
+}
+
+function supportVisibleCases(store, profile) {
+  ensureSupportBackendStore(store);
+  return store.supportCases.filter(row => supportCaseVisible(row, profile));
+}
+
+function parseSupportDueAt(value) {
+  const raw = cleanWalletText(value, "");
+  if (!raw) return null;
+  const parsed = Date.parse(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function supportWorkerIndex(store, profile) {
+  const cases = supportVisibleCases(store, profile);
+  const caseIds = new Set(cases.map(row => row.id));
+  const deliveryReceipts = store.messageDeliveryReceipts.filter(row => caseIds.has(row.supportCaseId));
+  const slaActions = store.supportSlaActions.filter(row => caseIds.has(row.supportCaseId));
+  const callbacks = store.supportProviderCallbacks.filter(row => caseIds.has(row.supportCaseId));
+  const careNotes = store.careNotes.filter(row => caseIds.has(row.supportCaseId));
+  return { cases, caseIds, deliveryReceipts, slaActions, callbacks, careNotes };
+}
+
+function supportCareNoteChainOk(notes = []) {
+  if (!notes.length) return false;
+  const ordered = [...notes].sort((a, b) => (Date.parse(a.createdAt || "") || 0) - (Date.parse(b.createdAt || "") || 0));
+  let previousHash = "";
+  for (const note of ordered) {
+    if (!note.appendOnly || note.rawBodyStored || note.providerCalled || note.moneyMovementEnabled || !note.noteHash) return false;
+    if ((note.previousHash || "") !== previousHash) return false;
+    previousHash = note.noteHash;
+  }
+  return true;
+}
+
+function supportWorkerCaseActions(supportCase, index, generatedAt) {
+  const createdAtMs = Date.parse(generatedAt);
+  const caseReceipts = index.deliveryReceipts.filter(row => row.supportCaseId === supportCase.id);
+  const caseSlaActions = index.slaActions.filter(row => row.supportCaseId === supportCase.id);
+  const caseCallbacks = index.callbacks.filter(row => row.supportCaseId === supportCase.id);
+  const caseCareNotes = index.careNotes.filter(row => row.supportCaseId === supportCase.id);
+  const actions = [];
+  const dueAtMs = parseSupportDueAt(supportCase.dueAt);
+  const closed = ["closed", "resolved", "cancelled"].includes(cleanWalletText(supportCase.status, "").toLowerCase());
+
+  const providerDeliveryConfirmed = caseReceipts.some(row => row.providerCalled === true && row.messageDeliveredByProvider === true);
+  if (!caseReceipts.length || supportCase.deliveryReceiptStatus === "delivery_receipt_required" || !providerDeliveryConfirmed) {
+    actions.push({
+      lane: "delivery_retry",
+      action: caseReceipts.length ? "delivery_provider_send_required" : "delivery_receipt_probe_required",
+      severity: caseReceipts.length ? "medium" : "high",
+      reason: caseReceipts.length
+        ? "Only sandbox delivery metadata exists; provider delivery is not configured."
+        : "No delivery receipt has been recorded for this support case.",
+      endpoint: "POST /api/messages/deliveries"
+    });
+  }
+
+  if (!supportCase.dueAt) {
+    actions.push({
+      lane: "sla_clock",
+      action: "sla_due_at_required",
+      severity: "medium",
+      reason: "Support case has no server-owned SLA due time.",
+      endpoint: "POST /api/support/cases/:id/sla-actions"
+    });
+  } else if (!closed && dueAtMs !== null && dueAtMs < createdAtMs) {
+    actions.push({
+      lane: "sla_clock",
+      action: "sla_overdue_escalation_candidate",
+      severity: "high",
+      reason: "SLA due time has passed and closeout remains blocked.",
+      endpoint: "POST /api/support/cases/:id/sla-actions"
+    });
+  } else if (!caseSlaActions.length) {
+    actions.push({
+      lane: "sla_clock",
+      action: "sla_tick_not_yet_recorded",
+      severity: "low",
+      reason: "SLA due time exists but no worker/action tick has been recorded.",
+      endpoint: "POST /api/support/cases/:id/sla-actions"
+    });
+  }
+
+  const providerCallbackVerified = caseCallbacks.some(row => row.providerVerified === true && /^verified/i.test(row.signatureStatus || ""));
+  if (!caseCallbacks.length || supportCase.providerCallbackStatus === "provider_callback_not_verified" || !providerCallbackVerified) {
+    actions.push({
+      lane: "provider_callback_review",
+      action: caseCallbacks.length ? "callback_secret_required_no_money" : "provider_callback_replay_required",
+      severity: "medium",
+      reason: "Provider callback proof is not verified; proof-before-release remains required.",
+      endpoint: "POST /api/providers/callbacks/:rail"
+    });
+  }
+
+  if (!supportCareNoteChainOk(caseCareNotes)) {
+    actions.push({
+      lane: "care_audit_gap",
+      action: caseCareNotes.length ? "care_note_chain_review_required" : "care_note_required_before_closeout",
+      severity: caseCareNotes.length ? "medium" : "high",
+      reason: caseCareNotes.length
+        ? "Care-note chain exists but needs append-only/hash review."
+        : "No care note is attached to this support case.",
+      endpoint: "POST /api/audit/care-notes"
+    });
+  }
+
+  return actions.map(action => ({
+    ...action,
+    id: `worker_action_${supportCase.id}_${action.lane}_${action.action}`,
+    supportCaseId: supportCase.id,
+    ownerQueue: supportCase.ownerQueue || "review_ops",
+    priority: supportCase.priority || "normal",
+    status: "queued_for_review_only",
+    providerCalled: false,
+    moneyMovementEnabled: false
+  }));
+}
+
+function supportWorkerAlertForCase(supportCase, actions = []) {
+  if (!actions.length) return null;
+  const priority = cleanWalletText(supportCase.priority, "normal").toLowerCase();
+  const severe = actions.filter(row => row.severity === "high");
+  if (!severe.length && !["high", "urgent", "critical"].includes(priority)) return null;
+  return {
+    id: `support_alert_${supportCase.id}`,
+    supportCaseId: supportCase.id,
+    ownerQueue: supportCase.ownerQueue || "review_ops",
+    priority: supportCase.priority || "normal",
+    severity: severe.length ? "high" : "medium",
+    title: severe.length ? "Support case needs owner action now" : "High-priority case has open worker actions",
+    actionCount: actions.length,
+    highActionCount: severe.length,
+    providerCalled: false,
+    moneyMovementEnabled: false,
+    status: "owner_alert_review_only"
+  };
+}
+
+function supportWorkerPlan(store, profile) {
+  const generatedAt = nowISO();
+  const index = supportWorkerIndex(store, profile);
+  const caseActions = index.cases.flatMap(row => supportWorkerCaseActions(row, index, generatedAt));
+  const alerts = index.cases
+    .map(row => supportWorkerAlertForCase(row, caseActions.filter(action => action.supportCaseId === row.id)))
+    .filter(Boolean);
+  const laneCounts = Object.fromEntries(SUPPORT_WORKER_LANES.map(lane => [
+    lane.id,
+    caseActions.filter(action => action.lane === lane.id).length
+  ]));
+  return {
+    status: "support_worker_plan_review_only",
+    generatedAt,
+    serviceRoleRequiredInProduction: true,
+    currentScope: canModerate(profile) ? "moderator_all_cases" : "authenticated_visible_cases_only",
+    lanes: SUPPORT_WORKER_LANES.map(lane => ({ ...lane, pendingActions: laneCounts[lane.id] || 0 })),
+    counts: {
+      supportCases: index.cases.length,
+      deliveryReceipts: index.deliveryReceipts.length,
+      slaActions: index.slaActions.length,
+      providerCallbacks: index.callbacks.length,
+      careNotes: index.careNotes.length,
+      workerActions: caseActions.length,
+      ownerAlerts: alerts.length
+    },
+    nextActions: caseActions.slice(0, 40),
+    ownerAlerts: alerts.slice(0, 20),
+    providerCalled: false,
+    deliveryProviderCalled: false,
+    alertProviderCalled: false,
+    rawProviderPayloadStored: false,
+    moneyMovementEnabled: false,
+    closeoutApproved: false
+  };
+}
+
+function buildSupportWorkerRun(store, profile, body = {}) {
+  const generatedAt = nowISO();
+  const laneFilter = Array.isArray(body.lanes) && body.lanes.length
+    ? new Set(body.lanes.map(row => cleanWalletText(row, "").slice(0, 80)).filter(Boolean))
+    : null;
+  const index = supportWorkerIndex(store, profile);
+  let actions = index.cases.flatMap(row => supportWorkerCaseActions(row, index, generatedAt));
+  if (laneFilter) actions = actions.filter(row => laneFilter.has(row.lane));
+  const alerts = index.cases
+    .map(row => supportWorkerAlertForCase(row, actions.filter(action => action.supportCaseId === row.id)))
+    .filter(Boolean);
+  const laneCounts = Object.fromEntries(SUPPORT_WORKER_LANES.map(lane => [
+    lane.id,
+    actions.filter(action => action.lane === lane.id).length
+  ]));
+  return {
+    id: `support_worker_run_${crypto.randomUUID()}`,
+    status: "support_worker_dry_run_review_only",
+    mode: cleanWalletText(body.mode, "dry_run").slice(0, 80),
+    actorId: profile.id,
+    actorRole: profile.role,
+    scope: canModerate(profile) ? "moderator_all_cases" : "authenticated_visible_cases_only",
+    generatedAt,
+    lanes: SUPPORT_WORKER_LANES.map(lane => ({ ...lane, pendingActions: laneCounts[lane.id] || 0 })),
+    counts: {
+      supportCases: index.cases.length,
+      deliveryReceipts: index.deliveryReceipts.length,
+      slaActions: index.slaActions.length,
+      providerCallbacks: index.callbacks.length,
+      careNotes: index.careNotes.length,
+      workerActions: actions.length,
+      ownerAlerts: alerts.length
+    },
+    actions: actions.slice(0, 120),
+    ownerAlerts: alerts.slice(0, 60),
+    providerCalled: false,
+    deliveryProviderCalled: false,
+    alertProviderCalled: false,
+    rawProviderPayloadStored: false,
+    serviceRoleRequiredInProduction: true,
+    closeoutApproved: false,
+    walletCreditEnabled: false,
+    refundReleaseEnabled: false,
+    payoutEnabled: false,
+    founderRevenueRecognized: false,
+    moneyMovementEnabled: false,
+    nonSettling: true
   };
 }
 
@@ -9316,7 +9580,7 @@ function schema() {
       auth: ["POST /api/auth/register", "POST /api/auth/login", "GET /api/me"],
       profiles: ["PATCH /api/profiles/me", "GET /api/discover"],
       social: ["GET /api/feed", "POST /api/posts", "POST /api/messages", "POST /api/followups"],
-      support: ["GET /api/support/cases", "POST /api/support/cases", "POST /api/messages/deliveries", "POST /api/support/cases/:id/sla-actions", "POST /api/providers/callbacks/:rail", "GET /api/audit/care-notes", "POST /api/audit/care-notes"],
+      support: ["GET /api/support/cases", "POST /api/support/cases", "GET /api/support/worker-plan", "POST /api/support/worker-runs", "POST /api/messages/deliveries", "POST /api/support/cases/:id/sla-actions", "POST /api/providers/callbacks/:rail", "GET /api/audit/care-notes", "POST /api/audit/care-notes"],
       commerce: ["GET /api/listings", "POST /api/listings", "POST /api/delivery/quote", "POST /api/orders/checkout", "PATCH /api/orders/:id/status", "POST /api/payments/intent"],
       delivery: ["POST /api/delivery/jobs", "GET /api/delivery/jobs/available", "POST /api/delivery/jobs/:id/accept", "PATCH /api/delivery/jobs/:id/status", "POST /api/delivery/jobs/:id/proof", "POST /api/delivery/jobs/:id/incidents", "POST /api/delivery/webhooks/:provider", "POST /api/couriers/register", "PATCH /api/couriers/me/shift", "GET /api/couriers/me/payouts"],
       bookings: ["POST /api/bookings", "PATCH /api/bookings/:id/complete"],
@@ -9553,6 +9817,48 @@ async function handle(req, res) {
         slaWorkerRequired: true,
         careAuditRequired: true,
         providerCalled: false,
+        moneyMovementEnabled: false
+      });
+    }
+
+    if (key === "GET /api/support/worker-plan") {
+      ensureSupportBackendStore(store);
+      const plan = supportWorkerPlan(store, profile);
+      return send(res, 200, {
+        plan,
+        status: plan.status,
+        serviceRoleRequiredInProduction: true,
+        providerCalled: false,
+        moneyMovementEnabled: false
+      });
+    }
+
+    if (key === "POST /api/support/worker-runs") {
+      ensureSupportBackendStore(store);
+      const body = await readJson(req);
+      const row = buildSupportWorkerRun(store, profile, body);
+      store.supportWorkerRuns.unshift(row);
+      store.supportWorkerRuns = store.supportWorkerRuns.slice(0, 1000);
+      audit(store, user.id, "support.worker.dry_run", "support_worker_run", row.id, {
+        scope: row.scope,
+        counts: row.counts,
+        actionCount: row.actions.length,
+        ownerAlertCount: row.ownerAlerts.length,
+        providerCalled: false,
+        deliveryProviderCalled: false,
+        alertProviderCalled: false,
+        moneyMovementEnabled: false
+      });
+      await saveStore(store, storePath);
+      return send(res, 202, {
+        workerRun: row,
+        status: row.status,
+        serviceRoleRequiredInProduction: true,
+        providerCalled: false,
+        deliveryProviderCalled: false,
+        alertProviderCalled: false,
+        rawProviderPayloadStored: false,
+        closeoutApproved: false,
         moneyMovementEnabled: false
       });
     }

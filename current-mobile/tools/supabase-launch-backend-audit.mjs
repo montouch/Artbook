@@ -8,17 +8,19 @@ const supportMigrationPath = path.join(root, "supabase", "migrations", "20260605
 const functionPath = path.join(root, "supabase", "functions", "provider-webhook", "index.ts");
 const configPath = path.join(root, "supabase", "config.toml");
 const docsPath = path.join(root, "docs", "SUPABASE_LAUNCH_BACKEND.md");
+const serverPath = path.join(root, "server", "src", "server.mjs");
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-const [migration, supportMigration, edgeFunction, config, docs] = await Promise.all([
+const [migration, supportMigration, edgeFunction, config, docs, server] = await Promise.all([
   readFile(migrationPath, "utf8"),
   readFile(supportMigrationPath, "utf8"),
   readFile(functionPath, "utf8"),
   readFile(configPath, "utf8"),
-  readFile(docsPath, "utf8")
+  readFile(docsPath, "utf8"),
+  readFile(serverPath, "utf8")
 ]);
 
 const allMigrations = `${migration}\n${supportMigration}`;
@@ -89,6 +91,14 @@ assert(docs.includes("Supabase: connected"), "docs should capture connector stat
 assert(docs.includes("Convex: used for scaling guidance"), "docs should capture Convex guidance usage");
 assert(docs.includes("Base44: connected"), "docs should capture Base44 status");
 assert(docs.includes("must not claim Artbook directly holds escrow"), "docs must preserve provider-led money boundary");
+assert(docs.includes("POST /api/support/worker-runs"), "docs should capture support worker proof route");
+
+assert(server.includes("GET /api/support/worker-plan"), "server schema missing support worker plan route");
+assert(server.includes("POST /api/support/worker-runs"), "server schema missing support worker run route");
+assert(server.includes("support_worker_dry_run_review_only"), "server must keep support worker runs review-only");
+assert(server.includes("deliveryProviderCalled: false"), "support worker must not call delivery providers");
+assert(server.includes("alertProviderCalled: false"), "support worker must not call alert providers");
+assert(server.includes("serviceRoleRequiredInProduction: true"), "support worker proof must require service-role worker in production");
 
 const policyCount = (allMigrations.match(/create policy /g) || []).length;
 assert(policyCount >= 30, `expected at least 30 RLS policies, found ${policyCount}`);
@@ -97,6 +107,7 @@ console.log(JSON.stringify({
   ok: true,
   migrations: [path.relative(root, migrationPath), path.relative(root, supportMigrationPath)],
   edgeFunction: path.relative(root, functionPath),
+  server: path.relative(root, serverPath),
   tables: requiredTables.length,
   rlsPolicies: policyCount,
   boundaries: {
