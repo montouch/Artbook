@@ -17096,3 +17096,38 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - apply the same reference-frame polish to Events/Tickets or Marketplace item detail checkout, especially capacity, transfer/support states and proof-before-release handoff.
+
+### 2026-06-05 21:05 +09:30 - Events ticket ops frame and Motorola ticket proof
+- Scope:
+  - Continued the Figma-reference UI shell work on Events/Tickets after Marketplace gained the proof journey rail.
+  - Focused on event-booking, journey-map and wallet/payment-status reference needs: door readiness, ticket capacity, resale/pass controls, support closeout and provider-led payment review.
+  - Preserved Play Store-safe wording: provider-led hold, proof before release, owner-scoped event ops and no local settlement.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added a new `Door readiness and ticket ops` frame inside the reference-mode Events page.
+    - Added staged cards for Door checks, Capacity, Pass tools and Closeout hold.
+    - Added visible safety chips: Venue proof, Capacity cap, Resale cap, Owner scoped, Provider-led hold and No local settlement.
+    - Added dark-mode styling and responsive grid rules for the new Events/Tickets ops surface.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - Source inspection confirmed `Door readiness and ticket ops`, `Door checks`, `Capacity`, `Pass tools`, `Closeout hold`, `Provider-led hold` and `No local settlement` markers are present.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,741,322 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Recent logcat after launch showed no Artbook `AndroidRuntime` fatal exception.
+  - Navigated on-device to Marketplace > Tickets; UI tree confirmed the ticket shelf shows event cards, KES pricing, provider-led checkout, issued/capacity counts and resale status.
+  - Captured on-device ticket shelf screenshot at `phone-artbook-events-ticket-shelf-check.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Events/Tickets UI-flow pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - The current signed APK account could open the ticket shelf but not an organizer-owned event-ops sheet without mutating demo account state; browser/source audits covered the Events ops frame.
+  - No live provider, settlement, KYC/KYB, ticket settlement webhook or venue verification provider is connected from the APK; this remains a front-end evidence/status surface.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - polish Event detail / Ticket pass sheets so customer-facing ticket proof, transfer, support and closeout states match the new Events ops frame.
