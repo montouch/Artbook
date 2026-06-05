@@ -17301,3 +17301,37 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
 - Next focus:
   - start implementing or scaffolding the real backend support tables/routes in the chosen backend stack, or add a hosted-backend proof checklist for support delivery and callback verification.
+
+### 2026-06-05 22:17 +09:30 - Hosted support backend proof checklist
+- Scope:
+  - Continued backend/provider readiness by adding a hosted-backend proof checklist under the support readiness board.
+  - Focused on proof needed before support delivery, SLA timers, provider callback replay, immutable care audit and failure alerts can be trusted in production.
+  - Preserved Play Store-safe wording: this is Review Ops evidence only; Android cannot approve providers, move money, settle refunds, release payouts or recognize founder revenue.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `Copy hosted support backend proof checklist` under `Support backend readiness`.
+    - Added proof lanes for public HTTPS support host, role-scoped support auth, delivery receipt probe, SLA worker proof, provider callback replay, immutable care audit proof and failure alert owner.
+    - Added a copyable `Artbook Hosted Support Backend Proof Checklist - Review Ops Handoff` packet with minimum hosted probes and fail-closed rules.
+    - Added `App.copySupportHostedBackendProofPacket()` so copying the checklist records a backend audit handoff without changing message delivery, provider callback, wallet, refund, payout, settlement or founder revenue state.
+- Verification:
+  - Used bundled Codex Node runtime.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - Source markers confirm `data-support-hosted-backend-proof`, `supportHostedBackendProofPacketText`, `copySupportHostedBackendProofPacket`, `Hosted support backend proof checklist` and `Failure alert owner` are present.
+- Rebuild / device:
+  - Rebuilt `incoming\Artbook-transfer-v181\artbook-phone-install.apk` and copied the fresh APK to `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK verifies with v1, v2 and v3 signing. Output size: 31,749,514 bytes. Signing source: default debug keystore.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G`.
+  - Relaunched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity`, `mFocusedApp=...com.steward.artbook/.MainActivity`, keyguard not showing and device awake.
+  - Recent logcat after launch showed no Artbook `AndroidRuntime` fatal exception.
+  - Used the live WebView devtools target for the installed app to open Backend Sync; DOM confirmed the hosted support proof panel, packet textarea, copy method, public host lane, delivery probe, failure-alert lane, provider-callback probe and fail-closed packet boundary.
+  - Captured on-device screenshot at `phone-artbook-support-hosted-backend-proof.png`.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected backend/provider readiness pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - This is a hosted proof checklist only. No public HTTPS support backend, role-scoped auth probe, delivery receipt provider, SLA worker, provider callback replay service, immutable audit table or alerting stack is connected from the APK.
+  - Figma Make remains account-credit blocked, so this pass was implemented directly in source from the supplied reference direction.
+- Next focus:
+  - begin actual backend scaffolding for support cases, care-note audit rows, delivery receipts and SLA/callback routes, or continue UI/product polish on the next high-risk paid/support flow.
