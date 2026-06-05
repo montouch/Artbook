@@ -16333,3 +16333,55 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
 - Next focus:
   - port Business Owner Desk or Jobs/Work Detail into the same Figma-boss launch shell next, then use the backend connectors once a stable operational surface is ready for real provider/data wiring.
+
+### 2026-06-05 14:23 +09:30 - Figma AI boss Business Owner Desk shell
+- Scope:
+  - Founder-selected UI launch-readiness pass after Menu / Settings.
+  - Ported Business Owner Desk / Business OS into a new Figma-boss first viewport for Kenya-first business operations.
+  - Kept the existing live Business OS, feature map and production boundary below the new shell behind a `Live owner engine` divider.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Added `.figma-ai-business-os*` premium shell styles with light and dark-mode support.
+    - Added `figmaAiBossBusinessOSHTML(...)` using live owner metrics for sales, bookings, orders, stock, customers, staff, trust, backend and provider-money review.
+    - Updated `App.businessSystemDesk()` so reference mode opens with the new Business Owner Desk shell, then preserves the existing operating system checks and command maps.
+    - First viewport now shows a premium owner header, hero, KES net sales, booking/system KPIs, six owner command tiles, money/work mix bars, five proof-journey stages, launch system chips and a provider-led money boundary.
+    - Preserved Play Store-safe language: Artbook shows KES status, receipts, proof before release and partner review only; it does not claim direct escrow custody, settlement, payout release or Android creator monetization.
+- Figma evidence / limitation:
+  - Figma connector calls:
+    - DesignCode node `AeqniKnhiv2DmVn0SrcQnf / 198:29982` exposed usable button/glass tokens: Inter 13/20, 8px radius, blur and layered shadow.
+    - Data Visualization node `azzgiPBD8sz4doKwWJkisq / 55:23` exposed only the `Hey!` headline layer, so analytics direction was implemented using original Artbook bars and live data.
+    - SaaS Website node `24XGHkBZDBt2szuI6DjsHX / 2012:608` again required an active Figma layer selection, so it remained product/layout direction rather than a direct layer import.
+- Visible UI review:
+  - Targeted Playwright Business OS probe opened `riley_biz` in reference mode.
+  - Confirmed `.figma-ai-business-os` exists, six command tiles, five journey stages, four analytics bars, the `Live owner engine` divider, white hero text and no page/console errors.
+  - Light screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\business-os-figma-boss-light-settled.png`.
+  - Dark screenshot saved at `incoming\Artbook-transfer-v181\build\artbook-apk\business-os-figma-boss-dark-settled.png`.
+- Verification:
+  - Used bundled Codex Node runtime because system `node.exe` can return Windows `Access is denied`.
+  - `tools\smoke-test-artbook.mjs`: passed, top nav/dock/main present, no boot error, no page errors and no console errors.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+  - `tools\tap-audit-artbook.mjs`: passed, 116 clicks, 0 failures, no page errors and no console errors.
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures, 0 warnings, no page errors and no console errors.
+- Rebuild:
+  - Real shell rebuild completed with `tools\build-native-artbook-apk.mjs`.
+  - APK: `incoming\Artbook-transfer-v181\artbook-phone-install.apk`.
+  - Desktop copy: `C:\Users\brown\OneDrive\Desktop\artbook-phone-install.apk`.
+  - APK SHA-256: `55BC834F30F357F50C719BC758DEA46CD29DF79F49D0BD99F5DC059095A8C015`.
+  - Version: `1.181` / versionCode `181`; size `31,720,842` bytes.
+  - Signature schemes verified: v1, v2, v3.
+- ADB/Motorola:
+  - `tools\phone-install-readiness.mjs` selected `ZY22JSRL8G` and reported `ready_in_place_signature_matches`.
+  - `adb -s ZY22JSRL8G install -r incoming\Artbook-transfer-v181\artbook-phone-install.apk` succeeded.
+  - Package readback after install: version `1.181`, versionCode `181`, lastUpdateTime `2026-06-05 14:22:17`.
+  - `adb -s ZY22JSRL8G shell monkey -p com.steward.artbook -c android.intent.category.LAUNCHER 1` launched the app.
+  - `pidof com.steward.artbook` returned `13089`; `dumpsys activity` reported `com.steward.artbook/.MainActivity` resumed and focused.
+  - Recent logcat scan found no `AndroidRuntime` or `FATAL EXCEPTION` crash lines for Artbook.
+- Moto World:
+  - no Moto World item was archived because this was a founder-selected Figma/UI shell pass, not a Moto World-supplied issue.
+  - Moto World remains AI-labeled, owner-controlled and alive.
+- Blockers / notes:
+  - Exact pixel copy from the Figma Community files remains limited when the connector exposes only partial layers or requires the user-selected Figma layer.
+  - Live Supabase/Convex/Base44 backend provisioning, provider callback replay against real sandbox credentials, Play release signing and production payment/legal review remain external launch blockers.
+- Next focus:
+  - port Jobs / Work Detail or Booking Detail into the same Figma-boss proof-journey shell, with provider-led money language, mutual approval gates, delivery/proof timelines and clean mobile status cards.
