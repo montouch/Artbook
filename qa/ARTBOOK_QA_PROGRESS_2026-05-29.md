@@ -16954,3 +16954,27 @@ Android rejects the patched local-debug APK as an in-place update because it is 
   - Figma Make remains blocked by account AI credits until July 4.
 - Next focus:
   - extend the same frame-by-frame treatment beyond Home into Calendar/Booking detail, Wallet/payment partner status, Marketplace product detail, Events/Tickets and Inbox so the whole app shell carries the same reference-quality flow.
+
+### 2026-06-05 20:08 +09:30 - Motorola install and Home money-card visual fix
+- Scope:
+  - Retried Motorola install after the phone came online.
+  - Caught and fixed an on-device Home hero issue where the provider-review label/copy overlapped the KES amount inside the new reference-mode money card.
+- Changed:
+  - `incoming\Artbook-transfer-v181\src\artbook-mobile.html`
+    - Reworked `.figma-ai-home-money-v3` into a stable icon plus content grid.
+    - Moved the `Provider review total` label into the money-card content lane and clamped the KES amount responsively.
+- Verification:
+  - `tools\visual-audit-artbook.mjs`: passed 90 checked with 0 problems.
+  - `tools\smoke-test-artbook.mjs`: passed with no boot/page/console errors.
+  - `tools\accessibility-audit-artbook.mjs`: passed 102 checked with 0 failures and 0 warnings.
+  - `tools\state-flow-audit-artbook.mjs`: passed all 39 checks with 0 failures.
+- Rebuild / device:
+  - Rebuilt `artbook-phone-install.apk`; v1/v2/v3 signing verified.
+  - Installed successfully on Motorola `motorola_edge_50_pro` serial `ZY22JSRL8G` using `adb install -r -d`.
+  - Launched `com.steward.artbook/.MainActivity`; foreground proof showed `mCurrentFocus=...com.steward.artbook/com.steward.artbook.MainActivity` and `mFocusedApp=...com.steward.artbook/.MainActivity`.
+  - Recent logcat after launch showed no `AndroidRuntime` fatal exception for Artbook.
+  - Captured on-device Home screenshot at `phone-artbook-current-check.png`.
+- Blockers / notes:
+  - None for install/launch. Device was online and accepted the update without uninstalling or wiping app data.
+- Next focus:
+  - continue applying the same Figma-reference look/layout/flow pass to Booking detail, Wallet/payment partner status, Marketplace detail, Events/Tickets and Inbox.
